@@ -39,13 +39,13 @@ LOCAL_SRC_FILES := extern/libcapstone.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := beatsaber-hook_1_2_3
+LOCAL_MODULE := beatsaber-hook_3_0_1
 LOCAL_SRC_FILES += $(call rwildcard,src/utils,*.cpp)
 LOCAL_SRC_FILES += $(call rwildcard,src/config,*.cpp)
 LOCAL_SHARED_LIBRARIES += modloader
 LOCAL_STATIC_LIBRARIES += capstone
 LOCAL_LDLIBS += -llog
-LOCAL_CFLAGS += -DVERSION='"1.2.3"' -isystem 'extern/libil2cpp/il2cpp/libil2cpp' -D'UNITY_2019' -Wall -Wextra -Werror -Wno-unused-function -DID='"beatsaber-hook"' -I'./shared' -isystem 'extern'
+LOCAL_CFLAGS += -DVERSION='"3.0.1"' -isystem 'extern/libil2cpp/il2cpp/libil2cpp' -D'UNITY_2019' -Wall -Wextra -Werror -Wno-unused-function -DID='"beatsaber-hook"' -I'./shared' -isystem 'extern'
 LOCAL_C_INCLUDES += ./shared
 LOCAL_CPP_FEATURES += exceptions rtti
 include $(BUILD_SHARED_LIBRARY)
