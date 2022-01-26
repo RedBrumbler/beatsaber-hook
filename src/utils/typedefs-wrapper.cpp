@@ -47,7 +47,7 @@ namespace detail {
 
 StringW::operator std::string() {
     std::string val;
-    val.resize(inst->length, '\0');
+    val.resize(inst->length * 2, '\0');
     il2cpp_utils::detail::convstr(inst->chars, val.data(), inst->length);
     val.shrink_to_fit();
     return val;
