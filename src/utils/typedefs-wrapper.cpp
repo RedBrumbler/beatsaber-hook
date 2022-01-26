@@ -3,6 +3,7 @@
 #include "../../shared/utils/il2cpp-functions.hpp"
 #include "../../shared/utils/typedefs.h"
 #include <locale>
+#include <string.h>
 
 std::unordered_map<void*, size_t> Counter::addrRefCount;
 std::shared_mutex Counter::mutex;
@@ -49,7 +50,7 @@ StringW::operator std::string() {
     std::string val;
     val.resize(inst->length * 2, '\0');
     il2cpp_utils::detail::convstr(inst->chars, val.data(), inst->length);
-    val.shrink_to_fit();
+    val.resize(strlen(val.data()), '\0');
     return val;
 }
 
