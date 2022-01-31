@@ -419,6 +419,11 @@ struct ArrayW {
     operator bool() const noexcept {
         return val != nullptr;
     }
+    
+    template<typename D = T>
+    static ArrayW<T> Empty() noexcept {
+        return ArrayW<T>(static_cast<il2cpp_array_size_t>(0));
+    }
 
     T First() {
         if (Length() > 0)
