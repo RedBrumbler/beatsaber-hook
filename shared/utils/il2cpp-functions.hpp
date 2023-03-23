@@ -270,6 +270,10 @@ class il2cpp_functions {
     #endif
     #ifndef UNITY_2021
     API_FUNC(void*, unity_liveness_calculation_begin, (Il2CppClass * filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_WorldChangedCallback onWorldStarted, il2cpp_WorldChangedCallback onWorldStopped));
+    #else
+    API_FUNC(void*, il2cpp_unity_liveness_allocate_struct, (Il2CppClass * filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_liveness_reallocate_callback reallocate));
+    API_FUNC(void, il2cpp_unity_liveness_finalize, (void* state));
+    API_FUNC(void, il2cpp_unity_liveness_free_struct, (void* state));
     #endif
     API_FUNC(void, unity_liveness_calculation_end, (void* state));
     API_FUNC(void, unity_liveness_calculation_from_root, (Il2CppObject * root, void* state));
@@ -470,6 +474,14 @@ class il2cpp_functions {
         ptrdiff_t index = reinterpret_cast<Il2CppGenericParameter const*>(genericParameter) - reinterpret_cast<Il2CppGenericParameter const*>(genericParameters);
         IL2CPP_ASSERT(index <= std::numeric_limits<GenericParameterIndex>::max());
         return static_cast<GenericParameterIndex>(index);
+    }
+
+    static const Il2CppTypeDefinition* MetadataCache_GetTypeDefinition(Il2CppClass* klass) {
+        return reinterpret_cast<const Il2CppTypeDefinition*>(klass->typeMetadataHandle);
+    }
+
+    static GenericParameterIndex MetadataCache_GetGenericContainerIndex(Il2CppClass* klass) {
+        return MetadataCache_GetTypeDefinition(klass)->genericContainerIndex;
     }
     static Il2CppClass* MetadataCache_GetNestedTypeFromIndex(NestedTypeIndex index);
     static TypeDefinitionIndex MetadataCache_GetIndexForTypeDefinition(const Il2CppClass* typeDefinition);

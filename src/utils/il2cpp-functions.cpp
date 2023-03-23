@@ -153,8 +153,14 @@ API_INIT(uint32_t, offset_of_array_length_in_array_object_header, ());
 API_INIT(uint32_t, offset_of_array_bounds_in_array_object_header, ());
 API_INIT(uint32_t, allocation_granularity, ());
 #endif
+#if !defined(UNITY_2021)
 API_INIT(void*, unity_liveness_calculation_begin, (Il2CppClass * filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_WorldChangedCallback onWorldStarted, il2cpp_WorldChangedCallback onWorldStopped));
 API_INIT(void, unity_liveness_calculation_end, (void* state));
+#else
+API_INIT(void*, il2cpp_unity_liveness_allocate_struct, (Il2CppClass * filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_liveness_reallocate_callback reallocate));
+API_INIT(void, il2cpp_unity_liveness_finalize, (void* state));
+API_INIT(void, il2cpp_unity_liveness_free_struct, (void* state));
+#endif
 API_INIT(void, unity_liveness_calculation_from_root, (Il2CppObject * root, void* state));
 API_INIT(void, unity_liveness_calculation_from_statics, (void* state));
 API_INIT(const Il2CppType*, method_get_return_type, (const MethodInfo * method));
@@ -361,14 +367,15 @@ Il2CppClass* il2cpp_functions::MetadataCache_GetNestedTypeFromIndex(NestedTypeIn
     return il2cpp_functions::MetadataCache_GetTypeInfoFromTypeDefinitionIndex(nestedTypeIndices[index]);
 }
 
-TypeDefinitionIndex il2cpp_functions::MetadataCache_GetIndexForTypeDefinition(const Il2CppClass* typeDefinition) {
+TypeDefinitionIndex il2cpp_functions::MetadataCache_GetIndexForTypeDefinition(const Il2CppClass* klass) {
     CheckS_GlobalMetadata();
-    IL2CPP_ASSERT(typeDefinition->typeDefinition);
+    IL2CPP_ASSERT(klass);
     const Il2CppTypeDefinition* typeDefinitions = (const Il2CppTypeDefinition*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->typeDefinitionsOffset);
 
-    IL2CPP_ASSERT(typeDefinition->typeDefinition >= typeDefinitions && typeDefinition->typeDefinition < typeDefinitions + s_GlobalMetadataHeader->typeDefinitionsCount);
+    IL2CPP_ASSERT(typeDefinition >= typeDefinitions && typeDefinition < typeDefinitions + s_GlobalMetadataHeader->typeDefinitionsSize / sizeof(Il2CppTypeDefinition));
 
-    ptrdiff_t index = typeDefinition->typeDefinition - typeDefinitions;
+    const Il2CppTypeDefinition* typeDefinition = reinterpret_cast<const Il2CppTypeDefinition*>(klass->typeMetadataHandle);
+    ptrdiff_t index = typeDefinition - typeDefinitions;
     IL2CPP_ASSERT(index <= std::numeric_limits<TypeDefinitionIndex>::max());
     return static_cast<TypeDefinitionIndex>(index);
 }
