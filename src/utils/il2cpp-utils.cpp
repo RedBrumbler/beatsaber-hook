@@ -42,7 +42,7 @@ namespace il2cpp_utils {
         if (method->parameters_count != argTypes.size()) {
             return false;
         }
-        auto genCount = (method->is_generic && !method->is_inflated) ? method->genericContainer->type_argc : 0;
+        auto genCount = (method->is_generic && !method->is_inflated) ? reinterpret_cast<Il2CppGenericContainer const*>(method->genericContainerHandle)->type_argc : 0;
         if ((size_t)genCount != genTypes.size()) {
             logger.warning("Potential method match had wrong number of generics %i (expected %lu)",
                 genCount, genTypes.size());
@@ -50,9 +50,10 @@ namespace il2cpp_utils {
         }
         // TODO: supply boolStrictMatch and use type_equals instead of IsConvertibleFrom if supplied?
         for (decltype(method->parameters_count) i = 0; i < method->parameters_count; i++) {
-            auto* paramType = method->parameters[i].parameter_type;
+            auto* paramType = method->parameters[i];
             if (paramType->type == IL2CPP_TYPE_MVAR) {
-                auto genIdx = paramType->data.genericParameterIndex - method->genericContainer->genericParameterStart;
+
+                auto genIdx = il2cpp_functions::MetadataCache_GetGenericParameterIndexFromParameter(paramType->data.genericParameterHandle) - reinterpret_cast<Il2CppGenericContainer const*>(method->genericContainerHandle)->genericParameterStart;
                 if (genIdx < 0) {
                     logger.warning("Extracted invalid genIdx %i from parameter %i", genIdx, i);
                 } else if (genIdx >= genCount) {
@@ -250,11 +251,11 @@ namespace il2cpp_utils {
         }
         obj->klass = const_cast<Il2CppClass*>(klass);
         // Call cctor, we don't bother making a new thread for the type initializer. BE WARNED!
-        if (klass->has_cctor && !klass->cctor_finished && !klass->cctor_started) {
+        if (klass->has_cctor && !klass->cctor_finished_or_no_cctor && !klass->cctor_started) {
             obj->klass->cctor_started = true;
             auto* m = RET_0_UNLESS(logger, FindMethodUnsafe(klass, ".cctor", 0));
             RET_0_UNLESS(logger, il2cpp_utils::RunStaticMethodUnsafe(m));
-            obj->klass->cctor_finished = true;
+            obj->klass->cctor_finished_or_no_cctor = true;
         }
         return obj;
     }
@@ -269,7 +270,7 @@ namespace il2cpp_utils {
         }
         obj->klass = const_cast<Il2CppClass*>(klass);
         // Call cctor, we don't bother making a new thread for the type initializer. BE WARNED!
-        if (klass->has_cctor && !klass->cctor_finished && !klass->cctor_started) {
+        if (klass->has_cctor && !klass->cctor_finished_or_no_cctor && !klass->cctor_started) {
             obj->klass->cctor_started = true;
             auto* m = FindMethodUnsafe(klass, ".cctor", 0);
             if (!m) {
@@ -278,7 +279,7 @@ namespace il2cpp_utils {
             if (!il2cpp_utils::RunStaticMethodUnsafe(m)) {
                 throw exceptions::StackTraceException("Failed to run .cctor method!");
             }
-            obj->klass->cctor_finished = true;
+            obj->klass->cctor_finished_or_no_cctor = true;
         }
         return obj;
     }

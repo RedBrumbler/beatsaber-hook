@@ -156,7 +156,7 @@ namespace il2cpp_utils {
         if constexpr (what_able<T>) {
             allocEx->message = newcsstr(arg.what());
         }
-        #ifdef UNITY_2019
+        #if defined(UNITY_2019) || defined(UNITY_2021)
         raise(allocEx);
         #else
         #warning "Raising C++ exceptions without il2cpp_functions::raise is undefined behavior!"
@@ -198,10 +198,11 @@ namespace il2cpp_utils {
             method->return_type = invoke->return_type;
             method->parameters_count = invoke->parameters_count;
             method->slot = kInvalidIl2CppMethodSlot;
-            method->is_marshaled_from_native = true;  // "a fake MethodInfo wrapping a native function pointer"
+            // FIXME: is_marshaled_from_native doesn't exist anymore, should be something else
+            // method->is_marshaled_from_native = true;  // "a fake MethodInfo wrapping a native function pointer"
             if (obj == nullptr) method->flags |= METHOD_ATTRIBUTE_STATIC;
             AddAllocatedDelegate({callbackPtr, obj == nullptr}, method);
-        }        
+        }
         // In the event that a function is static, this will behave as normal
         // Yes, we mutate the held one as well. This is okay because we will ALWAYS mutate it.
         auto* delegate = RET_DEFAULT_UNLESS(logger, il2cpp_utils::NewUnsafe<T>(delegateClass, obj, &method));
@@ -430,7 +431,7 @@ namespace il2cpp_utils {
     /// @param delegateClass The Il2CppClass* of the delegate to create.
     /// @param instance The (move constructible) instance reference to provide to the delegate. This instance is moved and will no longer be valid.
     /// @param memberFunc A pointer to the member function on the provided instance to invoke for this delegate.
-    /// @return The created delegate. 
+    /// @return The created delegate.
     template<typename T = MulticastDelegate*, class I, class R, class... TArgs>
     [[deprecated("DO NOT USE! USE custom_types INSTEAD!")]] inline T MakeDelegate(const Il2CppClass* delegateClass, I& instance, R (I::*memberFunc)(TArgs...)) {
         return MakeDelegate<T>(delegateClass, instance, std::function<R(I*, TArgs...)>(memberFunc));
@@ -443,7 +444,7 @@ namespace il2cpp_utils {
     /// @tparam TArgs The arguments of the delegate.
     /// @param instance The (move constructible) instance reference to provide to the delegate. This instance is moved and will no longer be valid.
     /// @param memberFunc A pointer to the member function on the provided instance to invoke for this delegate.
-    /// @return The created delegate. 
+    /// @return The created delegate.
     template<typename T = MulticastDelegate*, class I, class R, class... TArgs>
     [[deprecated("DO NOT USE! USE custom_types INSTEAD!")]] inline T MakeDelegate(I& instance, R (I::*memberFunc)(TArgs...)) {
         return MakeDelegate<T>(classof(T), instance, std::function<R(I*, TArgs...)>(memberFunc));
@@ -596,7 +597,8 @@ namespace il2cpp_utils {
             auto* params = info->parameters;
             // Because we check arguments left to right, we can take advantage of params++ to iterate through the elements.
             // We know they must be valid since we check the parameter count above.
-            if (!(AssignableFrom<TArgs>(il2cpp_functions::class_from_type((params++)->parameter_type)) && ...)) {
+
+            if (!(AssignableFrom<TArgs>(il2cpp_functions::class_from_type(params++)) && ...)) {
                 return false;
             }
             return true;
@@ -648,7 +650,7 @@ namespace il2cpp_utils {
             auto* params = info->parameters;
             // Because we check arguments left to right, we can take advantage of params++ to iterate through the elements.
             // We know they must be valid since we check the parameter count above.
-            if (!(AssignableFrom<TArgs>(il2cpp_functions::class_from_type((params++)->parameter_type)) && ...)) {
+            if (!(AssignableFrom<TArgs>(il2cpp_functions::class_from_type(params++)) && ...)) {
                 return false;
             }
             return true;

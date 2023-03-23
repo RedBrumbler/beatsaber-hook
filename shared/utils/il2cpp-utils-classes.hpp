@@ -10,6 +10,8 @@
 #include <optional>
 #include <vector>
 
+struct Il2CppNameToTypeDefinitionIndexHashTable;
+
 namespace il2cpp_utils {
     template<class TOut>
     ::std::optional<TOut> FromIl2CppObject(Il2CppObject* obj) {
@@ -160,7 +162,7 @@ namespace il2cpp_utils {
     // Adds the given nested types of typeDefinition to the class hash table of a given image
     // Mainly used in AddTypeToNametoClassHashTable
     void AddNestedTypesToNametoClassHashTable(const Il2CppImage* img, const Il2CppTypeDefinition* typeDefinition);
-    
+
     /// @brief This method allows you to check if the parameter is a child or instance of the parent class. E.g (B extends A)
     /// @tparam ParentT The parent class (left hand assignment)
     /// @param subOrInstanceKlass the instance class (right hand assignment)

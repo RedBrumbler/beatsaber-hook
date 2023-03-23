@@ -121,7 +121,11 @@ namespace il2cpp_utils {
                 Il2CppClass* classWithNested = declaring;
                 if (declaring->generic_class) {
                     // Class::GetNestedTypes refuses to work on generic instances, so get the generic template instead
+                    #ifdef UNITY_2021
+                    classWithNested = CRASH_UNLESS(il2cpp_functions::type_get_class_or_element_class(declaring->generic_class->type));
+                    #else
                     classWithNested = CRASH_UNLESS(il2cpp_functions::MetadataCache_GetTypeInfoFromTypeDefinitionIndex(declaring->generic_class->typeDefinitionIndex));
+                    #endif
                 }
                 #if __has_feature(cxx_rtti)
                 std::string typeName = type_name<T>();
@@ -166,7 +170,11 @@ namespace il2cpp_utils {
                 Il2CppClass* classWithNested = declaring;
                 if (declaring->generic_class) {
                     // Class::GetNestedTypes refuses to work on generic instances, so get the generic template instead
+                    #ifdef UNITY_2021
+                    classWithNested = CRASH_UNLESS(il2cpp_functions::type_get_class_or_element_class(declaring->generic_class->type));
+                    #else
                     classWithNested = CRASH_UNLESS(il2cpp_functions::MetadataCache_GetTypeInfoFromTypeDefinitionIndex(declaring->generic_class->typeDefinitionIndex));
+                    #endif
                 }
                 #if __has_feature(cxx_rtti)
                 std::string typeName = type_name<T>();
@@ -334,7 +342,11 @@ namespace il2cpp_utils {
                 Il2CppClass* classWithNested = declaring;
                 if (declaring->generic_class) {
                     // Class::GetNestedTypes refuses to work on generic instances, so get the generic template instead
+                    #ifdef UNITY_2021
+                    classWithNested = CRASH_UNLESS(il2cpp_functions::type_get_class_or_element_class(declaring->generic_class->type));
+                    #else
                     classWithNested = CRASH_UNLESS(il2cpp_functions::MetadataCache_GetTypeInfoFromTypeDefinitionIndex(declaring->generic_class->typeDefinitionIndex));
+                    #endif
                 }
                 std::string typeName(S<TArgs...>::NESTED_NAME);
 
@@ -364,7 +376,11 @@ namespace il2cpp_utils {
                 Il2CppClass* classWithNested = declaring;
                 if (declaring->generic_class) {
                     // Class::GetNestedTypes refuses to work on generic instances, so get the generic template instead
+                    #ifdef UNITY_2021
+                    classWithNested = CRASH_UNLESS(il2cpp_functions::type_get_class_or_element_class(declaring->generic_class->type));
+                    #else
                     classWithNested = CRASH_UNLESS(il2cpp_functions::MetadataCache_GetTypeInfoFromTypeDefinitionIndex(declaring->generic_class->typeDefinitionIndex));
+                    #endif
                 }
                 std::string typeName(S<TArgs...>::NESTED_NAME);
 
