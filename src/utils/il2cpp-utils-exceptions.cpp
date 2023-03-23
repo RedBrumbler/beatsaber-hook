@@ -18,7 +18,7 @@ namespace il2cpp_utils {
         return msg;
     }
 
-    #ifdef UNITY_2019
+    #if defined(UNITY_2019) || defined(UNITY_2021)
     [[noreturn]] void raise(const Il2CppException* exp) {
         CRASH_UNLESS(exp);
         il2cpp_functions::raise_exception(const_cast<Il2CppException*>(exp));

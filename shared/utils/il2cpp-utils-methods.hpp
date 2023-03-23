@@ -173,7 +173,12 @@ namespace il2cpp_utils {
             if constexpr (::std::is_base_of_v<Il2CppObject, ::std::remove_pointer_t<Dt>>) {
                 if (arg) {
                     auto* klass = il2cpp_functions::object_get_class(reinterpret_cast<Il2CppObject*>(arg));
+                    // TODO: RedBrumbler idk if valuetype is the same as !nullableType, check this
+                    #ifdef UNITY_2021
+                    if (klass && !klass->nullabletype) {
+                    #else
                     if (klass && klass->valuetype) {
+                    #endif
                         // Arg is an Il2CppObject* of a value type. It needs to be unboxed.
                         return il2cpp_functions::object_unbox(reinterpret_cast<Il2CppObject*>(arg));
                     }
@@ -278,16 +283,20 @@ namespace il2cpp_utils {
         if (method->parameters_count != argSz) {
             return false;
         }
-        auto genCount = (method->is_generic && !method->is_inflated) ? method->genericContainer->type_argc : 0;
+
+        // FIXME: the reinterpret cast is def sus but for now this will suffice as a test to check if this is even remotely correct
+        auto genCount = (method->is_generic && !method->is_inflated) ? reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle)->type_argc : 0;
+
         if (genCount != genSz) {
             // logger.warning("Potential method match had wrong number of generics %i (expected %lu)", genCount, genSz);
             return false;
         }
         // TODO: supply boolStrictMatch and use type_equals instead of IsConvertibleFrom if supplied?
         for (decltype(method->parameters_count) i = 0; i < argSz; i++) {
-            auto* paramType = method->parameters[i].parameter_type;
+            auto* paramType = method->parameters[i];
             if (paramType->type == IL2CPP_TYPE_MVAR) {
-                auto genIdx = paramType->data.genericParameterIndex - method->genericContainer->genericParameterStart;
+                // FIXME: the reinterpret cast is def sus but for now this will suffice as a test to check if this is even remotely correct
+                auto genIdx = reinterpret_cast<const Il2CppGenericParameter*>(paramType->data.genericParameterHandle)->ownerIndex - reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle)->genericParameterStart;
                 if (genIdx < 0) {
                     logger.warning("Extracted invalid genIdx %i from parameter %i", genIdx, i);
                 } else if (genIdx >= genCount) {
@@ -356,6 +365,8 @@ namespace il2cpp_utils {
 
         // Need to potentially call Class::Init here as well
         // This snippet is almost identical to what libil2cpp does
+
+        // TODO: replace cctor finished with something else
         if ((method->flags & METHOD_ATTRIBUTE_STATIC) > 0 && method->klass && method->klass->has_cctor && !method->klass->cctor_finished) {
             il2cpp_functions::Class_Init(method->klass);
         }
@@ -371,7 +382,8 @@ namespace il2cpp_utils {
                     // Static method
                     reinterpret_cast<void (*)(std::remove_reference_t<TArgs>..., const MethodInfo*)>(mPtr)(params..., method);
                 } else {
-                    if (method->klass->valuetype) {
+                    // FIXME: is valuetype same as !nullabletype?
+                    if (!method->klass->nullabletype) {
                         // Value type instance method. Instance parameter is always boxed in some way.
                         auto boxedRepr = instance;
                         if constexpr (sizeof(Il2CppCodeGenModule) <= 104) {
@@ -411,7 +423,8 @@ namespace il2cpp_utils {
                     // Static method
                     return reinterpret_cast<TOut (*)(std::remove_reference_t<TArgs>..., const MethodInfo*)>(mPtr)(params..., method);
                 } else {
-                    if (method->klass->valuetype) {
+                    // FIXME: is valuetype same as !nullabletype?
+                    if (!method->klass->nullabletype) {
                         auto boxedRepr = instance;
                         if constexpr (sizeof(Il2CppCodeGenModule) <= 104) {
                             // Boxing is only required if we invoke to adjustor thunks instead of actual impls
@@ -654,7 +667,7 @@ namespace il2cpp_utils {
         auto* createdMethod = RET_NULLOPT_UNLESS(logger, MakeGenericMethod(info, genTypes));
         return RunMethod<TOut, false>(instance, createdMethod, params...);
     }
-    
+
     template<class TOut = Il2CppObject*, class T, class... TArgs>
     ::std::optional<TOut> RunGenericMethod(T&& classOrInstance, ::std::string_view methodName, ::std::vector<Il2CppClass*> genTypes, TArgs&& ...params) noexcept {
         static auto& logger = getLogger();
