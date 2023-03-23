@@ -416,13 +416,22 @@ struct NamespaceAndNamePairEquals
     }
 };
 
-struct Il2CppNameToTypeDefinitionIndexHashTable : public Il2CppHashMap<std::pair<const char*, const char*>, TypeDefinitionIndex, NamespaceAndNamePairHash, NamespaceAndNamePairEquals>
+struct Il2CppNameToTypeHandleHashTable : public Il2CppHashMap<std::pair<const char*, const char*>, Il2CppMetadataTypeHandle, NamespaceAndNamePairHash, NamespaceAndNamePairEquals>
 {
-    typedef Il2CppHashMap<std::pair<const char*, const char*>, TypeDefinitionIndex, NamespaceAndNamePairHash, NamespaceAndNamePairEquals> Base;
-    Il2CppNameToTypeDefinitionIndexHashTable() : Base()
+    typedef Il2CppHashMap<std::pair<const char*, const char*>, Il2CppMetadataTypeHandle, NamespaceAndNamePairHash, NamespaceAndNamePairEquals> Base;
+    Il2CppNameToTypeHandleHashTable() : Base()
     {
     }
 };
+
+typedef struct Il2CppImageGlobalMetadata
+{
+    TypeDefinitionIndex typeStart;
+    TypeDefinitionIndex exportedTypeStart;
+    CustomAttributeIndex customAttributeStart;
+    MethodIndex entryPointIndex;
+    const Il2CppImage* image;
+} Il2CppImageGlobalMetadata;
 
 #pragma pack(pop)
 

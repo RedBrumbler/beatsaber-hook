@@ -154,10 +154,11 @@ namespace il2cpp_utils {
     // Adds the given TypeDefinitionIndex to the class hash table of a given image
     // Mainly used in LogClasses
     void AddTypeToNametoClassHashTable(const Il2CppImage* img, TypeDefinitionIndex index);
+    void AddTypeToNametoClassHashTable(const Il2CppImage* img, Il2CppMetadataTypeHandle handle);
 
     // Adds the given nested types of the namespaze, parentName, and klass to the hastable
     // Mainly used in AddTypeToNametoClassHashTable
-    void AddNestedTypesToNametoClassHashTable(Il2CppNameToTypeDefinitionIndexHashTable* hashTable, const char *namespaze, const ::std::string& parentName, Il2CppClass *klass);
+    void AddNestedTypesToNametoClassHashTable(Il2CppNameToTypeHandleHashTable* hashTable, const char *namespaze, const ::std::string& parentName, Il2CppClass *klass);
 
     // Adds the given nested types of typeDefinition to the class hash table of a given image
     // Mainly used in AddTypeToNametoClassHashTable

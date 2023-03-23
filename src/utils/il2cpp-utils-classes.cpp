@@ -173,7 +173,7 @@ namespace il2cpp_utils {
             }
             std::string genClassName = GenericClassStandardName(genClass);
 
-            auto* typeDefClass = il2cpp_functions::MetadataCache_GetTypeInfoFromTypeDefinitionIndex(il2cpp_functions::MetadataCache_GetIndexForTypeDefinition(genClass->cached_class));
+            auto* typeDefClass = il2cpp_functions::GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex(il2cpp_functions::MetadataCache_GetIndexForTypeDefinition(genClass->cached_class));
             if (!typeDefClass) continue;
 
             classToGenericClassMap[typeDefClass][genClassName.c_str()] = genClass;
@@ -209,14 +209,15 @@ namespace il2cpp_utils {
             if (img->nameToClassHashTable == nullptr) {
                 logger.debug("Assembly's nameToClassHashTable is empty. Populating it instead.");
 
-                img->nameToClassHashTable = new Il2CppNameToTypeDefinitionIndexHashTable();
+                img->nameToClassHashTable = new Il2CppNameToTypeHandleHashTable();
+                auto metadata = reinterpret_cast<const Il2CppImageGlobalMetadata*>(img->metadataHandle);
                 for (uint32_t index = 0; index < img->typeCount; index++) {
-                    TypeDefinitionIndex typeIndex = img->typeStart + index;
+                    TypeDefinitionIndex typeIndex = metadata->typeStart + index;
                     AddTypeToNametoClassHashTable(img, typeIndex);
                 }
 
                 for (uint32_t index = 0; index < img->exportedTypeCount; index++) {
-                    auto typeIndex = il2cpp_functions::MetadataCache_GetExportedTypeFromIndex(img->exportedTypeStart + index);
+                    auto typeIndex = il2cpp_functions::MetadataCache_GetExportedTypeFromIndex(metadata->exportedTypeStart + index);
                     if (typeIndex != kTypeIndexInvalid)
                         AddTypeToNametoClassHashTable(img, typeIndex);
                 }
@@ -228,7 +229,7 @@ namespace il2cpp_utils {
                 if (strncmp(classPrefix.data(), itr->first.key.second, classPrefix.length()) == 0) {
                     // Starts with!
                     // Convert TypeDefinitionIndex --> class
-                    auto klazz = il2cpp_functions::MetadataCache_GetTypeInfoFromTypeDefinitionIndex(itr->second);
+                    auto klazz = il2cpp_functions::MetadataCache_GetTypeInfoFromHandle(itr->second);
                     matches[ClassStandardName(klazz)] = klazz;
                 }
             }
@@ -258,7 +259,10 @@ namespace il2cpp_utils {
         if (img != il2cpp_functions::get_corlib())
             AddNestedTypesToNametoClassHashTable(img, typeDefinition);
 
-        img->nameToClassHashTable->insert(std::make_pair(std::make_pair(il2cpp_functions::MetadataCache_GetStringFromIndex(typeDefinition->namespaceIndex), il2cpp_functions::MetadataCache_GetStringFromIndex(typeDefinition->nameIndex)), index));
+
+        // a const Il2CppTypeDefinition* is the same thing as a Il2CppMetadataTypeHandle if you look in GlobalMetadata.cpp
+        auto handle = reinterpret_cast<Il2CppMetadataTypeHandle>(typeDefinition);
+        img->nameToClassHashTable->insert(std::make_pair(std::make_pair(il2cpp_functions::MetadataCache_GetStringFromIndex(typeDefinition->namespaceIndex), il2cpp_functions::MetadataCache_GetStringFromIndex(typeDefinition->nameIndex)), handle));
     }
 
     void AddNestedTypesToNametoClassHashTable(const Il2CppImage* img, const Il2CppTypeDefinition* typeDefinition) {
@@ -269,13 +273,17 @@ namespace il2cpp_utils {
         }
     }
 
-    void AddNestedTypesToNametoClassHashTable(Il2CppNameToTypeDefinitionIndexHashTable* hashTable, const char *namespaze, const std::string& parentName, Il2CppClass *klass) {
+    void AddNestedTypesToNametoClassHashTable(Il2CppNameToTypeHandleHashTable* hashTable, const char *namespaze, const std::string& parentName, Il2CppClass *klass) {
         il2cpp_functions::Init();
         std::string name = parentName + "/" + klass->name;
         char *pName = (char*)gc_alloc_specific(name.size() + 1 * sizeof(char));
         strlcpy(pName, name.c_str(), name.length() + 1);
+        auto typeDefinition = il2cpp_functions::MetadataCache_GetTypeDefinition(klass);
 
-        hashTable->insert(std::make_pair(std::make_pair(namespaze, (const char*)pName), il2cpp_functions::MetadataCache_GetIndexForTypeDefinition(klass)));
+        // a const Il2CppTypeDefinition* is the same thing as a Il2CppMetadataTypeHandle if you look in GlobalMetadata.cpp
+        auto handle = reinterpret_cast<Il2CppMetadataTypeHandle>(typeDefinition);
+
+        hashTable->insert(std::make_pair(std::make_pair(namespaze, (const char*)pName), handle));
 
         void *iter = NULL;
         while (Il2CppClass *nestedClass = il2cpp_functions::class_get_nested_types(klass, &iter))

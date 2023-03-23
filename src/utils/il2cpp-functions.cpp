@@ -285,8 +285,9 @@ API_INIT(const char*, class_get_name_const, (const Il2CppClass * klass));
 // SELECT NON-API LIBIL2CPP FUNCTIONS:
 API_INIT(bool, Class_Init, (Il2CppClass* klass));
 
-API_INIT(Il2CppClass*, MetadataCache_GetTypeInfoFromTypeDefinitionIndex, (TypeDefinitionIndex index));
+API_INIT(Il2CppClass*, MetadataCache_GetTypeInfoFromHandle, (Il2CppMetadataTypeHandle index));
 API_INIT(Il2CppClass*, MetadataCache_GetTypeInfoFromTypeIndex, (TypeIndex index));
+API_INIT(Il2CppClass*, GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex, (TypeDefinitionIndex index));
 
 #if defined(UNITY_2019) || defined(UNITY_2021)
 API_INIT(std::string, _Type_GetName_, (const Il2CppType *type, Il2CppTypeNameFormat format));
@@ -363,8 +364,7 @@ Il2CppClass* il2cpp_functions::MetadataCache_GetNestedTypeFromIndex(NestedTypeIn
     CheckS_GlobalMetadata();
     IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) <= s_GlobalMetadataHeader->nestedTypesCount / sizeof(TypeDefinitionIndex));
     auto nestedTypeIndices = (const TypeDefinitionIndex*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->nestedTypesOffset);
-
-    return il2cpp_functions::MetadataCache_GetTypeInfoFromTypeDefinitionIndex(nestedTypeIndices[index]);
+    return il2cpp_functions::GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex(nestedTypeIndices[index]);
 }
 
 TypeDefinitionIndex il2cpp_functions::MetadataCache_GetIndexForTypeDefinition(const Il2CppClass* klass) {
@@ -639,8 +639,8 @@ void il2cpp_functions::Init() {
     #endif
     #ifndef UNITY_2021
     API_SYM(unity_liveness_calculation_begin);
-    #endif
     API_SYM(unity_liveness_calculation_end);
+    #endif
     API_SYM(unity_liveness_calculation_from_root);
     API_SYM(unity_liveness_calculation_from_statics);
     API_SYM(method_get_return_type);
@@ -788,13 +788,14 @@ void il2cpp_functions::Init() {
     }
 
     {
+        // FIXME: actually get this method
         auto Type_GetClassOrElementClass_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_type_get_class_or_element_class));
         if (!Type_GetClassOrElementClass_addr) SAFE_ABORT_MSG("Failed to find Type::GetClassOrElementClass!");
         auto result = cs::findNthB<5, false, 0>(*Type_GetClassOrElementClass_addr);
         if (!result) SAFE_ABORT_MSG("Failed to find MetadataCache::GetTypeInfoFromDefinitionIndex!");
-        il2cpp_MetadataCache_GetTypeInfoFromTypeDefinitionIndex = reinterpret_cast<decltype(il2cpp_MetadataCache_GetTypeInfoFromTypeDefinitionIndex)>(*result);
+        il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex = reinterpret_cast<decltype(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex)>(*result);
         // MetadataCache::GetTypeInfoFromTypeDefinitionIndex. offset 0x84FBA4 in 1.5, 0x9F5690 in 1.7.0, 0xA75958 in 1.8.0b1
-        logger.debug("MetadataCache::GetTypeInfoFromTypeDefinitionIndex found? offset: %p, %lX", il2cpp_MetadataCache_GetTypeInfoFromTypeDefinitionIndex, reinterpret_cast<uintptr_t>(il2cpp_MetadataCache_GetTypeInfoFromTypeDefinitionIndex) - getRealOffset(0));
+        logger.debug("MetadataCache::GetTypeInfoFromTypeDefinitionIndex found? offset: %p, %lX", il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex, reinterpret_cast<uintptr_t>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex) - getRealOffset(0));
     }
 
     {
@@ -877,6 +878,8 @@ void il2cpp_functions::Init() {
         // FIELDS
         // Extract locations of s_GlobalMetadataHeader, s_Il2CppMetadataRegistration, & s_GlobalMetadata
 
+        /*
+        // FIXME: redo this VVV
         auto tmp = cs::getpcaddr<3, 1>(reinterpret_cast<const uint32_t*>(il2cpp_MetadataCache_GetTypeInfoFromTypeDefinitionIndex));
         if (!tmp) SAFE_ABORT_MSG("Failed to find 3rd pcaddr for s_GlobalMetadataHeaderPtr!");
         s_GlobalMetadataHeaderPtr = reinterpret_cast<decltype(s_GlobalMetadataHeaderPtr)>(
@@ -893,6 +896,7 @@ void il2cpp_functions::Init() {
             std::get<2>(*tmp));
         logger.debug("%p %p %p metadata pointers", s_GlobalMetadataHeaderPtr, s_Il2CppMetadataRegistrationPtr, s_GlobalMetadataPtr);
         logger.debug("All global constants found!");
+        */
     }
 
     // WeakPtr stuff somewhere

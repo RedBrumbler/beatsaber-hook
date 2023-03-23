@@ -175,12 +175,7 @@ namespace il2cpp_utils {
             if constexpr (::std::is_base_of_v<Il2CppObject, ::std::remove_pointer_t<Dt>>) {
                 if (arg) {
                     auto* klass = il2cpp_functions::object_get_class(reinterpret_cast<Il2CppObject*>(arg));
-                    // TODO: RedBrumbler idk if valuetype is the same as !nullableType, check this
-                    #ifdef UNITY_2021
                     if (klass && il2cpp_functions::class_is_valuetype(klass)) {
-                    #else
-                    if (klass && klass->valuetype) {
-                    #endif
                         // Arg is an Il2CppObject* of a value type. It needs to be unboxed.
                         return il2cpp_functions::object_unbox(reinterpret_cast<Il2CppObject*>(arg));
                     }
@@ -286,7 +281,6 @@ namespace il2cpp_utils {
             return false;
         }
 
-        // FIXME: the reinterpret cast is def sus but for now this will suffice as a test to check if this is even remotely correct
         auto genCount = (method->is_generic && !method->is_inflated) ? reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle)->type_argc : 0;
         if (genCount != genSz) {
             // logger.warning("Potential method match had wrong number of generics %i (expected %lu)", genCount, genSz);
@@ -367,7 +361,6 @@ namespace il2cpp_utils {
         // Need to potentially call Class::Init here as well
         // This snippet is almost identical to what libil2cpp does
 
-        // TODO: replace cctor finished with something else
         if ((method->flags & METHOD_ATTRIBUTE_STATIC) > 0 && method->klass && method->klass->has_cctor && !method->klass->cctor_finished_or_no_cctor) {
             il2cpp_functions::Class_Init(method->klass);
         }
@@ -383,8 +376,7 @@ namespace il2cpp_utils {
                     // Static method
                     reinterpret_cast<void (*)(std::remove_reference_t<TArgs>..., const MethodInfo*)>(mPtr)(params..., method);
                 } else {
-                    // FIXME: is valuetype same as !nullabletype?
-                    if (!method->klass->nullabletype) {
+                    if (il2cpp_functions::class_is_valuetype(method->klass)) {
                         // Value type instance method. Instance parameter is always boxed in some way.
                         auto boxedRepr = instance;
                         if constexpr (sizeof(Il2CppCodeGenModule) <= 104) {
@@ -424,8 +416,7 @@ namespace il2cpp_utils {
                     // Static method
                     return reinterpret_cast<TOut (*)(std::remove_reference_t<TArgs>..., const MethodInfo*)>(mPtr)(params..., method);
                 } else {
-                    // FIXME: is valuetype same as !nullabletype?
-                    if (!method->klass->nullabletype) {
+                    if (il2cpp_functions::class_is_valuetype(method->klass)) {
                         auto boxedRepr = instance;
                         if constexpr (sizeof(Il2CppCodeGenModule) <= 104) {
                             // Boxing is only required if we invoke to adjustor thunks instead of actual impls

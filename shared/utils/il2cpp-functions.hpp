@@ -270,12 +270,12 @@ class il2cpp_functions {
     #endif
     #ifndef UNITY_2021
     API_FUNC(void*, unity_liveness_calculation_begin, (Il2CppClass * filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_WorldChangedCallback onWorldStarted, il2cpp_WorldChangedCallback onWorldStopped));
+    API_FUNC(void, unity_liveness_calculation_end, (void* state));
     #else
     API_FUNC(void*, il2cpp_unity_liveness_allocate_struct, (Il2CppClass * filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_liveness_reallocate_callback reallocate));
     API_FUNC(void, il2cpp_unity_liveness_finalize, (void* state));
     API_FUNC(void, il2cpp_unity_liveness_free_struct, (void* state));
     #endif
-    API_FUNC(void, unity_liveness_calculation_end, (void* state));
     API_FUNC(void, unity_liveness_calculation_from_root, (Il2CppObject * root, void* state));
     API_FUNC(void, unity_liveness_calculation_from_statics, (void* state));
     API_FUNC(const Il2CppType*, method_get_return_type, (const MethodInfo * method));
@@ -400,9 +400,10 @@ class il2cpp_functions {
     // SELECT NON-API LIBIL2CPP FUNCTIONS:
     API_FUNC_VISIBLE(bool, Class_Init, (Il2CppClass* klass));
 
-    API_FUNC_VISIBLE(Il2CppClass*, MetadataCache_GetTypeInfoFromTypeDefinitionIndex, (TypeDefinitionIndex index));
+    API_FUNC_VISIBLE(Il2CppClass*, MetadataCache_GetTypeInfoFromHandle, (Il2CppMetadataTypeHandle index));
     API_FUNC_VISIBLE(Il2CppClass*, MetadataCache_GetTypeInfoFromTypeIndex, (TypeIndex index));
 
+    API_FUNC_VISIBLE(Il2CppClass*, GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex, (TypeDefinitionIndex index));
 #if defined(UNITY_2019) || defined(UNITY_2021)
     API_FUNC_VISIBLE(std::string, _Type_GetName_, (const Il2CppType *type, Il2CppTypeNameFormat format));
 #else

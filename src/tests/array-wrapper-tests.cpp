@@ -2,6 +2,7 @@
 
 #include "../../shared/utils/typedefs-array.hpp"
 #include <iostream>
+#include <assert.h>
 
 static void constDoThing(const ArrayW<int>& wrap) {
     auto i = wrap[0];
@@ -41,13 +42,13 @@ static void doThing() {
     std::cout << i << std::endl;
     // Should be simply nullptr
     std::cout << static_cast<Array<float>*>(initThing) << std::endl;
-    
+
     /// get first element that fulfills the predicate
     arr.FirstOrDefault();
     arr3.First();
     arr.FirstOrDefault([](auto x){ return x == 0; });
     arr3.First([](auto x){ return x == 0; });
- 
+
     /// get first reverse iter element that fulfills the predicate
     arr.FirstOrDefault();
     arr3.First();
