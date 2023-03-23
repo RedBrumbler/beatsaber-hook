@@ -597,7 +597,8 @@ namespace il2cpp_utils {
             auto* params = info->parameters;
             // Because we check arguments left to right, we can take advantage of params++ to iterate through the elements.
             // We know they must be valid since we check the parameter count above.
-            if (!(AssignableFrom<TArgs>(il2cpp_functions::class_from_type((params++)->parameter_type)) && ...)) {
+
+            if (!(AssignableFrom<TArgs>(il2cpp_functions::class_from_type(params++)) && ...)) {
                 return false;
             }
             return true;
@@ -649,7 +650,7 @@ namespace il2cpp_utils {
             auto* params = info->parameters;
             // Because we check arguments left to right, we can take advantage of params++ to iterate through the elements.
             // We know they must be valid since we check the parameter count above.
-            if (!(AssignableFrom<TArgs>(il2cpp_functions::class_from_type((params++)->parameter_type)) && ...)) {
+            if (!(AssignableFrom<TArgs>(il2cpp_functions::class_from_type(params++)) && ...)) {
                 return false;
             }
             return true;
