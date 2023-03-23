@@ -11,6 +11,8 @@
 #include "il2cpp-type-check.hpp"
 #include "utils.h"
 #include "il2cpp-tabledefs.h"
+#include "vm/GlobalMetadataFileInternals.h"
+#include "il2cpp-class-internals.h"
 #include <array>
 #include <exception>
 
@@ -175,7 +177,7 @@ namespace il2cpp_utils {
                     auto* klass = il2cpp_functions::object_get_class(reinterpret_cast<Il2CppObject*>(arg));
                     // TODO: RedBrumbler idk if valuetype is the same as !nullableType, check this
                     #ifdef UNITY_2021
-                    if (klass && !klass->nullabletype) {
+                    if (klass && il2cpp_functions::class_is_valuetype(klass)) {
                     #else
                     if (klass && klass->valuetype) {
                     #endif
@@ -286,7 +288,6 @@ namespace il2cpp_utils {
 
         // FIXME: the reinterpret cast is def sus but for now this will suffice as a test to check if this is even remotely correct
         auto genCount = (method->is_generic && !method->is_inflated) ? reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle)->type_argc : 0;
-
         if (genCount != genSz) {
             // logger.warning("Potential method match had wrong number of generics %i (expected %lu)", genCount, genSz);
             return false;
@@ -295,8 +296,8 @@ namespace il2cpp_utils {
         for (decltype(method->parameters_count) i = 0; i < argSz; i++) {
             auto* paramType = method->parameters[i];
             if (paramType->type == IL2CPP_TYPE_MVAR) {
-                // FIXME: the reinterpret cast is def sus but for now this will suffice as a test to check if this is even remotely correct
-                auto genIdx = reinterpret_cast<const Il2CppGenericParameter*>(paramType->data.genericParameterHandle)->ownerIndex - reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle)->genericParameterStart;
+
+                auto genIdx = il2cpp_functions::MetadataCache_GetGenericParameterIndexFromParameter(paramType->data.genericParameterHandle);
                 if (genIdx < 0) {
                     logger.warning("Extracted invalid genIdx %i from parameter %i", genIdx, i);
                 } else if (genIdx >= genCount) {
@@ -367,7 +368,7 @@ namespace il2cpp_utils {
         // This snippet is almost identical to what libil2cpp does
 
         // TODO: replace cctor finished with something else
-        if ((method->flags & METHOD_ATTRIBUTE_STATIC) > 0 && method->klass && method->klass->has_cctor && !method->klass->cctor_finished) {
+        if ((method->flags & METHOD_ATTRIBUTE_STATIC) > 0 && method->klass && method->klass->has_cctor && !method->klass->cctor_finished_or_no_cctor) {
             il2cpp_functions::Class_Init(method->klass);
         }
         try {

@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vm/GlobalMetadataFileInternals.h>
 #include "logging.hpp"
 #include "utils.h"
 
@@ -456,6 +457,20 @@ class il2cpp_functions {
     static TypeDefinitionIndex MetadataCache_GetExportedTypeFromIndex(TypeDefinitionIndex index);
     static const Il2CppGenericContainer* MetadataCache_GetGenericContainerFromIndex(GenericContainerIndex index);
     static const Il2CppGenericParameter* MetadataCache_GetGenericParameterFromIndex(GenericParameterIndex index);
+
+    // static Il2CppMetadataGenericParameterHandle GetGenericParameterFromIndexInternal(GenericParameterIndex index)
+    // static GenericParameterIndex GetIndexForGenericParameter(Il2CppMetadataGenericParameterHandle handle)
+
+    static GenericParameterIndex MetadataCache_GetGenericParameterIndexFromParameter(Il2CppMetadataGenericParameterHandle handle) {
+        const Il2CppGenericParameter* genericParameter = reinterpret_cast<const Il2CppGenericParameter*>(handle);
+        const Il2CppGenericParameter* genericParameters = (const Il2CppGenericParameter*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->genericParametersOffset);
+
+        IL2CPP_ASSERT(genericParameter >= genericParameters && genericParameter < genericParameters + s_GlobalMetadataHeader->genericParametersSize / sizeof(Il2CppGenericParameter));
+
+        ptrdiff_t index = reinterpret_cast<Il2CppGenericParameter const*>(genericParameter) - reinterpret_cast<Il2CppGenericParameter const*>(genericParameters);
+        IL2CPP_ASSERT(index <= std::numeric_limits<GenericParameterIndex>::max());
+        return static_cast<GenericParameterIndex>(index);
+    }
     static Il2CppClass* MetadataCache_GetNestedTypeFromIndex(NestedTypeIndex index);
     static TypeDefinitionIndex MetadataCache_GetIndexForTypeDefinition(const Il2CppClass* typeDefinition);
 
