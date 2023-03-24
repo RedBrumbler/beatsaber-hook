@@ -871,27 +871,42 @@ void il2cpp_functions::Init() {
         logger.debug("Class::FromIl2CppType found? offset: %lX", ((uintptr_t)il2cpp_Class_FromIl2CppType) - getRealOffset(0));
     }
 
-    // last log gotten is till here, no more debug logs after this
-
     {
         // GenericClass::GetClass. offset 0x88DF64 in 1.5, 0xA34F20 in 1.7.0, 0xA6E4EC in 1.8.0b1
         // Skip found br
+
+        // FIXME: instead of evaluating the switch, just find the 6th b (might be a bad idea in the end tho, for now this will work)
+        auto GenericClass_GetClass_addr = cs::findNthB<6, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_Class_FromIl2CppType));
+        if (!GenericClass_GetClass_addr) SAFE_ABORT_MSG("Failed to find GenericClass::GetClass!");
+        il2cpp_GenericClass_GetClass = reinterpret_cast<decltype(il2cpp_GenericClass_GetClass)>(*GenericClass_GetClass_addr);
+        logger.debug("GenericClass::GetClass found? offset: %lX", ((uintptr_t)il2cpp_GenericClass_GetClass) - getRealOffset(0));
+        /*
         auto caseStart = cs::evalswitch<1, 1, IL2CPP_TYPE_GENERICINST>(reinterpret_cast<uint32_t*>(il2cpp_Class_FromIl2CppType));
         if (!caseStart) SAFE_ABORT_MSG("Failed to find case for IL2CPP_TYPE_GENERICINST!");
         auto result = cs::findNthB<1>(*caseStart);
         if (!result) SAFE_ABORT_MSG("Failed to find GenericClass::GetClass!");
         il2cpp_GenericClass_GetClass = reinterpret_cast<decltype(il2cpp_GenericClass_GetClass)>(*result);
         logger.debug("GenericClass::GetClass found? offset: %lX", ((uintptr_t)il2cpp_GenericClass_GetClass) - getRealOffset(0));
+        */
     }
 
     {
         // Class::GetPtrClass.
+
+        // FIXME: instead of evaluating the switch, just find the 3rd bl (might be a bad idea in the end tho, for now this will work)
+        auto Class_GetPtrClass_addr = cs::findNthBl<3, 1>(reinterpret_cast<uint32_t*>(il2cpp_Class_FromIl2CppType));
+        if (!Class_GetPtrClass_addr) SAFE_ABORT_MSG("Failed to find GenericClass::GetClass!");
+        il2cpp_Class_GetPtrClass = reinterpret_cast<decltype(il2cpp_Class_GetPtrClass)>(*Class_GetPtrClass_addr);
+        logger.debug("Class::GetPtrClass found? offset: %lX", ((uintptr_t)il2cpp_Class_GetPtrClass) - getRealOffset(0));
+
+        /*
         auto ptrCase = cs::evalswitch<1, 1, IL2CPP_TYPE_PTR>(reinterpret_cast<const uint32_t*>(il2cpp_Class_FromIl2CppType));
         if (!ptrCase) SAFE_ABORT_MSG("Failed to find case for IL2CPP_TYPE_PTR!");
         auto result = cs::findNthB<1>(*ptrCase);
         if (!result) SAFE_ABORT_MSG("Failed to find Class::GetPtrClass!");
         il2cpp_Class_GetPtrClass = reinterpret_cast<decltype(il2cpp_Class_GetPtrClass)>(*result);
         logger.debug("Class::GetPtrClass(Il2CppClass*) found? offset: %lX", ((uintptr_t)il2cpp_Class_GetPtrClass) - getRealOffset(0));
+        */
     }
 
     {
