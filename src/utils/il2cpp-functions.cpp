@@ -288,6 +288,7 @@ API_INIT(bool, Class_Init, (Il2CppClass* klass));
 API_INIT(Il2CppClass*, MetadataCache_GetTypeInfoFromHandle, (Il2CppMetadataTypeHandle index));
 API_INIT(Il2CppClass*, MetadataCache_GetTypeInfoFromTypeIndex, (TypeIndex index));
 API_INIT(Il2CppClass*, GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex, (TypeDefinitionIndex index));
+API_INIT(Il2CppClass*, GlobalMetadata_GetTypeInfoFromHandle, (TypeDefinitionIndex index));
 
 #if defined(UNITY_2019) || defined(UNITY_2021)
 API_INIT(std::string, _Type_GetName_, (const Il2CppType *type, Il2CppTypeNameFormat format));
@@ -778,24 +779,73 @@ void il2cpp_functions::Init() {
     }
 
     {
-        auto MetadataCache_HasAttribute_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_custom_attrs_has_attr));
-        if (!MetadataCache_HasAttribute_addr) SAFE_ABORT_MSG("Failed to find MetadataCache::HasAttribute!");
-        auto typeinfo = cs::findNthBl<1>(*MetadataCache_HasAttribute_addr);
-        if (!typeinfo) SAFE_ABORT_MSG("Failed to find MetadataCache::GetTypeInfoFromTypeIndex!");
-        il2cpp_MetadataCache_GetTypeInfoFromTypeIndex = reinterpret_cast<decltype(il2cpp_MetadataCache_GetTypeInfoFromTypeIndex)>(*typeinfo);
+        /*
+            Path to method:
+            il2cpp_image_get_class
+                Image::GetType
+                    MetadataCache::GetTypeInfoFromHandle
+        */
+        // FIXME: are the Find calls correct? idk if they are BL or B
+        auto Image_GetType_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_image_get_class));
+        if (!Image_GetType_addr) SAFE_ABORT_MSG("Failed to find Image::GetType!");
+        auto MetadataCache_GetTypeInfoFromHandle_addr = cs::findNthB<1, false, -1, 1024>(*Image_GetType_addr);
+        if (!MetadataCache_GetTypeInfoFromHandle_addr) SAFE_ABORT_MSG("Failed to find MetadataCache::GetTypeInfoFromHandle!");
+        il2cpp_MetadataCache_GetTypeInfoFromHandle = reinterpret_cast<decltype(il2cpp_MetadataCache_GetTypeInfoFromHandle)>(*MetadataCache_GetTypeInfoFromHandle_addr);
+        // MetadataCache::GetTypeInfoFromHandle. offset 0x84F764 in 1.5, 0x9F5250 in 1.7.0, 0xA7A79C in 1.8.0b1
+        logger.debug("MetadataCache::GetTypeInfoFromHandle found? offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_MetadataCache_GetTypeInfoFromHandle) - getRealOffset(0));
+    }
+
+    {
+        /*
+            Path to method:
+            il2cpp_field_get_value_object
+                Field::GetValueObject
+                    Field::GetValueObjectForThread
+                        Field::GetDefaultFieldValue
+                            BlobReader::GetConstantValueFromBlob
+                                MetadataCache::GetTypeInfoFromTypeIndex
+        */
+
+        // FIXME: are the Find calls correct? idk if they are BL or B
+        auto Field_GetValueObject_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_field_get_value_object));
+        if (!Field_GetValueObject_addr) SAFE_ABORT_MSG("Failed to find Field::GetValueObject!");
+        auto Field_GetValueObjectForThread_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetValueObject_addr);
+        if (!Field_GetValueObjectForThread_addr) SAFE_ABORT_MSG("Failed to find Field::GetValueObjectForThread!");
+        auto Field_GetDefaultFieldValue_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetValueObjectForThread_addr);
+        if (!Field_GetDefaultFieldValue_addr) SAFE_ABORT_MSG("Failed to find Field::GetDefaultFieldValue!");
+        auto BlobReader_GetConstantValueFromBlob_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetDefaultFieldValue_addr);
+        if (!BlobReader_GetConstantValueFromBlob_addr) SAFE_ABORT_MSG("Failed to find BlobReader::GetConstantValueFromBlob!");
+        auto MetadataCache_GetTypeInfoFromTypeIndex_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetDefaultFieldValue_addr);
+        if (!BlobReader_GetConstantValueFromBlob_addr) SAFE_ABORT_MSG("Failed to find MetadataCache::GetTypeInfoFromTypeIndex!");
+        il2cpp_MetadataCache_GetTypeInfoFromTypeIndex = reinterpret_cast<decltype(il2cpp_MetadataCache_GetTypeInfoFromTypeIndex)>(*MetadataCache_GetTypeInfoFromTypeIndex_addr);
         // MetadataCache::GetTypeInfoFromTypeIndex. offset 0x84F764 in 1.5, 0x9F5250 in 1.7.0, 0xA7A79C in 1.8.0b1
         logger.debug("MetadataCache::GetTypeInfoFromTypeIndex found? offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_MetadataCache_GetTypeInfoFromTypeIndex) - getRealOffset(0));
     }
 
     {
-        // FIXME: actually get this method
-        auto Type_GetClassOrElementClass_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_type_get_class_or_element_class));
-        if (!Type_GetClassOrElementClass_addr) SAFE_ABORT_MSG("Failed to find Type::GetClassOrElementClass!");
-        auto result = cs::findNthB<5, false, 0>(*Type_GetClassOrElementClass_addr);
-        if (!result) SAFE_ABORT_MSG("Failed to find MetadataCache::GetTypeInfoFromDefinitionIndex!");
-        il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex = reinterpret_cast<decltype(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex)>(*result);
-        // MetadataCache::GetTypeInfoFromTypeDefinitionIndex. offset 0x84FBA4 in 1.5, 0x9F5690 in 1.7.0, 0xA75958 in 1.8.0b1
-        logger.debug("MetadataCache::GetTypeInfoFromTypeDefinitionIndex found? offset: %p, %lX", il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex, reinterpret_cast<uintptr_t>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex) - getRealOffset(0));
+        /*
+            Path to method:
+            MetadataCache::GetTypeInfoFromHandle
+                GlobalMetadata::GetTypeInfoFromHandle
+        */
+        // FIXME: are the Find calls correct? idk if they are BL or B
+        auto GlobalMetadata_GetTypeInfoFromHandle_addr = cs::findNthB<2, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_MetadataCache_GetTypeInfoFromHandle));
+        if (!GlobalMetadata_GetTypeInfoFromHandle_addr) SAFE_ABORT_MSG("Failed to find GlobalMetadata::GetTypeInfoFromHandle!");
+        il2cpp_GlobalMetadata_GetTypeInfoFromHandle = reinterpret_cast<decltype(il2cpp_GlobalMetadata_GetTypeInfoFromHandle)>(*GlobalMetadata_GetTypeInfoFromHandle_addr);
+        logger.debug("GlobalMetadata::GetTypeInfoFromHandle found? offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_GlobalMetadata_GetTypeInfoFromHandle) - getRealOffset(0));
+    }
+
+    {
+        /*
+            Path to method:
+            GlobalMetadata::GetTypeInfoFromHandle
+                GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex
+        */
+        // FIXME: are the Find calls correct? idk if they are BL or B
+        auto GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr = cs::findNthB<2, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromHandle));
+        if (!GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr) SAFE_ABORT_MSG("Failed to find GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex!");
+        il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex = reinterpret_cast<decltype(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex)>(*GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr);
+        logger.debug("GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex found? offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex) - getRealOffset(0));
     }
 
     {

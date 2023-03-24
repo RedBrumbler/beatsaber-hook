@@ -404,6 +404,7 @@ class il2cpp_functions {
     API_FUNC_VISIBLE(Il2CppClass*, MetadataCache_GetTypeInfoFromTypeIndex, (TypeIndex index));
 
     API_FUNC_VISIBLE(Il2CppClass*, GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex, (TypeDefinitionIndex index));
+    API_FUNC_VISIBLE(Il2CppClass*, GlobalMetadata_GetTypeInfoFromHandle, (TypeDefinitionIndex index));
 #if defined(UNITY_2019) || defined(UNITY_2021)
     API_FUNC_VISIBLE(std::string, _Type_GetName_, (const Il2CppType *type, Il2CppTypeNameFormat format));
 #else
