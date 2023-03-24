@@ -786,8 +786,10 @@ void il2cpp_functions::Init() {
                     MetadataCache::GetTypeInfoFromHandle
         */
         // FIXME: are the Find calls correct? idk if they are BL or B
+        logger.debug("il2cpp_image_get_class offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_image_get_class) - getRealOffset(0));
         auto Image_GetType_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_image_get_class));
         if (!Image_GetType_addr) SAFE_ABORT_MSG("Failed to find Image::GetType!");
+        logger.debug("Image::GetType found? offset: %lX", reinterpret_cast<uintptr_t>(*Image_GetType_addr) - getRealOffset(0));
         auto MetadataCache_GetTypeInfoFromHandle_addr = cs::findNthB<1, false, -1, 1024>(*Image_GetType_addr);
         if (!MetadataCache_GetTypeInfoFromHandle_addr) SAFE_ABORT_MSG("Failed to find MetadataCache::GetTypeInfoFromHandle!");
         il2cpp_MetadataCache_GetTypeInfoFromHandle = reinterpret_cast<decltype(il2cpp_MetadataCache_GetTypeInfoFromHandle)>(*MetadataCache_GetTypeInfoFromHandle_addr);
@@ -807,16 +809,21 @@ void il2cpp_functions::Init() {
         */
 
         // FIXME: are the Find calls correct? idk if they are BL or B
+        logger.debug("il2cpp_field_get_value_object offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_field_get_value_object) - getRealOffset(0));
         auto Field_GetValueObject_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_field_get_value_object));
         if (!Field_GetValueObject_addr) SAFE_ABORT_MSG("Failed to find Field::GetValueObject!");
+        logger.debug("Field::GetValueObject found? offset: %lX", reinterpret_cast<uintptr_t>(*Field_GetValueObject_addr) - getRealOffset(0));
         auto Field_GetValueObjectForThread_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetValueObject_addr);
         if (!Field_GetValueObjectForThread_addr) SAFE_ABORT_MSG("Failed to find Field::GetValueObjectForThread!");
+        logger.debug("Field::GetValueObjectForThread found? offset: %lX", reinterpret_cast<uintptr_t>(*Field_GetValueObjectForThread_addr) - getRealOffset(0));
         auto Field_GetDefaultFieldValue_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetValueObjectForThread_addr);
         if (!Field_GetDefaultFieldValue_addr) SAFE_ABORT_MSG("Failed to find Field::GetDefaultFieldValue!");
+        logger.debug("Field::GetDefaultFieldValue found? offset: %lX", reinterpret_cast<uintptr_t>(*Field_GetDefaultFieldValue_addr) - getRealOffset(0));
         auto BlobReader_GetConstantValueFromBlob_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetDefaultFieldValue_addr);
         if (!BlobReader_GetConstantValueFromBlob_addr) SAFE_ABORT_MSG("Failed to find BlobReader::GetConstantValueFromBlob!");
+        logger.debug("Image::GetConstantValueFromBlob found? offset: %lX", reinterpret_cast<uintptr_t>(*BlobReader_GetConstantValueFromBlob_addr) - getRealOffset(0));
         auto MetadataCache_GetTypeInfoFromTypeIndex_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetDefaultFieldValue_addr);
-        if (!BlobReader_GetConstantValueFromBlob_addr) SAFE_ABORT_MSG("Failed to find MetadataCache::GetTypeInfoFromTypeIndex!");
+        if (!MetadataCache_GetTypeInfoFromTypeIndex_addr) SAFE_ABORT_MSG("Failed to find MetadataCache::GetTypeInfoFromTypeIndex!");
         il2cpp_MetadataCache_GetTypeInfoFromTypeIndex = reinterpret_cast<decltype(il2cpp_MetadataCache_GetTypeInfoFromTypeIndex)>(*MetadataCache_GetTypeInfoFromTypeIndex_addr);
         // MetadataCache::GetTypeInfoFromTypeIndex. offset 0x84F764 in 1.5, 0x9F5250 in 1.7.0, 0xA7A79C in 1.8.0b1
         logger.debug("MetadataCache::GetTypeInfoFromTypeIndex found? offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_MetadataCache_GetTypeInfoFromTypeIndex) - getRealOffset(0));
@@ -856,10 +863,13 @@ void il2cpp_functions::Init() {
         logger.debug("Type::GetName found? offset: %lX", reinterpret_cast<uintptr_t>(il2cpp__Type_GetName_) - getRealOffset(0));
     }
 
+    // last log gotten is from here, no more debug logs after this
+
     {
         auto result = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_class_from_il2cpp_type));
         if (!result) SAFE_ABORT_MSG("Failed to find Class::FromIl2CppType!");
         il2cpp_Class_FromIl2CppType = reinterpret_cast<decltype(il2cpp_Class_FromIl2CppType)>(*result);
+        logger.debug("Class::FromIl2CppType found? offset: %lX", ((uintptr_t)il2cpp_Class_FromIl2CppType) - getRealOffset(0));
     }
 
     {
@@ -928,25 +938,22 @@ void il2cpp_functions::Init() {
         // FIELDS
         // Extract locations of s_GlobalMetadataHeader, s_Il2CppMetadataRegistration, & s_GlobalMetadata
 
-        /*
-        // FIXME: redo this VVV
-        auto tmp = cs::getpcaddr<3, 1>(reinterpret_cast<const uint32_t*>(il2cpp_MetadataCache_GetTypeInfoFromTypeDefinitionIndex));
+        auto tmp = cs::getpcaddr<3, 1>(reinterpret_cast<const uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex));
         if (!tmp) SAFE_ABORT_MSG("Failed to find 3rd pcaddr for s_GlobalMetadataHeaderPtr!");
         s_GlobalMetadataHeaderPtr = reinterpret_cast<decltype(s_GlobalMetadataHeaderPtr)>(
             std::get<2>(*tmp));
 
-        tmp = cs::getpcaddr<4, 1>(reinterpret_cast<const uint32_t*>(il2cpp_MetadataCache_GetTypeInfoFromTypeDefinitionIndex));
+        tmp = cs::getpcaddr<4, 1>(reinterpret_cast<const uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex));
         if (!tmp) SAFE_ABORT_MSG("Failed to find 4th pcaddr for s_Il2CppMetadataRegistrationPtr!");
         s_Il2CppMetadataRegistrationPtr = reinterpret_cast<decltype(s_Il2CppMetadataRegistrationPtr)>(
             std::get<2>(*tmp));
 
-        tmp = cs::getpcaddr<5, 1>(reinterpret_cast<const uint32_t*>(il2cpp_MetadataCache_GetTypeInfoFromTypeDefinitionIndex));
+        tmp = cs::getpcaddr<5, 1>(reinterpret_cast<const uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex));
         if (!tmp) SAFE_ABORT_MSG("Failed to find 5th pcaddr for s_GlobalMetadataPtr!");
         s_GlobalMetadataPtr = reinterpret_cast<decltype(s_GlobalMetadataPtr)>(
             std::get<2>(*tmp));
         logger.debug("%p %p %p metadata pointers", s_GlobalMetadataHeaderPtr, s_Il2CppMetadataRegistrationPtr, s_GlobalMetadataPtr);
         logger.debug("All global constants found!");
-        */
     }
 
     // WeakPtr stuff somewhere
