@@ -785,7 +785,6 @@ void il2cpp_functions::Init() {
                 Image::GetType
                     MetadataCache::GetTypeInfoFromHandle
         */
-        // FIXME: are the Find calls correct? idk if they are BL or B
         logger.debug("il2cpp_image_get_class offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_image_get_class) - getRealOffset(0));
         auto Image_GetType_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_image_get_class));
         if (!Image_GetType_addr) SAFE_ABORT_MSG("Failed to find Image::GetType!");
@@ -807,22 +806,24 @@ void il2cpp_functions::Init() {
                             BlobReader::GetConstantValueFromBlob
                                 MetadataCache::GetTypeInfoFromTypeIndex
         */
-
-        // FIXME: are the Find calls correct? idk if they are BL or B
         logger.debug("il2cpp_field_get_value_object offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_field_get_value_object) - getRealOffset(0));
         auto Field_GetValueObject_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_field_get_value_object));
         if (!Field_GetValueObject_addr) SAFE_ABORT_MSG("Failed to find Field::GetValueObject!");
         logger.debug("Field::GetValueObject found? offset: %lX", reinterpret_cast<uintptr_t>(*Field_GetValueObject_addr) - getRealOffset(0));
-        auto Field_GetValueObjectForThread_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetValueObject_addr);
-        if (!Field_GetValueObjectForThread_addr) SAFE_ABORT_MSG("Failed to find Field::GetValueObjectForThread!");
-        logger.debug("Field::GetValueObjectForThread found? offset: %lX", reinterpret_cast<uintptr_t>(*Field_GetValueObjectForThread_addr) - getRealOffset(0));
-        auto Field_GetDefaultFieldValue_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetValueObjectForThread_addr);
+
+        auto Field_GetDefaultFieldValue_addr = cs::findNthBl<4, 1>(*Field_GetValueObject_addr);
         if (!Field_GetDefaultFieldValue_addr) SAFE_ABORT_MSG("Failed to find Field::GetDefaultFieldValue!");
         logger.debug("Field::GetDefaultFieldValue found? offset: %lX", reinterpret_cast<uintptr_t>(*Field_GetDefaultFieldValue_addr) - getRealOffset(0));
-        auto BlobReader_GetConstantValueFromBlob_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetDefaultFieldValue_addr);
+
+        auto BlobReader_GetConstantValueFromBlob_addr = cs::findNthBl<2, 1>(*Field_GetDefaultFieldValue_addr);
         if (!BlobReader_GetConstantValueFromBlob_addr) SAFE_ABORT_MSG("Failed to find BlobReader::GetConstantValueFromBlob!");
         logger.debug("Image::GetConstantValueFromBlob found? offset: %lX", reinterpret_cast<uintptr_t>(*BlobReader_GetConstantValueFromBlob_addr) - getRealOffset(0));
-        auto MetadataCache_GetTypeInfoFromTypeIndex_addr = cs::findNthB<1, false, -1, 1024>(*Field_GetDefaultFieldValue_addr);
+
+        auto BlobReader_GetConstantValueFromBlob2_addr = cs::findNthBl<1, 1>(*BlobReader_GetConstantValueFromBlob_addr);
+        if (!BlobReader_GetConstantValueFromBlob2_addr) SAFE_ABORT_MSG("Failed to find BlobReader::GetConstantValueFromBlob!");
+        logger.debug("Image::GetConstantValueFromBlob2 found? offset: %lX", reinterpret_cast<uintptr_t>(*BlobReader_GetConstantValueFromBlob2_addr) - getRealOffset(0));
+
+        auto MetadataCache_GetTypeInfoFromTypeIndex_addr = cs::findNthBl<2, 1>(*BlobReader_GetConstantValueFromBlob2_addr);
         if (!MetadataCache_GetTypeInfoFromTypeIndex_addr) SAFE_ABORT_MSG("Failed to find MetadataCache::GetTypeInfoFromTypeIndex!");
         il2cpp_MetadataCache_GetTypeInfoFromTypeIndex = reinterpret_cast<decltype(il2cpp_MetadataCache_GetTypeInfoFromTypeIndex)>(*MetadataCache_GetTypeInfoFromTypeIndex_addr);
         // MetadataCache::GetTypeInfoFromTypeIndex. offset 0x84F764 in 1.5, 0x9F5250 in 1.7.0, 0xA7A79C in 1.8.0b1
@@ -835,8 +836,8 @@ void il2cpp_functions::Init() {
             MetadataCache::GetTypeInfoFromHandle
                 GlobalMetadata::GetTypeInfoFromHandle
         */
-        // FIXME: are the Find calls correct? idk if they are BL or B
-        auto GlobalMetadata_GetTypeInfoFromHandle_addr = cs::findNthB<2, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_MetadataCache_GetTypeInfoFromHandle));
+        logger.debug("MetadataCache::GetTypeInfoFromHandle offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_MetadataCache_GetTypeInfoFromHandle) - getRealOffset(0));
+        auto GlobalMetadata_GetTypeInfoFromHandle_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_MetadataCache_GetTypeInfoFromHandle));
         if (!GlobalMetadata_GetTypeInfoFromHandle_addr) SAFE_ABORT_MSG("Failed to find GlobalMetadata::GetTypeInfoFromHandle!");
         il2cpp_GlobalMetadata_GetTypeInfoFromHandle = reinterpret_cast<decltype(il2cpp_GlobalMetadata_GetTypeInfoFromHandle)>(*GlobalMetadata_GetTypeInfoFromHandle_addr);
         logger.debug("GlobalMetadata::GetTypeInfoFromHandle found? offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_GlobalMetadata_GetTypeInfoFromHandle) - getRealOffset(0));
@@ -848,8 +849,8 @@ void il2cpp_functions::Init() {
             GlobalMetadata::GetTypeInfoFromHandle
                 GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex
         */
-        // FIXME: are the Find calls correct? idk if they are BL or B
-        auto GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr = cs::findNthB<2, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromHandle));
+        logger.debug("GlobalMetadata::GetTypeInfoFromHandle offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_GlobalMetadata_GetTypeInfoFromHandle) - getRealOffset(0));
+        auto GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromHandle));
         if (!GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr) SAFE_ABORT_MSG("Failed to find GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex!");
         il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex = reinterpret_cast<decltype(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex)>(*GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr);
         logger.debug("GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex found? offset: %lX", reinterpret_cast<uintptr_t>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex) - getRealOffset(0));
@@ -863,14 +864,14 @@ void il2cpp_functions::Init() {
         logger.debug("Type::GetName found? offset: %lX", reinterpret_cast<uintptr_t>(il2cpp__Type_GetName_) - getRealOffset(0));
     }
 
-    // last log gotten is from here, no more debug logs after this
-
     {
         auto result = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_class_from_il2cpp_type));
         if (!result) SAFE_ABORT_MSG("Failed to find Class::FromIl2CppType!");
         il2cpp_Class_FromIl2CppType = reinterpret_cast<decltype(il2cpp_Class_FromIl2CppType)>(*result);
         logger.debug("Class::FromIl2CppType found? offset: %lX", ((uintptr_t)il2cpp_Class_FromIl2CppType) - getRealOffset(0));
     }
+
+    // last log gotten is till here, no more debug logs after this
 
     {
         // GenericClass::GetClass. offset 0x88DF64 in 1.5, 0xA34F20 in 1.7.0, 0xA6E4EC in 1.8.0b1
