@@ -939,15 +939,21 @@ void il2cpp_functions::Init() {
     hasGCFuncs = il2cpp_GarbageCollector_AllocateFixed != nullptr && il2cpp_GC_free != nullptr;
 
     {
-        // il2cpp_defaults. Runtime::Init is 3rd bl from init_utf16
-        auto runtimeInit = cs::findNthBl<3>(reinterpret_cast<const uint32_t*>(il2cpp_init_utf16));
-        if (!runtimeInit) SAFE_ABORT_MSG("Failed to find Runtime::InitUtf16!");
+        /*
+            il2cpp_init
+                Runtime::Init
+        */
+
+        // il2cpp_defaults. Runtime::Init is 2nd bl from il2cpp_init
+        auto runtimeInit = cs::findNthBl<2>(reinterpret_cast<const uint32_t*>(il2cpp_init));
+        if (!runtimeInit) SAFE_ABORT_MSG("Failed to find Runtime::Init!");
         // alternatively, could just get the 1st ADRP in Runtime::Init with dest reg x20 (or the 9th ADRP)
         // We DO need to skip at least one ret, though.
-        auto ldr = cs::findNth<6, &loadFind, &cs::insnMatch<>, 1>(*runtimeInit);
-        if (!ldr) SAFE_ABORT_MSG("Failed to find 6th load in Runtime::InitUtf16!");
+        auto ldr = cs::findNth<8, &loadFind, &cs::insnMatch<>, 1>(*runtimeInit);
+        if (!ldr) SAFE_ABORT_MSG("Failed to find 8th load in Runtime::Init!");
+        logger.debug("8th ldr in runtime init found? offset: %lX)", ((uintptr_t)*ldr) - getRealOffset(0));
         auto defaults_addr = cs::getpcaddr<1, 1>(*ldr);
-        if (!defaults_addr) SAFE_ABORT_MSG("Failed to find pcaddr around 6th load in Runtime::InitUtf16!");
+        if (!defaults_addr) SAFE_ABORT_MSG("Failed to find pcaddr around 8th load in Runtime::Init!");
         defaults = reinterpret_cast<decltype(defaults)>(std::get<2>(*defaults_addr));
         logger.debug("il2cpp_defaults found: %p (offset: %lX)", defaults, ((uintptr_t)defaults) - getRealOffset(0));
 
