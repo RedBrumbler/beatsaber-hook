@@ -60,9 +60,6 @@ struct ConstString {
         il2cpp_utils::detail::convstr(st, chars, sz - 1);
     }
     constexpr ConstString(const char16_t (&st)[sz]) noexcept {
-        if (il2cpp_functions::initialized) {
-            klass = il2cpp_functions::defaults->string_class;
-        }
         length = sz - 1;
         for (int i = 0; i < sz - 1; i++) {
             chars[i] = st[i];
