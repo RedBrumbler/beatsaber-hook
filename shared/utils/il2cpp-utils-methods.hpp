@@ -203,7 +203,7 @@ namespace il2cpp_utils {
             // Pointer type, grab class and perform deduction for unbox.
             // Must be classof deducible!
             auto* k = classof(Dt);
-            if (k && k->valuetype) {
+            if (k && !k->nullabletype) {
                 // Arg is an Il2CppObject* of a value type. It needs to be unboxed.
                 return il2cpp_functions::object_unbox(reinterpret_cast<Il2CppObject*>(arg));
             }
