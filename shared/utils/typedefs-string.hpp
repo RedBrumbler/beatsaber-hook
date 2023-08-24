@@ -121,9 +121,9 @@ struct ConstString {
     friend struct StringW;
     private:
     void* klass = nullptr;
-    void* monitor;
-    int length;
-    char16_t chars[sz];
+    void* monitor = nullptr;
+    int length = 0;
+    char16_t chars[sz] = {};
 };
 
 struct StringW {
