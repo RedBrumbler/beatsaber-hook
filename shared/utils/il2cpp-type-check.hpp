@@ -32,7 +32,7 @@ constexpr bool has_get = std::experimental::is_detected_v<get_t, T>;
 #ifndef classof
 // Returns the Il2CppClass* of the provided type T.
 // Should be a pointer type if it is a reference type, otherwise it should be a value type.
-#define classof(...) (::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<__VA_ARGS__>::get())
+#define classof(...) (::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<std::remove_const_t<__VA_ARGS__>>::get())
 #endif
 
 #ifndef csTypeOf
