@@ -324,6 +324,19 @@ namespace il2cpp_utils {
         };
 
         template<typename... TArgs, template<typename... ST> class S>
+        #ifndef BS_HOOK_USE_CONCEPTS
+        struct il2cpp_no_arg_class<S<TArgs...>, typename std::enable_if_t<has_get<il2cpp_gen_struct_no_arg_class<S>>>> {
+        #else
+        requires has_get<il2cpp_gen_class_no_arg_class<S>>
+        struct il2cpp_no_arg_class<S<TArgs...>> {
+        #endif
+            static inline Il2CppClass* get() {
+                auto* klass = il2cpp_gen_class_no_arg_class<S>::get();
+                return il2cpp_utils::MakeGeneric(klass, {il2cpp_no_arg_class<TArgs>::get()...});
+            }
+        };
+
+        template<typename... TArgs, template<typename... ST> class S>
         struct need_box<S<TArgs...>> {
             constexpr static bool value = need_box_gen<S>::value;
         };
