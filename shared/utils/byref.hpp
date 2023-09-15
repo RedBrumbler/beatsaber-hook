@@ -38,13 +38,6 @@ struct ByRef {
 // We do not need il2cpp_no_arg_class specialization for ByRef, since it will never get to that point.
 
 template<typename T>
-struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<ByRef<T>> {
-    static inline const Il2CppClass* get() {
-        return ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<T>::get();
-    }
-};
-
-template<typename T>
 struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_type<ByRef<T>> {
     static inline const Il2CppType* get() {
         static auto* typ = &::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<T>::get()->this_arg;
