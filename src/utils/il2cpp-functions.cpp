@@ -394,30 +394,15 @@ static std::optional<uint32_t*> blrFind(cs_insn* insn) {
     return insn->id == ARM64_INS_BLR ? std::optional<uint32_t*>(reinterpret_cast<uint32_t*>(insn->address)) : std::nullopt;
 }
 
-bool il2cpp_functions::find_GC_free(const uint32_t* Runtime_Shutdown) {
-    bool multipleMatches;
-    auto sigMatch = findUniquePatternInLibil2cpp(multipleMatches, "f8 5f bc a9 f6 57 01 a9 f4 4f 02 a9 "
-        "fd 7b 03 a9 fd c3 00 91 a0 08 00 b4 f3 03 00 aa ?? ?? ?? ?? 69 82 56 d3 4a ?? ?? 91 4b 0d 09 8b 49 55 40 f9 "
-        "0a 9c 9c 52 0a 04 a0 72 00 cc 74 92 68 fe 56 d3 6c 01 0a 8b 0a 03 84 52", "GC_free");
-    if (sigMatch && !multipleMatches) {
-        il2cpp_functions::il2cpp_GC_free = reinterpret_cast<decltype(il2cpp_functions::il2cpp_GC_free)>(sigMatch);
-        return true;
-    }
+bool il2cpp_functions::find_GC_free() {
     static auto logger = il2cpp_functions::getFuncLogger().WithContext("find_GC_free");
+    auto gc_free_fixed = cs::findNthB<1>(il2cpp_functions::il2cpp_gc_free_fixed);
+    if (!gc_free_fixed) SAFE_ABORT_MSG("Failed to find GarbageCollector::FreeFixed!");
 
-    auto blrStart = cs::find_through_hooks(Runtime_Shutdown, 4096, [](auto... pairs) {
-        std::array tracked{pairs...};
-        // Find first blr
-        return cs::findNth(tracked, 1, -1, blrFind, cs::insnMatch<>);
-    });
-    if (!blrStart) return false;
-    // 4th bl is call to (inlined) GarbageCollector_FreeFixed (after the blr, which we wish to skip)
-    auto callAddr = cs::findNthBl<4>(*blrStart + 1);
-    if (!callAddr) return false;
-    // GarbageCollector_FreeFixed has one b to GC_Free
-    auto gc_free_b = cs::findNthB<1>(*callAddr);
-    if (!gc_free_b) return false;
-    il2cpp_GC_free = reinterpret_cast<decltype(il2cpp_GC_free)>(*gc_free_b);
+    auto gc_free = cs::findNthB<1>(*gc_free_fixed);
+    if (!gc_free) SAFE_ABORT_MSG("Failed to find GC_free!");
+
+    il2cpp_GC_free = reinterpret_cast<decltype(il2cpp_GC_free)>(*gc_free);
     return true;
 }
 
@@ -922,7 +907,7 @@ void il2cpp_functions::Init() {
         // GC_free
         auto Runtime_Shutdown = cs::findNthB<1>(reinterpret_cast<const uint32_t*>(il2cpp_shutdown));
         if (!Runtime_Shutdown) SAFE_ABORT_MSG("Failed to find Runtime::Shutdown!");
-        if (find_GC_free(*Runtime_Shutdown)) {
+        if (find_GC_free()) {
             logger.debug("gc::GarbageCollector::FreeFixed found? offset: %lX", ((uintptr_t)il2cpp_GC_free) - getRealOffset(0));
         }
         // GarbageCollector::SetWriteBarrier(void*)

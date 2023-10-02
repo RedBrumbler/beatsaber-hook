@@ -421,7 +421,7 @@ class il2cpp_functions {
     API_FUNC_VISIBLE(AssemblyVector*, Assembly_GetAllAssemblies, ());
 
     private:
-    static bool find_GC_free(const uint32_t* Runtime_Shutdown);
+    static bool find_GC_free();
     static bool find_GC_SetWriteBarrier(const uint32_t* set_wbarrier_field);
     static bool trace_GC_AllocFixed(const uint32_t* DomainGetCurrent);
     static bool find_GC_AllocFixed(const uint32_t* DomainGetCurrent);
