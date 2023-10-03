@@ -138,6 +138,8 @@ API_INIT(bool, gc_has_strict_wbarriers, ());
 API_INIT(void, gc_set_external_allocation_tracker, (void(*func)(void*, size_t, int)));
 API_INIT(void, gc_set_external_wbarrier_tracker, (void(*func)(void**)));
 API_INIT(void, gc_foreach_heap, (void(*func)(void* data, void* userData), void* userData));
+API_INIT(void*, gc_alloc_fixed, (std::size_t size));
+API_INIT(void, gc_free_fixed, (void* addr));
 API_INIT(void, stop_gc_world, ());
 API_INIT(void, start_gc_world, ());
 #endif
@@ -396,7 +398,7 @@ static std::optional<uint32_t*> blrFind(cs_insn* insn) {
 
 bool il2cpp_functions::find_GC_free() {
     static auto logger = il2cpp_functions::getFuncLogger().WithContext("find_GC_free");
-    auto gc_free_fixed = cs::findNthB<1>(il2cpp_functions::il2cpp_gc_free_fixed);
+    auto gc_free_fixed = cs::findNthB<1>(reinterpret_cast<uint32_t*>(il2cpp_functions::il2cpp_gc_free_fixed));
     if (!gc_free_fixed) SAFE_ABORT_MSG("Failed to find GarbageCollector::FreeFixed!");
 
     auto gc_free = cs::findNthB<1>(*gc_free_fixed);
@@ -608,6 +610,8 @@ void il2cpp_functions::Init() {
     API_SYM(gc_set_external_allocation_tracker);
     API_SYM(gc_set_external_wbarrier_tracker);
     API_SYM(gc_foreach_heap);
+    API_SYM(gc_alloc_fixed);
+    API_SYM(gc_free_fixed);
     API_SYM(stop_gc_world);
     API_SYM(start_gc_world);
     #endif

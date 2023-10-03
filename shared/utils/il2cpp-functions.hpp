@@ -255,6 +255,8 @@ class il2cpp_functions {
     API_FUNC(void, gc_foreach_heap, (void(*func)(void* data, void* userData), void* userData));
     API_FUNC(void, stop_gc_world, ());
     API_FUNC(void, start_gc_world, ());
+    API_FUNC(void*, gc_alloc_fixed, (std::size_t size));
+    API_FUNC(void, gc_free_fixed, (void* addr));
     #endif
     API_FUNC(uint32_t, gchandle_new, (Il2CppObject * obj, bool pinned));
     API_FUNC(uint32_t, gchandle_new_weakref, (Il2CppObject * obj, bool track_resurrection));
