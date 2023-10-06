@@ -20,4 +20,12 @@ namespace bs_hook {
         constexpr EnumTypeWrapper& operator=(EnumTypeWrapper&&) = default;
         constexpr EnumTypeWrapper& operator=(EnumTypeWrapper const&) = default;
     };
+
+    /// @brief struct to pass a pointer to an enum into a method
+    struct EnumPtr : public VTPtr {
+        template<std::size_t sz>
+        EnumPtr(EnumTypeWrapper<sz>& e) : VTPtr(e) {};
+
+        explicit EnumPtr(void* i) : VTPtr(i) {};
+    };
 }

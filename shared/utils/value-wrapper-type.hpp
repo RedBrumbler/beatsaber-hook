@@ -27,4 +27,15 @@ namespace bs_hook {
 
         std::array<std::byte, sz> instance;
     };
+
+    /// @brief struct to pass a pointer to a value type into a method
+    struct VTPtr {
+        template<std::size_t sz>
+        VTPtr(ValueTypeWrapper<sz>& v) : instance(&v) {};
+
+        explicit VTPtr(void* i) : instance(i) {};
+        void* convert() const { return const_cast<void*>(instance); }
+
+        void* instance;
+    };
 }
