@@ -120,7 +120,6 @@ struct ArrayException : il2cpp_utils::exceptions::StackTraceException {
 template<class T>
 struct Array : public Il2CppArray
 {
-    static_assert(is_value_type_v<T>, "T must be a C# value type! (primitive, pointer or Struct)");
     ALIGN_TYPE(8) T values[IL2CPP_ZERO_LEN_ARRAY];
 
     inline il2cpp_array_size_t Length() const noexcept {
