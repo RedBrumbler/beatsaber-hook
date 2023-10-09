@@ -1,12 +1,13 @@
-#include "../../shared/utils/typedefs.h"
-#include "../../shared/utils/il2cpp-utils-classes.hpp"
-#include "../../shared/utils/il2cpp-utils-methods.hpp"
-#include "../../shared/utils/il2cpp-utils-properties.hpp"
-#include "../../shared/utils/il2cpp-utils-fields.hpp"
+#include "typedefs.h"
+#include "il2cpp-utils-classes.hpp"
+#include "il2cpp-utils-methods.hpp"
+#include "il2cpp-utils-properties.hpp"
+#include "il2cpp-utils-fields.hpp"
 #include <map>
 #include <unordered_map>
-#include "../../shared/utils/alphanum.hpp"
+#include "alphanum.hpp"
 #include "shared/utils/gc-alloc.hpp"
+#include "utils/il2cpp-functions.hpp"
 
 namespace il2cpp_utils {
     static int indent = -1;
