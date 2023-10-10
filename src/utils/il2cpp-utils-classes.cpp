@@ -1,12 +1,12 @@
-#include "typedefs.h"
-#include "il2cpp-utils-classes.hpp"
-#include "il2cpp-utils-methods.hpp"
-#include "il2cpp-utils-properties.hpp"
-#include "il2cpp-utils-fields.hpp"
+#include "utils/typedefs.h"
+#include "utils/il2cpp-utils-classes.hpp"
+#include "utils/il2cpp-utils-methods.hpp"
+#include "utils/il2cpp-utils-properties.hpp"
+#include "utils/il2cpp-utils-fields.hpp"
 #include <map>
 #include <unordered_map>
-#include "alphanum.hpp"
-#include "shared/utils/gc-alloc.hpp"
+#include "utils/alphanum.hpp"
+#include "utils/gc-alloc.hpp"
 #include "utils/il2cpp-functions.hpp"
 
 namespace il2cpp_utils {
