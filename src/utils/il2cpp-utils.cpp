@@ -201,14 +201,14 @@ namespace il2cpp_utils {
     }
 
     void RemoveDelegate(Il2CppDelegate* delegateInstance, Il2CppDelegate* comparePointer) noexcept {
-        auto arrPtr = reinterpret_cast<MulticastDelegate*>(delegateInstance)->delegates;
+        auto arrPtr = static_cast<Array<Il2CppDelegate*>*>(reinterpret_cast<Il2CppMulticastDelegate*>(delegateInstance)->delegates);
         std::vector<Il2CppDelegate*> newPtrs(arrPtr->Length());
         for (il2cpp_array_size_t i = 0; i < arrPtr->Length(); i++) {
             if (arrPtr->values[i] != comparePointer) {
                 newPtrs.push_back(arrPtr->values[i]);
             }
         }
-        reinterpret_cast<MulticastDelegate*>(delegateInstance)->delegates = il2cpp_utils::vectorToArray(newPtrs);
+        reinterpret_cast<Il2CppMulticastDelegate*>(delegateInstance)->delegates = il2cpp_utils::vectorToArray(newPtrs);
     }
 
     std::string ClassStandardName(const Il2CppClass* klass, bool generics) {
