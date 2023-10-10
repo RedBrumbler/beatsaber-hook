@@ -138,11 +138,8 @@ struct StringW {
     constexpr StringW(std::nullptr_t npt) noexcept : inst(npt) {}
     constexpr StringW() noexcept : inst(nullptr) {}
 
-    constexpr void const* convert() const noexcept {
-        return inst;
-    }
-    constexpr void* convert() noexcept {
-        return inst;
+    constexpr void* convert() const noexcept {
+        return const_cast<void*>(static_cast<const void*>(inst));
     }
     constexpr operator Il2CppString const*() const noexcept {
         return inst;
