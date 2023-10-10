@@ -84,7 +84,11 @@ template<typename T>
 struct ArrayW;
 
 template<class T>
-struct Array : public Il2CppArray
+struct Array;
+
+template<class T>
+requires(::il2cpp_utils::is_il2cpp_size_safe_v<T>)
+struct Array<T> : public Il2CppArray
 {
     ALIGN_TYPE(8) T values[IL2CPP_ZERO_LEN_ARRAY];
 
@@ -201,6 +205,36 @@ struct Array : public Il2CppArray
     /// @return The created span.
     const std::span<T> ref_to() const {
         return std::span(const_cast<T*>(values), Length());
+    }
+
+    protected:
+        friend ArrayW<T>;
+        void* internal_get(std::size_t i) noexcept {
+            return values + i;
+        }
+
+        const void* internal_get(std::size_t i) const {
+            return values + i;
+        }
+};
+
+template<class T>
+requires(!::il2cpp_utils::is_il2cpp_size_safe_v<T>)
+struct Array<T> : public Il2CppArray
+{
+    ALIGN_TYPE(8) std::array<std::byte, il2cpp_sizeof(T)> values[IL2CPP_ZERO_LEN_ARRAY];
+
+    inline il2cpp_array_size_t Length() const noexcept {
+        if (bounds) {
+            return bounds->length;
+        }
+        return max_length;
+    }
+
+    inline void assertBounds(size_t i) {
+        if (i < 0 || i >= Length()) {
+            throw ArrayException(this, string_format("%zu is out of bounds for array of length: %zu", i, Length()));
+        }
     }
 
     protected:
@@ -449,7 +483,257 @@ struct ArrayW<T> {
         }
 };
 
-// TODO: implementation for !il2cpp_safe types, meaning conversion between what actually is stored and returns.
+
+/// Implementation of ArrayW based on types that are not the same size in C# as in cpp
+template<typename T>
+requires(!::il2cpp_utils::is_il2cpp_size_safe_v<T>)
+struct ArrayW<T> {
+    using Ptr = Array<T>*;
+    /// @brief init ArrayW from arbitrary pointer
+    constexpr explicit ArrayW(void* i) noexcept : val(static_cast<Ptr>(i)) {}
+    /// @brief init ArrayW from pointer array
+    constexpr ArrayW(Ptr initVal) noexcept : val(initVal) {}
+    /// @brief explicit nullptr init
+    constexpr ArrayW(std::nullptr_t nptr) noexcept : val(nptr) {}
+    /// @brief default ctor begins as nullptr
+    ArrayW() noexcept : val(nullptr) {}
+    template<class U>
+    requires (!std::is_same_v<std::nullptr_t, U> && std::is_convertible_v<U, T>)
+    ArrayW(std::initializer_list<U> vals) : val(Array<T>::New(vals)) {}
+    ArrayW(il2cpp_array_size_t size) : val(Array<T>::NewLength(size)) {}
+
+    inline il2cpp_array_size_t Length() const {
+        return val->Length();
+    }
+
+    inline il2cpp_array_size_t size() const {
+        return val->Length();
+    }
+
+    inline void assertBounds(std::size_t i) const {
+        val->assertBounds(i);
+    }
+
+    /// Wrapper for the return values of things like operator [] and get() so things remain assignable
+    struct IndexWrapper {
+        void mutable** address;
+        IndexWrapper(void** addr) : address(addr) {};
+        IndexWrapper(IndexWrapper&&) = delete;
+        IndexWrapper(IndexWrapper const&) = delete;
+
+        constexpr T get_v() const { return T(*address); }
+        inline void set_v(T&& v) {
+            // FIXME: should this use wbarrier?
+            *address = v.convert();
+        }
+        constexpr operator T() const { return get_v(); }
+        constexpr T operator *() const { return get_v(); }
+
+        IndexWrapper& operator=(T o) {
+            set_v(std::forward<T>(o));
+            return *this;
+        }
+
+        struct ArrowOverload {
+            T v;
+            T* operator ->() { return &v; }
+            const T* operator ->() const { return &v; }
+        };
+
+        const ArrowOverload operator ->() const {
+            return ArrowOverload{ get_v() };
+        }
+
+        ArrowOverload operator ->() {
+            return ArrowOverload{ get_v() };
+        }
+    };
+
+    IndexWrapper operator[](std::size_t i) {
+        return IndexWrapper(internal_get(i));
+    }
+    const IndexWrapper operator[](std::size_t i) const {
+        return IndexWrapper(const_cast<void**>(internal_get(i)));
+    }
+
+    IndexWrapper get(std::size_t i) {
+        assertBounds(i);
+        return IndexWrapper(internal_get(i));
+    }
+    const IndexWrapper get(std::size_t i) const {
+        assertBounds(i);
+        return IndexWrapper(const_cast<void**>(internal_get(i)));
+    }
+    std::optional<IndexWrapper> try_get(std::size_t i) {
+        if (i >= Length() || i < 0) return std::nullopt;
+        return IndexWrapper(internal_get(i));
+    }
+    std::optional<const IndexWrapper> try_get(std::size_t i) const {
+        if (i >= Length() || i < 0) return std::nullopt;
+        return IndexWrapper(const_cast<void**>(internal_get(i)));
+    }
+
+    template<class U = Il2CppObject*>
+    U GetEnumerator() {
+        static auto* method = CRASH_UNLESS(il2cpp_utils::FindMethodUnsafe(
+            val, "System.Collections.Generic.IEnumerable`1.GetEnumerator", 0));
+        return il2cpp_utils::RunMethodRethrow<U, false>(val, method);
+    }
+    bool Contains(T item) {
+        // TODO: find a better way around the existence of 2 methods with this name (the 2nd not being generic at all)
+        static auto* method = CRASH_UNLESS(il2cpp_utils::FindMethodUnsafe(
+            val, "System.Collections.Generic.ICollection`1.Contains", 1));
+        return il2cpp_utils::RunMethodRethrow<bool, false>(val, method, item);
+    }
+    void CopyTo(::Array<T>* array, int arrayIndex) {
+        static auto* method = CRASH_UNLESS(il2cpp_utils::FindMethodUnsafe(
+            val, "System.Collections.Generic.ICollection`1.CopyTo", 2));
+        il2cpp_utils::RunMethodRethrow<void, false>(val, method, array, arrayIndex);
+    }
+    int IndexOf(T item) {
+        static auto* method = CRASH_UNLESS(il2cpp_utils::FindMethodUnsafe(val, "System.Collections.Generic.IList`1.IndexOf", 1));
+        return il2cpp_utils::RunMethodRethrow<int, false>(val, method, item);
+    }
+
+    struct Iter {
+        ArrayW<T>* arr;
+        mutable std::size_t idx;
+
+        bool operator ==(const Iter& o) const {
+            return arr = o.arr && idx == o.idx;
+        }
+
+        IndexWrapper operator ->() {
+            return IndexWrapper(arr->internal_get(idx));
+        }
+        IndexWrapper operator *() {
+            return IndexWrapper(arr->internal_get(idx));
+        }
+
+        Iter& operator ++() { idx++; return *this; }
+        Iter& operator --() { idx--; return *this; }
+        Iter& operator ++(int) { ++idx; return *this; }
+        Iter& operator --(int) { --idx; return *this; }
+    };
+
+    using iterator = Iter;
+
+    // TODO: constify iters
+    iterator begin() { return Iter(this, 0); }
+    iterator end() { return Iter(this, Length()); }
+    auto rbegin() { return std::reverse_iterator(Iter(this, Length())); }
+    auto rend() { return std::reverse_iterator(Iter(this, 0)); }
+
+    explicit operator Ptr() noexcept { return val; }
+    explicit operator const Ptr() const noexcept { return val; }
+    explicit operator Il2CppArray*() noexcept { return val; }
+    explicit operator const Il2CppArray*() const noexcept { return val; }
+    constexpr Ptr operator->() noexcept { return val; }
+    constexpr const Ptr operator->() const noexcept { return val; }
+
+    template<class U>
+    requires (il2cpp_sizeof(T) == il2cpp_sizeof(U) && std::is_convertible_v<T, U>)
+    operator ArrayW<U>() noexcept {
+        return ArrayW<U>(reinterpret_cast<Array<U>*>(val));
+    }
+    template<class U>
+    requires (il2cpp_sizeof(T) == il2cpp_sizeof(U) && std::is_convertible_v<T, U>)
+    operator ArrayW<U> const() const noexcept {
+        return ArrayW<U>(reinterpret_cast<Array<U>* const>(val));
+    }
+    operator bool() const noexcept { return val != nullptr; }
+
+    static ArrayW<T> Empty() noexcept { return ArrayW<T>(il2cpp_array_size_t(0)); };
+
+    /// @brief attempts to get the first element in the array
+    /// @throws ArrayException when the array is empty
+    T First() {
+        if (Length() > 0)
+            return T(*internal_get(0));
+        else
+            throw ArrayException(this, "ArrayW<T>.First() called on empty array");
+    }
+
+    /// @brief attempts to get the first element in the array, returns default constructed element if not found
+    template<typename D = T>
+    requires(std::is_default_constructible_v<T>)
+    T FirstOrDefault() {
+        if (Length() > 0)
+            return T(*internal_get(0));
+        else
+            return {};
+    }
+
+    /// @brief attempts to get the first element that returns true for the given predicate
+    /// @throws ArrayException when the array is empty
+    template<class Pred>
+    T First(Pred predicate) {
+        for (auto itr = begin(); itr != end(); itr++) {
+            if (predicate(*itr)) return *itr;
+        }
+        throw ArrayException(this, "ArrayW<T>.First(predicate) could find no item that matched predicate");
+    }
+
+    /// @brief attempts to get the first element that returns true for the given predicate, returns default constructed element if not found
+    template<class Pred>
+    requires(std::is_default_constructible_v<T>)
+    T FirstOrDefault(Pred predicate) {
+        for (auto itr = begin(); itr != end(); itr++) {
+            if (predicate(*itr)) return *itr;
+        }
+        return {};
+    }
+
+    /// @brief attempts to get the last element in the array
+    /// @throws ArrayException when the array is empty
+    T Last() {
+        if (Length() > 0)
+            return T(*internal_get(Length() - 1));
+        else
+            throw ArrayException(this, "ArrayW<T>.Last() called on empty array");
+    }
+
+    /// @brief attempts to get the last element in the array, returns default constructed element if not found
+    template<typename>
+    requires(std::is_default_constructible_v<T>)
+    T LastOrDefault() {
+        if (Length() > 0)
+            return T(*internal_get(Length() - 1));
+        else
+            return {};
+    }
+
+    /// @brief attempts to get the last element in the array that matches the given predicate
+    /// @throws ArrayException when the array is empty
+    template<class Pred>
+    T Last(Pred predicate) {
+        for (auto itr = rbegin(); itr != rend(); itr++) {
+            if (predicate(*itr)) return *itr;
+        }
+        throw ArrayException(this, "ArrayW<T>.Last(predicate) could find no item that matched predicate");
+    }
+
+    /// @brief attempts to get the last element in the array that matches the given predicate, returns default constructed element if not found
+    template<class Pred>
+    requires(std::is_default_constructible_v<T>)
+    T LastOrDefault(Pred predicate) {
+        for (auto itr = rbegin(); itr != rend(); itr++) {
+            if (predicate(*itr)) return *itr;
+        }
+        return {};
+    }
+
+    void* convert() const noexcept { return const_cast<void*>(static_cast<void*>(val)); }
+    protected:
+        Ptr val;
+        void** internal_get(std::size_t i) noexcept {
+            return static_cast<void**>(val->values + i);
+        }
+
+        const void** internal_get(std::size_t i) const noexcept {
+            return static_cast<const void**>(val->values + i);
+        }
+};
 
 static_assert(il2cpp_utils::has_il2cpp_conversion<ArrayW<int*>>);
 template<class T>
