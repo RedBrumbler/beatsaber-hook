@@ -1,6 +1,5 @@
 #pragma once
 
-#include <type_traits>
 #include "value-wrapper-type.hpp"
 
 namespace bs_hook {
