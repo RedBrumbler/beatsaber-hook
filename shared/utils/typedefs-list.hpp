@@ -4,8 +4,7 @@
 #include <span>
 #include <optional>
 #include "typedefs-array.hpp"
-#include "utils/base-wrapper-type.hpp"
-#include "utils/size-concepts.hpp"
+#include "size-concepts.hpp"
 
 // System.Collections.Generic.List
 template<class T>
@@ -132,6 +131,8 @@ struct ListW<T, Ptr> {
 static_assert(il2cpp_utils::is_il2cpp_size_safe_v<int>);
 static_assert(il2cpp_utils::is_il2cpp_size_safe_v<List<int>*>);
 static_assert(il2cpp_utils::has_il2cpp_conversion<ListW<int, List<int>*>>);
+
+MARK_GEN_REF_T(ListW);
 
 template<class T, class Ptr>
 struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<ListW<T, Ptr>> {

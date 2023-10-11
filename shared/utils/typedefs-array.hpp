@@ -741,6 +741,8 @@ struct ArrayW<T> {
         }
 };
 
+MARK_GEN_REF_T(ArrayW);
+
 static_assert(il2cpp_utils::has_il2cpp_conversion<ArrayW<int*>>);
 template<class T>
 struct ::il2cpp_utils::il2cpp_type_check::need_box<ArrayW<T>> {

@@ -3,6 +3,7 @@
 #include <concepts>
 #include <cstdint>
 #include "il2cpp-type-check.hpp"
+#include "type-concepts.hpp"
 
 namespace il2cpp_utils {
     template<class T>
@@ -36,5 +37,6 @@ namespace bs_hook {
     static_assert(il2cpp_utils::has_il2cpp_conversion<Il2CppWrapperType>);
 }
 
+MARK_REF_T(bs_hook::Il2CppWrapperType);
 NEED_NO_BOX(bs_hook::Il2CppWrapperType);
 DEFINE_IL2CPP_DEFAULT_TYPE(bs_hook::Il2CppWrapperType, object);

@@ -9,6 +9,7 @@
 #include <locale>
 #include <codecvt>
 #include <span>
+#include "type-concepts.hpp"
 
 struct UseBeforeInitError : il2cpp_utils::exceptions::StackTraceException {
     UseBeforeInitError(const char* v) : il2cpp_utils::exceptions::StackTraceException(v) {}
@@ -37,7 +38,7 @@ namespace detail {
     bool strless(Il2CppString const* lhs, std::string_view const rhs) noexcept;
     bool strless(Il2CppString const* lhs, std::u16string_view const rhs) noexcept;
     bool strless(Il2CppString const* lhs, Il2CppString const* rhs) noexcept;
-    
+
     bool strstart(Il2CppString const* lhs, std::string_view const rhs) noexcept;
     bool strstart(Il2CppString const* lhs, std::u16string_view const rhs) noexcept;
     bool strstart(Il2CppString const* lhs, Il2CppString const* rhs) noexcept;
@@ -154,7 +155,7 @@ struct StringW {
         return inst;
     }
     constexpr operator bool() const noexcept {
-        return inst != nullptr; 
+        return inst != nullptr;
     }
 
     constexpr bool operator ==(std::nullptr_t rhs) const noexcept {
@@ -187,7 +188,7 @@ struct StringW {
     bool operator ==(ConstString<sz> const& rhs) const noexcept {
         return il2cpp_utils::detail::strcomp(inst, rhs.operator Il2CppString const*());
     }
-    
+
     template<typename T>
     requires (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T> || std::is_same_v<T, StringW>)
     bool operator ==(T const& rhs) const noexcept {
@@ -201,14 +202,14 @@ struct StringW {
         if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strstart(inst, rhs.inst);
         else return il2cpp_utils::detail::strstart(inst, rhs);
     }
-    
+
     template<typename T>
     requires (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T> || std::is_same_v<T, StringW>)
     bool ends_with(T const& rhs) const noexcept {
         if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strend(inst, rhs.inst);
         else return il2cpp_utils::detail::strend(inst, rhs);
     }
-    
+
     using iterator = Il2CppChar*;
     using const_iterator = Il2CppChar const*;
 
@@ -230,6 +231,8 @@ struct StringW {
     private:
     Il2CppString* inst;
 };
+
+MARK_REF_T(StringW);
 
 template<typename T>
 requires (!std::is_constructible_v<T, StringW> && (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T>))
