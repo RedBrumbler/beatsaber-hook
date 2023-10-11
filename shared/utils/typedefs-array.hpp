@@ -84,11 +84,7 @@ template<typename T>
 struct ArrayW;
 
 template<class T>
-struct Array;
-
-template<class T>
-requires(::il2cpp_utils::is_il2cpp_size_safe_v<T>)
-struct Array<T> : public Il2CppArray
+struct Array : public Il2CppArray
 {
     ALIGN_TYPE(8) T values[IL2CPP_ZERO_LEN_ARRAY];
 
@@ -218,36 +214,6 @@ struct Array<T> : public Il2CppArray
         }
 };
 
-template<class T>
-requires(!::il2cpp_utils::is_il2cpp_size_safe_v<T>)
-struct Array<T> : public Il2CppArray
-{
-    ALIGN_TYPE(8) std::array<std::byte, il2cpp_sizeof(T)> values[IL2CPP_ZERO_LEN_ARRAY];
-
-    inline il2cpp_array_size_t Length() const noexcept {
-        if (bounds) {
-            return bounds->length;
-        }
-        return max_length;
-    }
-
-    inline void assertBounds(size_t i) {
-        if (i < 0 || i >= Length()) {
-            throw ArrayException(this, string_format("%zu is out of bounds for array of length: %zu", i, Length()));
-        }
-    }
-
-    protected:
-        friend ArrayW<T>;
-        void* internal_get(std::size_t i) noexcept {
-            return values + i;
-        }
-
-        const void* internal_get(std::size_t i) const {
-            return values + i;
-        }
-};
-
 template<typename TArg>
 struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<Array<TArg>*> {
     static inline Il2CppClass* get() {
@@ -267,7 +233,8 @@ struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<Array<TArg>*> {
 template<typename T>
 requires(::il2cpp_utils::is_il2cpp_size_safe_v<T>)
 struct ArrayW<T> {
-    using Ptr = Array<T>*;
+    using Elem = T;
+    using Ptr = Array<Elem>*;
     /// @brief init ArrayW from arbitrary pointer
     constexpr explicit ArrayW(void* i) noexcept : val(static_cast<Ptr>(i)) {}
     /// @brief init ArrayW from pointer array
@@ -278,8 +245,8 @@ struct ArrayW<T> {
     ArrayW() noexcept : val(nullptr) {}
     template<class U>
     requires (!std::is_same_v<std::nullptr_t, U> && std::is_convertible_v<U, T>)
-    ArrayW(std::initializer_list<U> vals) : val(Array<T>::New(vals)) {}
-    ArrayW(il2cpp_array_size_t size) : val(Array<T>::NewLength(size)) {}
+    ArrayW(std::initializer_list<U> vals) : val(Array<Elem>::New(vals)) {}
+    ArrayW(il2cpp_array_size_t size) : val(Array<Elem>::NewLength(size)) {}
 
     inline il2cpp_array_size_t Length() const {
         return val->Length();
@@ -342,7 +309,7 @@ struct ArrayW<T> {
             val, "System.Collections.Generic.ICollection`1.Contains", 1));
         return il2cpp_utils::RunMethodRethrow<bool, false>(val, method, item);
     }
-    void CopyTo(::Array<T>* array, int arrayIndex) {
+    void CopyTo(::Array<Elem>* array, int arrayIndex) {
         static auto* method = CRASH_UNLESS(il2cpp_utils::FindMethodUnsafe(
             val, "System.Collections.Generic.ICollection`1.CopyTo", 2));
         il2cpp_utils::RunMethodRethrow<void, false>(val, method, array, arrayIndex);
@@ -483,12 +450,51 @@ struct ArrayW<T> {
         }
 };
 
+template<typename T>
+struct Il2CppSizeStruct {
+
+    template<typename U>
+    requires(std::is_convertible_v<U, T>)
+    Il2CppSizeStruct(U&& val) : val(this->operator=(val)) {}
+
+    static constexpr auto size = il2cpp_sizeof(T);
+    using Wrap = std::array<std::byte, size>;
+    Wrap val;
+
+    Il2CppSizeStruct<T> operator=(T v) {
+        memcpy(val.data(), v.convert(), size);
+        return *this;
+    }
+
+    operator T() { return T(static_cast<void*>(val.data())); }
+    operator T() const { return T(const_cast<void*>(static_cast<const void*>(val.data()))); }
+};
+
+static_assert(sizeof(Il2CppSizeStruct<int>) == sizeof(int));
+
+template<class T>
+struct ::il2cpp_utils::il2cpp_type_check::need_box<Il2CppSizeStruct<T>> {
+    constexpr static bool value = ::il2cpp_utils::il2cpp_type_check::need_box<T>::value;
+};
+
+template<class T>
+struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<Il2CppSizeStruct<T>> {
+    static inline Il2CppClass* get() {
+        static auto klass = ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<T>::get();
+        return klass;
+    }
+};
 
 /// Implementation of ArrayW based on types that are not the same size in C# as in cpp
 template<typename T>
 requires(!::il2cpp_utils::is_il2cpp_size_safe_v<T>)
 struct ArrayW<T> {
-    using Ptr = Array<T>*;
+    using Elem = Il2CppSizeStruct<T>;
+    // the wrapper should be safe size
+    static_assert(::il2cpp_utils::is_il2cpp_size_safe_v<Elem>);
+
+    using Ptr = Array<Elem>*;
+
     /// @brief init ArrayW from arbitrary pointer
     constexpr explicit ArrayW(void* i) noexcept : val(static_cast<Ptr>(i)) {}
     /// @brief init ArrayW from pointer array
@@ -499,8 +505,8 @@ struct ArrayW<T> {
     ArrayW() noexcept : val(nullptr) {}
     template<class U>
     requires (!std::is_same_v<std::nullptr_t, U> && std::is_convertible_v<U, T>)
-    ArrayW(std::initializer_list<U> vals) : val(Array<T>::New(vals)) {}
-    ArrayW(il2cpp_array_size_t size) : val(Array<T>::NewLength(size)) {}
+    ArrayW(std::initializer_list<U> vals) : val(Array<Elem>::New(vals)) {}
+    ArrayW(il2cpp_array_size_t size) : val(Array<Elem>::NewLength(size)) {}
 
     inline il2cpp_array_size_t Length() const {
         return val->Length();
@@ -585,7 +591,7 @@ struct ArrayW<T> {
             val, "System.Collections.Generic.ICollection`1.Contains", 1));
         return il2cpp_utils::RunMethodRethrow<bool, false>(val, method, item);
     }
-    void CopyTo(::Array<T>* array, int arrayIndex) {
+    void CopyTo(::Array<Elem>* array, int arrayIndex) {
         static auto* method = CRASH_UNLESS(il2cpp_utils::FindMethodUnsafe(
             val, "System.Collections.Generic.ICollection`1.CopyTo", 2));
         il2cpp_utils::RunMethodRethrow<void, false>(val, method, array, arrayIndex);

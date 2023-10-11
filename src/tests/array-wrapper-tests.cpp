@@ -1,8 +1,26 @@
 #ifdef TEST_ARRAY
 
 #include "../../shared/utils/typedefs-array.hpp"
+#include "utils/base-wrapper-type.hpp"
 #include <iostream>
 #include <assert.h>
+
+struct SomeWrapper : public ::bs_hook::Il2CppWrapperType {
+    SomeWrapper(void* i) : ::bs_hook::Il2CppWrapperType(i) {}
+
+    void* haveAnotherField;
+};
+
+static_assert(sizeof(SomeWrapper) == 0x10);
+static_assert(std::is_same_v<ArrayW<SomeWrapper>::Elem, Il2CppSizeStruct<SomeWrapper>>);
+
+struct MatchingWrapper : public ::bs_hook::Il2CppWrapperType {
+    MatchingWrapper(void* i) : ::bs_hook::Il2CppWrapperType(i) {}
+
+};
+
+static_assert(sizeof(MatchingWrapper) == 0x8);
+static_assert(std::is_same_v<ArrayW<MatchingWrapper>::Elem, MatchingWrapper>);
 
 static void constDoThing(const ArrayW<int>& wrap) {
     auto i = wrap[0];
@@ -54,6 +72,8 @@ static void doThing() {
     arr3.First();
     arr.LastOrDefault([](auto x){ return x == 0; });
     arr3.Last([](auto x){ return x == 0; });
+
+    ArrayW<SomeWrapper> wrapperArr;
 }
 
 #include "../../shared/utils/il2cpp-utils.hpp"
