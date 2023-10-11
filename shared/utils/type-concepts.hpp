@@ -115,19 +115,19 @@ namespace il2cpp_utils {
 #pragma endregion // ref type
 
 #define MARK_REF_T(...) \
-    template<> ::il2cpp_utils::RefTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }; \
-    template<> ::il2cpp_utils::ValueTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }
+    template<> struct ::il2cpp_utils::RefTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }; \
+    template<> struct ::il2cpp_utils::ValueTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }
 
 #define MARK_VAL_T(...) \
-    template<> ::il2cpp_utils::RefTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }; \
-    template<> ::il2cpp_utils::ValueTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }
+    template<> struct ::il2cpp_utils::RefTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }; \
+    template<> struct ::il2cpp_utils::ValueTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }
 
 #define MARK_GEN_REF_T(...) \
-    template<> ::il2cpp_utils::GenRefTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }; \
-    template<> ::il2cpp_utils::GenValueTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }
+    template<> struct ::il2cpp_utils::GenRefTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }; \
+    template<> struct ::il2cpp_utils::GenValueTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }
 
 #define MARK_GEN_VAL_T(...) \
-    template<> ::il2cpp_utils::GenRefTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }; \
-    template<> ::il2cpp_utils::GenValueTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }
+    template<> struct ::il2cpp_utils::GenRefTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }; \
+    template<> struct ::il2cpp_utils::GenValueTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }
 
 }
