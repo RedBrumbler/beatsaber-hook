@@ -1,3 +1,4 @@
+    #include "utils/type-concepts.hpp"
 #ifdef TEST_ARRAY
 
 #include "../../shared/utils/typedefs-array.hpp"
@@ -5,20 +6,33 @@
 #include <iostream>
 #include <assert.h>
 
-struct SomeWrapper : public ::bs_hook::Il2CppWrapperType {
-    SomeWrapper(void* i) : ::bs_hook::Il2CppWrapperType(i) {}
+class SomeWrapper : public ::bs_hook::Il2CppWrapperType {
+    public:
+        static constexpr auto __IL2CPP_VALUE_TYPE = false;
+        SomeWrapper(void* i) : ::bs_hook::Il2CppWrapperType(i) {}
 
-    void* haveAnotherField;
+        virtual ~SomeWrapper() {}
 };
 
+int a;
+SomeWrapper b = SomeWrapper(static_cast<void*>(&a));
+
+static_assert(::il2cpp_utils::il2cpp_reference_type_requirements<SomeWrapper>);
+static_assert(::il2cpp_utils::il2cpp_reference_type<SomeWrapper>);
+static_assert(::il2cpp_utils::RefTypeTrait<SomeWrapper>::value);
 static_assert(sizeof(SomeWrapper) == 0x10);
 static_assert(std::is_same_v<ArrayW<SomeWrapper>::Elem, Il2CppSizeStruct<SomeWrapper>>);
 
-struct MatchingWrapper : public ::bs_hook::Il2CppWrapperType {
-    MatchingWrapper(void* i) : ::bs_hook::Il2CppWrapperType(i) {}
+class MatchingWrapper : public ::bs_hook::Il2CppWrapperType {
+    public:
+        static constexpr auto __IL2CPP_VALUE_TYPE = false;
+        MatchingWrapper(void* i) : ::bs_hook::Il2CppWrapperType(i) {}
 
 };
 
+static_assert(::il2cpp_utils::il2cpp_reference_type_requirements<MatchingWrapper>);
+static_assert(::il2cpp_utils::il2cpp_reference_type<MatchingWrapper>);
+static_assert(::il2cpp_utils::RefTypeTrait<MatchingWrapper>::value);
 static_assert(sizeof(MatchingWrapper) == 0x8);
 static_assert(std::is_same_v<ArrayW<MatchingWrapper>::Elem, MatchingWrapper>);
 

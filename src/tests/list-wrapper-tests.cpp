@@ -4,7 +4,7 @@
 #include "../../shared/utils/il2cpp-utils.hpp"
 #include <iostream>
 
-static void constDoThing(const ListWrapper<int>& wrap) {
+static void constDoThing(const ListW<int>& wrap) {
     auto i = wrap[0];
     assert(wrap.size() == 1);
     for (auto itr : wrap) {
@@ -16,7 +16,7 @@ static void constDoThing(const ListWrapper<int>& wrap) {
 }
 
 static void doThing() {
-    ListWrapper<int> arr(*il2cpp_utils::New<List<int>*>(classof(List<int>*)));
+    ListW<int> arr(*il2cpp_utils::New<List<int>*>(classof(List<int>*)));
     il2cpp_utils::RunMethodThrow(*reinterpret_cast<List<int>**>(&arr), il2cpp_utils::FindMethod(arr, "Add"), 2);
     auto i = arr[0];
     assert(arr.size() == 1);
@@ -25,15 +25,15 @@ static void doThing() {
         assert(itr == i);
         std::cout << itr << std::endl;
     }
-    il2cpp_utils::NewSpecific<ListWrapper<Il2CppObject*>>(1, 2, 3);
+    il2cpp_utils::NewSpecific<ListW<Il2CppObject*>>(1, 2, 3);
     std::cout << i << std::endl;
 }
 
 static void doThing2() {
-    ListWrapper<int> arr(nullptr);
+    ListW<int> arr(nullptr);
     MethodInfo info;
     il2cpp_utils::RunMethodThrow(classof(Il2CppObject*), &info, arr);
-    il2cpp_utils::RunMethodThrow<ListWrapper<Il2CppObject*>>(classof(Il2CppObject*), &info);
+    il2cpp_utils::RunMethodThrow<ListW<Il2CppObject*>>(classof(Il2CppObject*), &info);
 }
 
 #endif

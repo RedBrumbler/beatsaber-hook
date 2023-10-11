@@ -79,16 +79,6 @@ namespace il2cpp_utils {
     }
 }
 
-// System.Collections.Generic.List
-template<class T>
-struct List : Il2CppObject
-{
-    Array<T>* items;
-    int size;
-    int version;
-    Il2CppObject* syncRoot;
-};
-DEFINE_IL2CPP_ARG_TYPE_GENERIC_CLASS(List, "System.Collections.Generic", "List`1");
 #include "typedefs-list.hpp"
 
 // From Runtime.cpp (some may need the * removed):
@@ -172,14 +162,6 @@ DEFINE_IL2CPP_DEFAULT_TYPE(Il2CppException*, exception);
 NEED_NO_BOX(Il2CppException);
 
 DEFINE_IL2CPP_ARG_TYPE(long double, "System", "Decimal");
-
-template<class T, class Ptr>
-struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<ListWrapper<T, Ptr>> {
-    static inline Il2CppClass* get() {
-        static auto klass = ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<List<T>*>::get();
-        return klass;
-    }
-};
 
 #include "utils/Il2CppHashMap.h"
 #include "utils/HashUtils.h"

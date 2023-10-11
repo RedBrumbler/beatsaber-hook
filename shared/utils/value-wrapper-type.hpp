@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <array>
+#include "type-concepts.hpp"
 
 namespace bs_hook {
     template<std::size_t sz>
@@ -38,4 +39,10 @@ namespace bs_hook {
 
         void* instance;
     };
+
 }
+
+template<std::size_t sz>
+struct ::il2cpp_utils::ValueTypeTrait<::bs_hook::ValueTypeWrapper<sz>> {
+    constexpr static bool value = true;
+};

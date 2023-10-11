@@ -3,21 +3,39 @@
 
 #include <span>
 #include <optional>
-#include "il2cpp-utils-methods.hpp"
+#include "typedefs-array.hpp"
+#include "utils/base-wrapper-type.hpp"
+#include "utils/size-concepts.hpp"
+
+// System.Collections.Generic.List
+template<class T>
+struct List : Il2CppObject
+{
+    ArrayW<T> items;
+    int size;
+    int version;
+    Il2CppObject* syncRoot;
+};
+DEFINE_IL2CPP_ARG_TYPE_GENERIC_CLASS(List, "System.Collections.Generic", "List`1");
 
 template<class T, class Ptr = List<T>*>
-struct ListWrapper {
+struct ListW;
+
+// il2cpp safe implementation of ListW
+template<class T, class Ptr>
+requires(::il2cpp_utils::is_il2cpp_size_safe_v<T>)
+struct ListW<T, Ptr> {
     static_assert(sizeof(Ptr) == sizeof(void*), "Size of Ptr type must be the same as a void*!");
-    
+
     // TODO: Consider requirementally constexpr-ifying this call
     // TODO: Apply these il2cpp conversion changes to ArrayW as well, to permit ArrayW to hold wrapper types and not pure pointers
-    constexpr ListWrapper(Ptr const& p) noexcept : ptr(p) {}
-    
+    constexpr ListW(Ptr const& p) noexcept : ptr(p) {}
+
     template<class V = void>
     requires (std::is_pointer_v<Ptr> && !il2cpp_utils::has_il2cpp_conversion<Ptr>)
-    constexpr ListWrapper(void* alterInit) noexcept : ptr(reinterpret_cast<Ptr>(alterInit)) {}
+    constexpr ListW(void* alterInit) noexcept : ptr(reinterpret_cast<Ptr>(alterInit)) {}
 
-    constexpr ListWrapper(std::span<T> const p) : ptr(il2cpp_utils::NewSpecific<Ptr>(p.size())) {
+    constexpr ListW(std::span<T> const p) : ptr(il2cpp_utils::NewSpecific<Ptr>(p.size())) {
         std::copy(p.begin(), p.end(), begin());
     }
 
@@ -32,11 +50,11 @@ struct ListWrapper {
     [[nodiscard]] constexpr int size() const {
         return ptr->size;
     }
-    T& operator[](size_t i) {
-        return ptr->items->values[i];
+    auto operator[](size_t i) {
+        return ptr->items[i];
     }
-    const T& operator[](size_t i) const {
-        return ptr->items->values[i];
+    auto operator[](size_t i) const {
+        return ptr->items[i];
     }
 
     /// @brief Get a given index, performs bound checking and throws std::runtime_error on failure.
@@ -44,14 +62,14 @@ struct ListWrapper {
     /// @return The reference to the item.
     T& get(size_t i) {
         THROW_UNLESS(i < size() && i >= 0);
-        return ptr->items->values[i];
+        return ptr->items[i];
     }
     /// @brief Get a given index, performs bound checking and throws std::runtime_error on failure.
     /// @param i The index to get.
     /// @return The const reference to the item.
     const T& get(size_t i) const {
         THROW_UNLESS(i < size() && i >= 0);
-        return ptr->items->values[i];
+        return ptr->items[i];
     }
     /// @brief Tries to get a given index, performs bound checking and returns a std::nullopt on failure.
     /// @param i The index to get.
@@ -60,7 +78,7 @@ struct ListWrapper {
         if (i >= size() || i < 0) {
             return std::nullopt;
         }
-        return WrapperRef(ptr->items->values[i]);
+        return WrapperRef(ptr->items[i]);
     }
     /// @brief Tries to get a given index, performs bound checking and returns a std::nullopt on failure.
     /// @param i The index to get.
@@ -69,20 +87,20 @@ struct ListWrapper {
         if (i >= size() || i < 0) {
             return std::nullopt;
         }
-        return WrapperRef(ptr->items->values[i]);
+        return WrapperRef(ptr->items[i]);
     }
 
     iterator begin() {
-        return ptr->items->values;
+        return ptr->items.begin();
     }
     iterator end() {
-        return &ptr->items->values[size()];
+        return &ptr->items[size()];
     }
     const_iterator begin() const {
-        return ptr->items->values;
+        return ptr->items.begin();
     }
     const_iterator end() const {
-        return &ptr->items->values[size()];
+        return &ptr->items[size()];
     }
 
     operator std::span<T const> const() const {
@@ -98,31 +116,32 @@ struct ListWrapper {
     };
 
     constexpr void* convert() const noexcept {
-        if constexpr (std::is_pointer_v<Ptr>) {
-            return ptr;
-        } else if constexpr (il2cpp_utils::has_il2cpp_conversion<Ptr>) {
+        if constexpr (std::is_pointer_v<Ptr>)
+           return ptr;
+        else if constexpr (::il2cpp_utils::has_il2cpp_conversion<Ptr>)
             return ptr.convert();
-        }
     }
 
-    Ptr operator ->() noexcept {
-        return ptr;
-    }
-
-    Ptr const operator ->() const noexcept {
-        return ptr;
-    }
+    Ptr operator ->() noexcept { return ptr; }
+    Ptr const operator ->() const noexcept { return ptr; }
 
     private:
-    Ptr ptr;
+        Ptr ptr;
 };
 
-// ListW for the win, just implicitly
-template<class T, class Ptr = List<T>*>
-using ListW = ListWrapper<T, Ptr>;
+static_assert(il2cpp_utils::is_il2cpp_size_safe_v<int>);
+static_assert(il2cpp_utils::is_il2cpp_size_safe_v<List<int>*>);
+static_assert(il2cpp_utils::has_il2cpp_conversion<ListW<int, List<int>*>>);
 
-static_assert(il2cpp_utils::has_il2cpp_conversion<ListWrapper<int, List<int>*>>);
 template<class T, class Ptr>
-struct ::il2cpp_utils::il2cpp_type_check::need_box<ListWrapper<T, Ptr>> {
+struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<ListW<T, Ptr>> {
+    static inline Il2CppClass* get() {
+        static auto klass = ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<Ptr>::get();
+        return klass;
+    }
+};
+
+template<class T, class Ptr>
+struct ::il2cpp_utils::il2cpp_type_check::need_box<ListW<T, Ptr>> {
     constexpr static bool value = false;
 };

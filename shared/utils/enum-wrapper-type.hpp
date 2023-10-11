@@ -28,3 +28,8 @@ namespace bs_hook {
         explicit EnumPtr(void* i) : VTPtr(i) {};
     };
 }
+
+template<std::size_t sz>
+struct ::il2cpp_utils::ValueTypeTrait<::bs_hook::EnumTypeWrapper<sz>> {
+    constexpr static bool value = true;
+};
