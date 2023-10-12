@@ -1,7 +1,9 @@
-    #include "utils/type-concepts.hpp"
 #ifdef TEST_ARRAY
 
-#include "../../shared/utils/typedefs-array.hpp"
+#include <type_traits>
+#include "utils/type-concepts.hpp"
+#include "utils/value-wrapper-type.hpp"
+#include "shared/utils/typedefs-array.hpp"
 #include "utils/base-wrapper-type.hpp"
 #include <iostream>
 #include <assert.h>
@@ -12,16 +14,22 @@ class SomeWrapper : public ::bs_hook::Il2CppWrapperType {
         SomeWrapper(void* i) : ::bs_hook::Il2CppWrapperType(i) {}
 
         virtual ~SomeWrapper() {}
+
+        void method() {}
 };
 
-int a;
-SomeWrapper b = SomeWrapper(static_cast<void*>(&a));
+template<>
+struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<SomeWrapper> {
+    static inline Il2CppClass* get() {
+        return classof(Il2CppObject*);
+    }
+};
 
 static_assert(::il2cpp_utils::il2cpp_reference_type_requirements<SomeWrapper>);
 static_assert(::il2cpp_utils::il2cpp_reference_type<SomeWrapper>);
 static_assert(::il2cpp_utils::RefTypeTrait<SomeWrapper>::value);
 static_assert(sizeof(SomeWrapper) == 0x10);
-static_assert(std::is_same_v<ArrayW<SomeWrapper>::Elem, Il2CppSizeStruct<SomeWrapper>>);
+static_assert(std::is_same_v<decltype(std::remove_pointer_t<ArrayW<SomeWrapper>::Ptr>::values), void*[0]>);
 
 class MatchingWrapper : public ::bs_hook::Il2CppWrapperType {
     public:
@@ -30,11 +38,39 @@ class MatchingWrapper : public ::bs_hook::Il2CppWrapperType {
 
 };
 
+template<>
+struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<MatchingWrapper> {
+    static inline Il2CppClass* get() {
+        return classof(Il2CppObject*);
+    }
+};
+
 static_assert(::il2cpp_utils::il2cpp_reference_type_requirements<MatchingWrapper>);
 static_assert(::il2cpp_utils::il2cpp_reference_type<MatchingWrapper>);
 static_assert(::il2cpp_utils::RefTypeTrait<MatchingWrapper>::value);
 static_assert(sizeof(MatchingWrapper) == 0x8);
-static_assert(std::is_same_v<ArrayW<MatchingWrapper>::Elem, MatchingWrapper>);
+static_assert(std::is_same_v<decltype(std::remove_pointer_t<ArrayW<MatchingWrapper>::Ptr>::values), void*[0]>);
+
+struct Color : public ::bs_hook::ValueTypeWrapper<0x10> {
+    static constexpr auto __IL2CPP_VALUE_TYPE = true;
+    Color(std::array<std::byte, 0x10> i) noexcept : ::bs_hook::ValueTypeWrapper<0x10>(i) {}
+};
+
+template<>
+struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<Color> {
+    static inline Il2CppClass* get() {
+        return il2cpp_utils::GetClassFromName("UnityEngine", "Color");
+    }
+};
+
+static_assert(::il2cpp_utils::il2cpp_value_type_requirements<Color>);
+static_assert(::il2cpp_utils::il2cpp_value_type<Color>);
+static_assert(::il2cpp_utils::ValueTypeTrait<Color>::value);
+static_assert(sizeof(Color) == 0x10);
+static_assert(std::is_same_v<decltype(std::remove_pointer_t<ArrayW<Color>::Ptr>::values), Color[0]>);
+
+static_assert(std::is_same_v<decltype(std::remove_pointer_t<ArrayW<int>::Ptr>::values), int[0]>);
+static_assert(std::is_same_v<decltype(std::remove_pointer_t<ArrayW<int>::Ptr>::values), int[0]>);
 
 static void constDoThing(const ArrayW<int>& wrap) {
     auto i = wrap[0];
@@ -87,7 +123,13 @@ static void doThing() {
     arr.LastOrDefault([](auto x){ return x == 0; });
     arr3.Last([](auto x){ return x == 0; });
 
-    ArrayW<SomeWrapper> wrapperArr;
+    auto wrapperArr = ArrayW<SomeWrapper>(10);
+    wrapperArr[0] = nullptr;
+
+    for (auto v : wrapperArr) {
+        v = nullptr;
+        v.method();
+    }
 }
 
 #include "../../shared/utils/il2cpp-utils.hpp"

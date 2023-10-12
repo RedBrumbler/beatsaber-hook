@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <type_traits>
 
 namespace il2cpp_utils {
@@ -33,7 +34,7 @@ namespace il2cpp_utils {
 #pragma region val type
     template <typename T>
     concept il2cpp_value_type_requirements = requires(T const& t) {
-        requires(std::is_array_v<decltype(t.instance)>);
+        requires(std::is_same_v<decltype(t.instance), std::array<std::byte, sizeof(t.instance)>>);
         requires(std::is_constructible_v<T, decltype(t.instance)>);
         requires(il2cpp_utils::value_marker_check_v<T, true>);
     };
@@ -85,9 +86,7 @@ namespace il2cpp_utils {
     };
 
     /// @brief mark a T explicitly as reference type, default is false
-    template <class T> struct RefTypeTrait {
-        constexpr static bool value = false;
-    };
+    template <class T> struct RefTypeTrait;
 
     /// @brief anything that matches the type requirements should also be allowed to be a reference type
     template <il2cpp_reference_type_requirements T> struct RefTypeTrait<T> {
@@ -95,9 +94,7 @@ namespace il2cpp_utils {
     };
 
     /// @brief mark a generic T explicitly as reference type without requiring its TArgs to be fully realized, defaults to false
-    template<template<class...> class T> struct GenRefTypeTrait {
-        constexpr static bool value = false;
-    };
+    template<template<class...> class T> struct GenRefTypeTrait;
 
     /// @brief non generics should return false
     template<class T> struct RefDecompose {
@@ -115,15 +112,19 @@ namespace il2cpp_utils {
 #pragma endregion // ref type
 
 #define MARK_REF_T(...) \
-    template<> struct ::il2cpp_utils::RefTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }
+    template<> struct ::il2cpp_utils::RefTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }; \
+    template<> struct ::il2cpp_utils::ValueTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }
 
 #define MARK_VAL_T(...) \
+    template<> struct ::il2cpp_utils::RefTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }; \
     template<> struct ::il2cpp_utils::ValueTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }
 
 #define MARK_GEN_REF_T(...) \
-    template<> struct ::il2cpp_utils::GenRefTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }
+    template<> struct ::il2cpp_utils::GenRefTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }; \
+    template<> struct ::il2cpp_utils::GenValueTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }
 
 #define MARK_GEN_VAL_T(...) \
+    template<> struct ::il2cpp_utils::GenRefTypeTrait<__VA_ARGS__> { static constexpr bool value = false; }; \
     template<> struct ::il2cpp_utils::GenValueTypeTrait<__VA_ARGS__> { static constexpr bool value = true; }
 
 }
