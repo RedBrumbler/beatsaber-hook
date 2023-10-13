@@ -1,0 +1,71 @@
+{
+  "config": {
+    "sharedDir": "shared",
+    "dependenciesDir": "extern",
+    "info": {
+      "name": "beatsaber-hook",
+      "id": "beatsaber-hook",
+      "version": "4.0.0",
+      "url": "https://github.com/sc2ad/beatsaber-hook",
+      "additionalData": {}
+    },
+    "dependencies": [
+      {
+        "id": "modloader",
+        "versionRange": "^1.2.0",
+        "additionalData": {}
+      },
+      {
+        "id": "libil2cpp",
+        "versionRange": ">=0.3.0, <0.4.0",
+        "additionalData": {}
+      },
+      {
+        "id": "capstone",
+        "versionRange": "^0.1.0",
+        "additionalData": {
+          "private": true
+        }
+      }
+    ],
+    "workspace": {
+      "scripts": {}
+    }
+  },
+  "restoredDependencies": [
+    {
+      "dependency": {
+        "id": "libil2cpp",
+        "versionRange": "=0.3.0",
+        "additionalData": {
+          "headersOnly": true
+        }
+      },
+      "version": "0.3.0"
+    },
+    {
+      "dependency": {
+        "id": "modloader",
+        "versionRange": "=1.2.3",
+        "additionalData": {
+          "soLink": "https://github.com/sc2ad/QuestLoader/releases/download/v1.2.3/libmodloader64.so",
+          "overrideSoName": "libmodloader.so",
+          "branchName": "version-v1.2.3"
+        }
+      },
+      "version": "1.2.3"
+    },
+    {
+      "dependency": {
+        "id": "capstone",
+        "versionRange": "=0.1.0",
+        "additionalData": {
+          "staticLinking": true,
+          "soLink": "https://github.com/sc2ad/capstone-qpm/releases/download/v0.1.0/libcapstone.a",
+          "overrideSoName": "libcapstone.a"
+        }
+      },
+      "version": "0.1.0"
+    }
+  ]
+}

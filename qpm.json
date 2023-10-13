@@ -4,13 +4,9 @@
   "info": {
     "name": "beatsaber-hook",
     "id": "beatsaber-hook",
-    "version": "1.2.3",
+    "version": "4.0.0",
     "url": "https://github.com/sc2ad/beatsaber-hook",
-    "additionalData": {
-      "branchName": "master",
-      "soLink": "https://github.com/sc2ad/beatsaber-hook/releases/download/v0.5.8/libbeatsaber-hook.so",
-      "debugSoLink": "https://github.com/sc2ad/beatsaber-hook/releases/download/v0.5.8/debug_libbeatsaber-hook.so"
-    }
+    "additionalData": {}
   },
   "dependencies": [
     {
@@ -20,7 +16,7 @@
     },
     {
       "id": "libil2cpp",
-      "versionRange": ">=0.3.0<0.4.0",
+      "versionRange": ">=0.3.0, <0.4.0",
       "additionalData": {}
     },
     {
@@ -31,5 +27,7 @@
       }
     }
   ],
-  "additionalData": {}
+  "workspace": {
+    "scripts": {}
+  }
 }
