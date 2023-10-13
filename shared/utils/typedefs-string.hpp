@@ -10,6 +10,7 @@
 #include <codecvt>
 #include <span>
 #include "type-concepts.hpp"
+#include "typedefs-object.hpp"
 
 struct UseBeforeInitError : il2cpp_utils::exceptions::StackTraceException {
     UseBeforeInitError(const char* v) : il2cpp_utils::exceptions::StackTraceException(v) {}
@@ -127,87 +128,84 @@ struct ConstString {
     char16_t chars[sz] = {};
 };
 
-struct StringW {
+struct StringW : public ::ObjectWrapperType {
     // Dynamically allocated string
     template<class T>
     requires (!std::is_convertible_v<T, Il2CppString*> && (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T>))
-    StringW(T str) noexcept : inst(il2cpp_utils::detail::alloc_str(str)) {}
-    constexpr StringW(void* ins) noexcept : inst(static_cast<Il2CppString*>(ins)) {}
-    constexpr StringW(Il2CppString* ins) noexcept : inst(ins) {}
+    StringW(T str) noexcept : ::ObjectWrapperType(il2cpp_utils::detail::alloc_str(str)) {}
+    constexpr StringW(void* ins) noexcept : ObjectWrapperType(static_cast<Il2CppString*>(ins)) {}
+    constexpr StringW(Il2CppString* ins) noexcept : ObjectWrapperType(ins) {}
     template <int sz>
-    constexpr StringW(ConstString<sz>& conststring) noexcept : inst(static_cast<Il2CppString*>(conststring)) {}
-    constexpr StringW(std::nullptr_t npt) noexcept : inst(npt) {}
-    constexpr StringW() noexcept : inst(nullptr) {}
+    constexpr StringW(ConstString<sz>& conststring) noexcept : ObjectWrapperType(static_cast<Il2CppString*>(conststring)) {}
+    constexpr StringW(std::nullptr_t npt) noexcept : ObjectWrapperType(npt) {}
+    constexpr StringW() noexcept : ObjectWrapperType(nullptr) {}
 
-    constexpr void* convert() const noexcept {
-        return const_cast<void*>(static_cast<const void*>(inst));
-    }
     constexpr operator Il2CppString const*() const noexcept {
-        return inst;
+        return get_inst();
     }
     constexpr operator Il2CppString*() noexcept {
-        return inst;
+        return get_inst();
     }
     constexpr Il2CppString const* operator->() const noexcept {
-        return inst;
+        return get_inst();
     }
     constexpr Il2CppString* operator->() noexcept {
-        return inst;
+        return get_inst();
     }
     constexpr operator bool() const noexcept {
-        return inst != nullptr;
+        return get_inst() != nullptr;
     }
 
     constexpr bool operator ==(std::nullptr_t rhs) const noexcept {
-        return inst == rhs;
+        return get_inst() == rhs;
     }
 
     template<typename T>
     requires (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T> || std::is_same_v<T, StringW>)
     StringW& operator +=(T const& rhs) noexcept {
-        if constexpr (std::is_same_v<T, StringW>) inst = il2cpp_utils::detail::strappend(inst, rhs.inst);
-        else inst = il2cpp_utils::detail::strappend(inst, rhs);
+        if constexpr (std::is_same_v<T, StringW>) set_inst(il2cpp_utils::detail::strappend(get_inst(), rhs.get_inst()));
+        else set_inst(il2cpp_utils::detail::strappend(get_inst(), rhs));
         return *this;
     }
 
     template<typename T>
     requires (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T> || std::is_same_v<T, StringW>)
     StringW operator +(T const& rhs) const noexcept {
-        if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strappend(inst, rhs.inst);
-        else return il2cpp_utils::detail::strappend(inst, rhs);
+        if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strappend(get_inst(), rhs.get_inst());
+        else return il2cpp_utils::detail::strappend(get_inst(), rhs);
     }
 
     template<typename T>
     requires (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T> || std::is_same_v<T, StringW>)
     bool operator <(T const& rhs) const noexcept {
-        if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strless(inst, rhs.inst);
-        else return il2cpp_utils::detail::strless(inst, rhs);
+        if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strless(get_inst(), rhs.get_inst());
+        else return il2cpp_utils::detail::strless(get_inst(), rhs);
     }
 
     template<int sz>
     bool operator ==(ConstString<sz> const& rhs) const noexcept {
-        return il2cpp_utils::detail::strcomp(inst, rhs.operator Il2CppString const*());
+        return il2cpp_utils::detail::strcomp(get_inst(), rhs.operator Il2CppString const*());
     }
 
     template<typename T>
     requires (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T> || std::is_same_v<T, StringW>)
     bool operator ==(T const& rhs) const noexcept {
-        if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strcomp(inst, rhs.inst);
-        else return il2cpp_utils::detail::strcomp(inst, rhs);
+        if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strcomp(get_inst(), rhs.get_inst());
+        else return il2cpp_utils::detail::strcomp(get_inst(), rhs);
     }
 
     template<typename T>
     requires (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T> || std::is_same_v<T, StringW>)
     bool starts_with(T const& rhs) const noexcept {
-        if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strstart(inst, rhs.inst);
-        else return il2cpp_utils::detail::strstart(inst, rhs);
+        if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strstart(get_inst(), rhs.get_inst());
+        else return il2cpp_utils::detail::strstart(get_inst(), rhs);
     }
 
     template<typename T>
     requires (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T> || std::is_same_v<T, StringW>)
     bool ends_with(T const& rhs) const noexcept {
-        if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strend(inst, rhs.inst);
-        else return il2cpp_utils::detail::strend(inst, rhs);
+        if constexpr (std::is_same_v<T, StringW>) return il2cpp_utils::detail::strend(get_inst(), rhs.get_inst());
+        else return il2cpp_utils::detail::strend(get_inst(), rhs);
     }
 
     using iterator = Il2CppChar*;
@@ -229,7 +227,9 @@ struct StringW {
     operator std::u16string_view const() const;
 
     private:
-    Il2CppString* inst;
+        constexpr Il2CppString* get_inst() noexcept { return static_cast<Il2CppString*>(::bs_hook::Il2CppWrapperType::instance); };
+        constexpr const Il2CppString* get_inst() const noexcept { return static_cast<const Il2CppString*>(::bs_hook::Il2CppWrapperType::instance); };
+        constexpr void set_inst(Il2CppString* v) noexcept { ::bs_hook::Il2CppWrapperType::instance = static_cast<void*>(v); }
 };
 
 MARK_REF_T(StringW);

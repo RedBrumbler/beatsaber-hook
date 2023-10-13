@@ -141,25 +141,25 @@ namespace detail {
     bool strcomp(Il2CppString const* lhs, T const rhs) noexcept
     {
         if (!lhs || lhs->length != (int)rhs.size()) return false;
-    
-        Il2CppChar const* first = lhs->chars; 
-        auto const* second = rhs.data(); 
-        Il2CppChar const* firstEnd = first + lhs->length; 
-        auto const* secondEnd = second + (int)rhs.size(); 
-    
+
+        Il2CppChar const* first = lhs->chars;
+        auto const* second = rhs.data();
+        Il2CppChar const* firstEnd = first + lhs->length;
+        auto const* secondEnd = second + (int)rhs.size();
+
         while (first != firstEnd && second != secondEnd)
         {
             if (*first != *second) return false;
             first++; second++;
         }
-    
+
         return first == firstEnd && second == secondEnd;
     }
 
     bool strcomp(Il2CppString const* lhs, std::string_view const rhs) noexcept {
         return strcomp<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
     }
-    
+
     bool strcomp(Il2CppString const* lhs, std::u16string_view const rhs) noexcept {
         return strcomp<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
     }
@@ -168,10 +168,10 @@ namespace detail {
         if (lhs == rhs) return true;
         if (!lhs || !rhs || lhs->length != rhs->length) return false;
 
-        Il2CppChar const* first = lhs->chars; 
-        Il2CppChar const* second = rhs->chars; 
-        Il2CppChar const* firstEnd = first + lhs->length; 
-        Il2CppChar const* secondEnd = second + rhs->length; 
+        Il2CppChar const* first = lhs->chars;
+        Il2CppChar const* second = rhs->chars;
+        Il2CppChar const* firstEnd = first + lhs->length;
+        Il2CppChar const* secondEnd = second + rhs->length;
 
         while (first != firstEnd && second != secondEnd)
         {
@@ -186,12 +186,12 @@ namespace detail {
     requires(std::is_same_v<T, std::string_view> || std::is_same_v<T, std::u16string_view>)
     bool strless(Il2CppString const* lhs, T const rhs) noexcept {
         if (!lhs) return true;
-    
-        Il2CppChar const* first = lhs->chars; 
-        auto const* second = rhs.data(); 
-        Il2CppChar const* firstEnd = lhs->chars + lhs->length; 
-        auto const* secondEnd = rhs.data() + rhs.size(); 
-        
+
+        Il2CppChar const* first = lhs->chars;
+        auto const* second = rhs.data();
+        Il2CppChar const* firstEnd = lhs->chars + lhs->length;
+        auto const* secondEnd = rhs.data() + rhs.size();
+
         while (first != firstEnd && second != secondEnd)
         {
             if (*first == *second)
@@ -209,20 +209,20 @@ namespace detail {
     bool strless(Il2CppString const* lhs, std::string_view const rhs) noexcept {
         return strless<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
     }
-    
+
     bool strless(Il2CppString const* lhs, std::u16string_view const rhs) noexcept {
         return strless<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
     }
-    
+
     bool strless(Il2CppString const* lhs, Il2CppString const* rhs) noexcept {
         if (!lhs && !rhs) return false;
         if (!lhs) return true;
         if (!rhs) return false;
 
-        Il2CppChar const* first = lhs->chars; 
-        Il2CppChar const* second = rhs->chars; 
-        Il2CppChar const* firstEnd = first + lhs->length; 
-        Il2CppChar const* secondEnd = second + rhs->length; 
+        Il2CppChar const* first = lhs->chars;
+        Il2CppChar const* second = rhs->chars;
+        Il2CppChar const* firstEnd = first + lhs->length;
+        Il2CppChar const* secondEnd = second + rhs->length;
 
         while (first != firstEnd && second != secondEnd)
         {
@@ -242,11 +242,11 @@ namespace detail {
     requires(std::is_same_v<T, std::string_view> || std::is_same_v<T, std::u16string_view>)
     bool strstart(Il2CppString const* lhs, T const rhs) noexcept {
         if (!lhs || lhs->length < (decltype(lhs->length))rhs.size()) return false;
-    
-        Il2CppChar const* first = lhs->chars; 
-        auto const* second = rhs.data(); 
-        auto const* secondEnd = second + rhs.size(); 
-        
+
+        Il2CppChar const* first = lhs->chars;
+        auto const* second = rhs.data();
+        auto const* secondEnd = second + rhs.size();
+
         while (second != secondEnd)
         {
             if (*first == *second)
@@ -264,7 +264,7 @@ namespace detail {
     bool strstart(Il2CppString const* lhs, std::string_view const rhs) noexcept {
         return strstart<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
     }
-    
+
     bool strstart(Il2CppString const* lhs, std::u16string_view const rhs) noexcept {
         return strstart<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
     }
@@ -273,9 +273,9 @@ namespace detail {
         // if either instance is nullptr, return false, if our length is smaller than prefix length, also return false
         if (!lhs || !rhs || lhs->length < rhs->length) return false;
 
-        Il2CppChar const* first = lhs->chars; 
-        Il2CppChar const* second = rhs->chars; 
-        Il2CppChar const* secondEnd = second + lhs->length; 
+        Il2CppChar const* first = lhs->chars;
+        Il2CppChar const* second = rhs->chars;
+        Il2CppChar const* secondEnd = second + lhs->length;
 
         while (second != secondEnd)
         {
@@ -296,11 +296,11 @@ namespace detail {
     requires(std::is_same_v<T, std::string_view> || std::is_same_v<T, std::u16string_view>)
     bool strend(Il2CppString const* lhs, T const rhs) noexcept {
         if (!lhs || lhs->length < (decltype(lhs->length))rhs.size()) return false;
-    
+
         Il2CppChar const* first = lhs->chars + lhs->length - 1;
-        auto const* secondBegin = rhs.data() - 1; 
-        auto const* second = secondBegin + rhs.size(); 
-        
+        auto const* secondBegin = rhs.data() - 1;
+        auto const* second = secondBegin + rhs.size();
+
         while (second != secondBegin)
         {
             if (*first == *second)
@@ -318,7 +318,7 @@ namespace detail {
     bool strend(Il2CppString const* lhs, std::string_view const rhs) noexcept {
         return strend<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
     }
-    
+
     bool strend(Il2CppString const* lhs, std::u16string_view const rhs) noexcept {
         return strend<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
     }
@@ -327,8 +327,8 @@ namespace detail {
         if (!lhs || !rhs || lhs->length < rhs->length) return false;
 
         Il2CppChar const* first = lhs->chars + lhs->length - 1;
-        Il2CppChar const* secondBegin = rhs->chars - 1; 
-        Il2CppChar const* second = secondBegin + rhs->length; 
+        Il2CppChar const* secondBegin = rhs->chars - 1;
+        Il2CppChar const* second = secondBegin + rhs->length;
 
         while (second != secondBegin)
         {
@@ -348,6 +348,7 @@ namespace detail {
 }
 
 StringW::operator std::string() const {
+    auto inst = get_inst();
     std::string val(inst->length * sizeof(wchar_t) + 1, '\0');
     auto resSize = il2cpp_utils::detail::convstr(inst->chars, val.data(), inst->length, val.size());
     val.resize(resSize);
@@ -355,30 +356,34 @@ StringW::operator std::string() const {
 }
 
 StringW::operator std::u16string() const {
+    auto inst = get_inst();
     return {inst->chars, inst->chars + inst->length};
 }
 
 StringW::operator std::wstring() const {
+    auto inst = get_inst();
     return {inst->chars, inst->chars + inst->length};
 }
 
 StringW::operator std::u16string_view const() const {
+    auto inst = get_inst();
     return {inst->chars, static_cast<std::size_t>(inst->length)};
 }
 
 StringW::operator std::u16string_view() {
+    auto inst = get_inst();
     return {inst->chars, static_cast<std::size_t>(inst->length)};
 }
 
-StringW::iterator StringW::begin() { return inst->chars; }
-StringW::const_iterator StringW::begin() const { return inst->chars; }
-StringW::iterator StringW::end() { return inst->chars + inst->length; }
-StringW::const_iterator StringW::end() const { return inst->chars + inst->length; }
+StringW::iterator StringW::begin() { return get_inst()->chars; }
+StringW::const_iterator StringW::begin() const { return get_inst()->chars; }
+StringW::iterator StringW::end() { return get_inst()->chars + get_inst()->length; }
+StringW::const_iterator StringW::end() const { return get_inst()->chars + get_inst()->length; }
 StringW::operator std::span<Il2CppChar>() {
     return {begin(), end()};
 }
 StringW::operator std::span<Il2CppChar const> const () const {
     return {begin(), end()};
 }
-Il2CppChar const& StringW::operator [](size_t const& idx) const { return inst->chars[idx]; }
-Il2CppChar& StringW::operator [](size_t const& idx) { return inst->chars[idx]; }
+Il2CppChar const& StringW::operator [](size_t const& idx) const { return get_inst()->chars[idx]; }
+Il2CppChar& StringW::operator [](size_t const& idx) { return get_inst()->chars[idx]; }

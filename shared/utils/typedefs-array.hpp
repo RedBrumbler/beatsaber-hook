@@ -3,9 +3,8 @@
 #include <vector>
 #include <span>
 #include "il2cpp-type-check.hpp"
-#include "base-wrapper-type.hpp"
-#include "value-wrapper-type.hpp"
 #include <stdexcept>
+#include "typedefs-object.hpp"
 
 #if __has_include(<concepts>)
 #include <concepts>
@@ -322,6 +321,9 @@ struct Array : Il2CppArray {
 
     operator Il2CppArray* () noexcept { return this; }
     operator const Il2CppArray* () const noexcept { return this; }
+
+    operator ObjectWrapperType () noexcept { return ObjectWrapperType(this); }
+    operator const ObjectWrapperType () const noexcept { return ObjectWrapperType(this); }
 
     protected:
         friend ArrayW<T>;
@@ -660,6 +662,10 @@ struct Array<T> : ::Il2CppArray {
 
     operator Il2CppArray* () noexcept { return this; }
     operator const Il2CppArray* () const noexcept { return this; }
+
+    operator ObjectWrapperType () noexcept { return ObjectWrapperType(this); }
+    operator const ObjectWrapperType () const noexcept { return ObjectWrapperType(this); }
+
     protected:
         friend ArrayW<T>;
         /// @brief gets the address of the value @ index i
@@ -669,28 +675,28 @@ struct Array<T> : ::Il2CppArray {
 };
 
 template<typename T>
-struct ArrayW : public ::bs_hook::Il2CppWrapperType {
+struct ArrayW : public ::ObjectWrapperType {
     using Ptr = Array<T>*;
     /// @brief default constructor
-    constexpr ArrayW() noexcept : ::bs_hook::Il2CppWrapperType(nullptr) {}
+    constexpr ArrayW() noexcept : ::ObjectWrapperType(nullptr) {}
     /// @brief explicit construction from a void*
-    constexpr explicit ArrayW(void* i) noexcept : ::bs_hook::Il2CppWrapperType(i) {}
+    constexpr explicit ArrayW(void* i) noexcept : ::ObjectWrapperType(i) {}
     /// @brief construct an array from Array<T> pointer
-    constexpr ArrayW(Ptr i) noexcept : ::bs_hook::Il2CppWrapperType(static_cast<void*>(i)) {}
+    constexpr ArrayW(Ptr i) noexcept : ::ObjectWrapperType(static_cast<void*>(i)) {}
     /// @brief construct an array from nullptr
-    constexpr ArrayW(std::nullptr_t nptr) noexcept : ::bs_hook::Il2CppWrapperType(nptr) {}
+    constexpr ArrayW(std::nullptr_t nptr) noexcept : ::ObjectWrapperType(nptr) {}
 
     template<typename U = T>
     requires(std::is_convertible_v<U, T> || std::is_same_v<U, T>)
-    explicit constexpr ArrayW(ArrayW<U> i) noexcept : ::bs_hook::Il2CppWrapperType(i.convert()) {}
+    explicit constexpr ArrayW(ArrayW<U> i) noexcept : ::ObjectWrapperType(i.convert()) {}
 
     /// @brief constructor that creates an array of size sz
-    inline ArrayW(il2cpp_array_size_t sz) : ::bs_hook::Il2CppWrapperType(Array<T>::NewLength(sz)) {}
+    inline ArrayW(il2cpp_array_size_t sz) : ::ObjectWrapperType(Array<T>::NewLength(sz)) {}
 
     /// @brief constructor that takes a set of U values that can convert into T (or are T), and builds an array from it
     template<typename U = T>
     requires(std::is_convertible_v<U, T> || std::is_same_v<U, T>)
-    inline ArrayW(std::initializer_list<U> vals) : ::bs_hook::Il2CppWrapperType(Ptr::New(vals)) {}
+    inline ArrayW(std::initializer_list<U> vals) : ::ObjectWrapperType(Ptr::New(vals)) {}
 
     /// @brief gets length of array, if multidimensional gets the array dimensionality
     constexpr il2cpp_array_size_t Length() const noexcept { return get_val()->Length(); }
