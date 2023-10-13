@@ -335,8 +335,6 @@ struct Array : Il2CppArray {
 template<typename T>
 requires(::il2cpp_utils::il2cpp_reference_type<std::remove_const_t<T>>)
 struct IndexRef {
-    // ref to the array this came from, only really used for set 'field', verify if needed and if not, remove
-    Il2CppObject* const obj;
     // pointer to within the Array::values array, or at least it's supposed to be
     void** _value;
 
@@ -409,8 +407,8 @@ struct Iter : public IndexRef<T> {
     Iter& operator +=(std::size_t i) { IndexRef<T>::_value += i; return *this; }
     Iter& operator -=(std::size_t i) { IndexRef<T>::_value -= i; return *this; }
 
-    Iter operator +(std::size_t i) const { return IndexRef<T>(IndexRef<T>::obj, IndexRef<T>::_value + i); }
-    Iter operator -(std::size_t i) const { return IndexRef<T>(IndexRef<T>::obj, IndexRef<T>::_value + i); }
+    Iter operator +(std::size_t i) const { return IndexRef<T>(IndexRef<T>::_value + i); }
+    Iter operator -(std::size_t i) const { return IndexRef<T>(IndexRef<T>::_value + i); }
 };
 
 template<::il2cpp_utils::il2cpp_reference_type T>
@@ -442,9 +440,9 @@ struct Array<T> : ::Il2CppArray {
     // unsafe indexing
 
     /// @brief index into array
-    constexpr value operator[](std::size_t i) noexcept { return value{this, values + i}; }
+    constexpr value operator[](std::size_t i) noexcept { return value{values + i}; }
     /// @brief const index into array
-    constexpr const_value operator[](std::size_t i) const noexcept { return const_value{this, values + i}; }
+    constexpr const_value operator[](std::size_t i) const noexcept { return const_value{values + i}; }
 
     // safe indexing
 
@@ -452,28 +450,28 @@ struct Array<T> : ::Il2CppArray {
     /// @throws ArrayException on out of bounds access
     inline value get(std::size_t i) {
         assertBounds(i);
-        return value{this, values + i};
+        return value{values + i};
     }
 
     /// @brief index into array
     /// @throws ArrayException on out of bounds access
     inline const_value get(std::size_t i) const {
         assertBounds(i);
-        return const_value{this, values + i};
+        return const_value{values + i};
     }
 
     /// @brief index into array
     /// @return nullopt for out of bounds access, IndexRef<T> otherwise
     inline std::optional<value> try_get(std::size_t i) noexcept {
         if (i >= Length() || i < 0) return std::nullopt;
-        return value{this, values + i};
+        return value{values + i};
     }
 
     /// @brief index into array
     /// @return nullopt for out of bounds access, IndexRef<const T> otherwise
     inline std::optional<const_value> try_get(std::size_t i) const noexcept {
         if (i >= Length() || i < 0) return std::nullopt;
-        return const_value{this, values + i};
+        return const_value{values + i};
     }
 
     /// @brief creates array of length size and elements T
@@ -556,22 +554,22 @@ struct Array<T> : ::Il2CppArray {
     // iterators
 
     /// @brief iterator at array start
-    constexpr iterator begin() noexcept { return iterator{this, values}; }
+    constexpr iterator begin() noexcept { return iterator{values}; }
     /// @brief iterator at one past array end
-    constexpr iterator end() noexcept { return iterator{this, values + Length()}; }
+    constexpr iterator end() noexcept { return iterator{values + Length()}; }
     /// @brief iterator at reverse start
-    inline auto rbegin() noexcept { return std::reverse_iterator<iterator>({this, values + Length()}); }
+    inline auto rbegin() noexcept { return std::reverse_iterator<iterator>({values + Length()}); }
     /// @brief iterator at one past reverse end
-    inline auto rend() noexcept { return std::reverse_iterator<iterator>({this, values}); }
+    inline auto rend() noexcept { return std::reverse_iterator<iterator>({values}); }
 
     /// @brief const iterator at array start
-    constexpr const_iterator begin() const noexcept { return const_iterator({this, values}); }
+    constexpr const_iterator begin() const noexcept { return const_iterator({values}); }
     /// @brief const iterator at one past array end
-    constexpr const_iterator end() const noexcept { return const_iterator({this, values + Length()}); }
+    constexpr const_iterator end() const noexcept { return const_iterator({values + Length()}); }
     /// @brief const iterator at reverse start
-    inline auto rbegin() const noexcept { return std::reverse_iterator<const_iterator>({this, values + Length()}); }
+    inline auto rbegin() const noexcept { return std::reverse_iterator<const_iterator>({values + Length()}); }
     /// @brief const iterator at one past reverse end
-    inline auto rend() const noexcept { return std::reverse_iterator<const_iterator>({this, values}); }
+    inline auto rend() const noexcept { return std::reverse_iterator<const_iterator>({values}); }
 
     // search methods
 
