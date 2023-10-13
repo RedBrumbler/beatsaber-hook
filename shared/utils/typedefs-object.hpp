@@ -10,7 +10,7 @@ using ObjectWrapperType = ::System::Object;
 #else
 
 /// if not found or no codegen use is requested, just use the bs hook wrapper type instead
-#include "utils/base-wrapper-type.hpp"
+#include "base-wrapper-type.hpp"
 using ObjectWrapperType = ::bs_hook::Il2CppWrapperType;
 
 #endif
