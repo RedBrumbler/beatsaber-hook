@@ -327,7 +327,7 @@ namespace il2cpp_utils {
             if (!ParameterMatch(method, types)) {
                 throw RunMethodException("Parameters do not match!", method);
             }
-            auto* outType = ExtractIndependentType<TOut>();
+            auto* outType = ::il2cpp_utils::ExtractIndependentType<TOut>();
             if (outType) {
                 if (!IsConvertibleFrom(outType, method->return_type, false)) {
                     logger.warning("User requested TOut %s does not match the method's return object of type %s!",
@@ -466,7 +466,7 @@ namespace il2cpp_utils {
             if (!ParameterMatch(method, types)) {
                 throw RunMethodException("Parameters do not match!", method);
             }
-            auto* outType = ExtractIndependentType<TOut>();
+            auto* outType = ::il2cpp_utils::ExtractIndependentType<TOut>();
             if (outType) {
                 if (!IsConvertibleFrom(outType, method->return_type, false)) {
                     logger.warning("User requested TOut %s does not match the method's return object of type %s!",
@@ -536,13 +536,13 @@ namespace il2cpp_utils {
         RET_NULLOPT_UNLESS(logger, method);
 
         if constexpr (checkTypes && sizeof...(TArgs) > 0) {
-            std::array<const Il2CppType*, sizeof...(TArgs)> types{ExtractType(params)...};
+            std::array<const Il2CppType*, sizeof...(TArgs)> types{::il2cpp_utils::ExtractType(params)...};
             RET_NULLOPT_UNLESS(logger, ParameterMatch(method, types));
         }
 
         void* inst = ExtractValue(instance);  // null is allowed (for T = Il2CppType* or Il2CppClass*)
         Il2CppException* exp = nullptr;
-        std::array<void*, sizeof...(params)> invokeParams{ExtractValue(params)...};
+        std::array<void*, sizeof...(params)> invokeParams{::il2cpp_utils::ExtractValue(params)...};
         il2cpp_functions::Init();
         auto* ret = il2cpp_functions::runtime_invoke(method, inst, invokeParams.data(), &exp);
 
@@ -553,7 +553,7 @@ namespace il2cpp_utils {
                 // method in the first place
                 auto* outType = ExtractIndependentType<TOut>();
                 if (outType) {
-                    auto* retType = ExtractType(ret);
+                    auto* retType = ::il2cpp_utils::ExtractType(ret);
                     if (!IsConvertibleFrom(outType, retType, false)) {
                         logger.warning("User requested TOut %s does not match the method's return object of type %s!",
                             TypeGetSimpleName(outType), TypeGetSimpleName(retType));
@@ -647,7 +647,7 @@ namespace il2cpp_utils {
     template<class TOut = Il2CppObject*, class T, class... TArgs>
     ::std::optional<TOut> RunGenericMethod(T&& classOrInstance, ::std::string_view methodName, ::std::vector<Il2CppClass*> genTypes, TArgs&& ...params) noexcept {
         static auto& logger = getLogger();
-        std::array<const Il2CppType*, sizeof...(TArgs)> types{ExtractType(params)...};
+        std::array<const Il2CppType*, sizeof...(TArgs)> types{::il2cpp_utils::ExtractType(params)...};
 
         auto* info = RET_NULLOPT_UNLESS(logger, FindMethod(classOrInstance, NoArgClass<TOut>(), methodName, genTypes, types));
         return RunGenericMethod<TOut>(classOrInstance, info, genTypes, params...);
@@ -701,7 +701,7 @@ namespace il2cpp_utils {
             obj = RET_NULLOPT_UNLESS(logger, createManual(klass));
         }
         // runtime_invoke constructor with right type(s) of arguments, return null if constructor errors
-        std::array<const Il2CppType*, sizeof...(TArgs)> types{ExtractType(args)...};
+        std::array<const Il2CppType*, sizeof...(TArgs)> types{::il2cpp_utils::ExtractType(args)...};
         auto* method = RET_NULLOPT_UNLESS(logger, FindMethod(klass, ".ctor", types));
         RET_NULLOPT_UNLESS(logger, RunMethod(obj, method, args...));
         return FromIl2CppObject<TOut>(obj);
@@ -730,7 +730,7 @@ namespace il2cpp_utils {
             obj = createManualThrow(klass);
         }
         // Only need to extract based off of types, since we are asusming our TOut is classof-able already
-        static auto ctorMethod = FindMethod(klass, ".ctor", std::array<Il2CppType const*, sizeof...(TArgs)>{ExtractIndependentType<TArgs>()...});
+        static auto ctorMethod = FindMethod(klass, ".ctor", std::array<Il2CppType const*, sizeof...(TArgs)>{::il2cpp_utils::ExtractIndependentType<TArgs>()...});
         if (!ctorMethod) {
             throw exceptions::StackTraceException(string_format("Failed to find a matching .ctor method during construction of type: %s", ClassStandardName(klass).c_str()));
         }
