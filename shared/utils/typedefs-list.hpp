@@ -5,6 +5,7 @@
 #include <optional>
 #include "typedefs-array.hpp"
 #include "size-concepts.hpp"
+#include "base-wrapper-type.hpp"
 
 // System.Collections.Generic.List
 template<class T>
@@ -20,40 +21,33 @@ DEFINE_IL2CPP_ARG_TYPE_GENERIC_CLASS(List, "System.Collections.Generic", "List`1
 template<class T, class Ptr = List<T>*>
 struct ListW;
 
+MARK_GEN_REF_T(ListW);
+
 // il2cpp safe implementation of ListW
 template<class T, class Ptr>
-requires(::il2cpp_utils::is_il2cpp_size_safe_v<T>)
-struct ListW<T, Ptr> {
+struct ListW : public ::bs_hook::Il2CppWrapperType {
     static_assert(sizeof(Ptr) == sizeof(void*), "Size of Ptr type must be the same as a void*!");
 
     // TODO: Consider requirementally constexpr-ifying this call
     // TODO: Apply these il2cpp conversion changes to ArrayW as well, to permit ArrayW to hold wrapper types and not pure pointers
-    constexpr ListW(Ptr const& p) noexcept : ptr(p) {}
+    constexpr ListW(Ptr const& p) noexcept : ::bs_hook::Il2CppWrapperType(nullptr) { set_ptr(p); }
 
     template<class V = void>
     requires (std::is_pointer_v<Ptr> && !il2cpp_utils::has_il2cpp_conversion<Ptr>)
-    constexpr ListW(void* alterInit) noexcept : ptr(reinterpret_cast<Ptr>(alterInit)) {}
+    explicit constexpr ListW(void* alterInit) noexcept : ::bs_hook::Il2CppWrapperType(alterInit) {}
 
-    constexpr ListW(std::span<T> const p) : ptr(il2cpp_utils::NewSpecific<Ptr>(p.size())) {
+    constexpr ListW(std::span<T> const p) : ::bs_hook::Il2CppWrapperType(il2cpp_utils::NewSpecific<Ptr>(p.size())) {
         std::copy(p.begin(), p.end(), begin());
     }
 
-    using value_type = T;
-    using pointer = T*;
-    using const_pointer = const T*;
-    using reference = T&;
-
-    using iterator = pointer;
-    using const_iterator = const_pointer;
-
     [[nodiscard]] constexpr int size() const {
-        return ptr->size;
+        return get_ptr()->size;
     }
     decltype(auto) operator[](size_t i) {
-        return ptr->items[i];
+        return get_ptr()->items[i];
     }
     decltype(auto) operator[](size_t i) const {
-        return ptr->items[i];
+        return get_ptr()->items[i];
     }
 
     /// @brief Get a given index, performs bound checking and throws std::runtime_error on failure.
@@ -61,14 +55,14 @@ struct ListW<T, Ptr> {
     /// @return The reference to the item.
     decltype(auto) get(size_t i) {
         THROW_UNLESS(i < size() && i >= 0);
-        return ptr->items[i];
+        return get_ptr()->items[i];
     }
     /// @brief Get a given index, performs bound checking and throws std::runtime_error on failure.
     /// @param i The index to get.
     /// @return The const reference to the item.
     decltype(auto) get(size_t i) const {
         THROW_UNLESS(i < size() && i >= 0);
-        return ptr->items[i];
+        return get_ptr()->items[i];
     }
     /// @brief Tries to get a given index, performs bound checking and returns a std::nullopt on failure.
     /// @param i The index to get.
@@ -77,7 +71,7 @@ struct ListW<T, Ptr> {
         if (i >= size() || i < 0) {
             return std::nullopt;
         }
-        return WrapperRef(ptr->items[i]);
+        return WrapperRef(get_ptr()->items[i]);
     }
     /// @brief Tries to get a given index, performs bound checking and returns a std::nullopt on failure.
     /// @param i The index to get.
@@ -86,20 +80,20 @@ struct ListW<T, Ptr> {
         if (i >= size() || i < 0) {
             return std::nullopt;
         }
-        return WrapperRef(ptr->items[i]);
+        return WrapperRef(get_ptr()->items[i]);
     }
 
     decltype(auto) begin() {
-        return ptr->items.begin();
+        return get_ptr()->items.begin();
     }
     decltype(auto) end() {
-        return ptr->items.begin() + size();
+        return get_ptr()->items.begin() + size();
     }
     decltype(auto) begin() const {
-        return ptr->items.begin();
+        return get_ptr()->items.begin();
     }
     decltype(auto) end() const {
-        return ptr->items.begin() + size();
+        return get_ptr()->items.begin() + size();
     }
 
     template<typename D = T>
@@ -115,28 +109,22 @@ struct ListW<T, Ptr> {
     }
 
     operator Ptr() noexcept {
-        return ptr;
+        return get_ptr();
     };
 
-    constexpr void* convert() const noexcept {
-        if constexpr (std::is_pointer_v<Ptr>)
-           return ptr;
-        else if constexpr (::il2cpp_utils::has_il2cpp_conversion<Ptr>)
-            return ptr.convert();
-    }
-
-    Ptr operator ->() noexcept { return ptr; }
-    Ptr const operator ->() const noexcept { return ptr; }
+    Ptr operator ->() noexcept { return get_ptr(); }
+    Ptr const operator ->() const noexcept { return get_ptr(); }
 
     private:
-        Ptr ptr;
+        constexpr Ptr get_ptr() noexcept { return static_cast<Ptr>(instance); }
+        constexpr const Ptr get_ptr() const noexcept { return static_cast<const Ptr>(instance); }
+        constexpr void set_ptr(Ptr p) noexcept { instance = static_cast<void*>(p); }
 };
 
+static_assert(sizeof(ListW<int>) == sizeof(void*));
 static_assert(il2cpp_utils::is_il2cpp_size_safe_v<int>);
 static_assert(il2cpp_utils::is_il2cpp_size_safe_v<List<int>*>);
 static_assert(il2cpp_utils::has_il2cpp_conversion<ListW<int, List<int>*>>);
-
-MARK_GEN_REF_T(ListW);
 
 template<class T, class Ptr>
 struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<ListW<T, Ptr>> {

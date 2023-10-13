@@ -669,130 +669,127 @@ struct Array<T> : ::Il2CppArray {
 };
 
 template<typename T>
-struct ArrayW {
+struct ArrayW : public ::bs_hook::Il2CppWrapperType {
     using Ptr = Array<T>*;
     /// @brief default constructor
-    constexpr ArrayW() noexcept : val(nullptr) {}
+    constexpr ArrayW() noexcept : ::bs_hook::Il2CppWrapperType(nullptr) {}
     /// @brief explicit construction from a void*
-    constexpr explicit ArrayW(void* i) noexcept : val(static_cast<Ptr>(i)) {}
+    constexpr explicit ArrayW(void* i) noexcept : ::bs_hook::Il2CppWrapperType(i) {}
     /// @brief construct an array from Array<T> pointer
-    constexpr ArrayW(Ptr i) noexcept : val(i) {}
+    constexpr ArrayW(Ptr i) noexcept : ::bs_hook::Il2CppWrapperType(static_cast<void*>(i)) {}
     /// @brief construct an array from nullptr
-    constexpr ArrayW(std::nullptr_t nptr) noexcept : val(nptr) {}
+    constexpr ArrayW(std::nullptr_t nptr) noexcept : ::bs_hook::Il2CppWrapperType(nptr) {}
 
     template<typename U = T>
     requires(std::is_convertible_v<U, T> || std::is_same_v<U, T>)
-    explicit constexpr ArrayW(ArrayW<U> i) noexcept : val(static_cast<Ptr>(i.convert())) {}
+    explicit constexpr ArrayW(ArrayW<U> i) noexcept : ::bs_hook::Il2CppWrapperType(i.convert()) {}
 
     /// @brief constructor that creates an array of size sz
-    inline ArrayW(il2cpp_array_size_t sz) : val(Array<T>::NewLength(sz)) {}
+    inline ArrayW(il2cpp_array_size_t sz) : ::bs_hook::Il2CppWrapperType(Array<T>::NewLength(sz)) {}
 
     /// @brief constructor that takes a set of U values that can convert into T (or are T), and builds an array from it
     template<typename U = T>
     requires(std::is_convertible_v<U, T> || std::is_same_v<U, T>)
-    inline ArrayW(std::initializer_list<U> vals) : val(Ptr::New(vals)) {}
+    inline ArrayW(std::initializer_list<U> vals) : ::bs_hook::Il2CppWrapperType(Ptr::New(vals)) {}
 
     /// @brief gets length of array, if multidimensional gets the array dimensionality
-    constexpr il2cpp_array_size_t Length() const noexcept { return val->Length(); }
+    constexpr il2cpp_array_size_t Length() const noexcept { return get_val()->Length(); }
     /// @brief gets length of array, if multidimensional gets the array dimensionality instead
-    constexpr il2cpp_array_size_t size() const noexcept { return val->Length(); }
+    constexpr il2cpp_array_size_t size() const noexcept { return get_val()->Length(); }
 
     /// @throws ArrayException on out of bounds access
-    inline void assertBounds() const { return val->assertBounds(); }
-
-    /// @brief il2cpp conversion method
-    constexpr void* convert() const noexcept { return const_cast<void*>(static_cast<const void*>(val)); }
+    inline void assertBounds() const { return get_val()->assertBounds(); }
 
     /// @brief index into array
-    constexpr decltype(auto) operator[](std::size_t i) noexcept { return val->operator[](i); }
+    constexpr decltype(auto) operator[](std::size_t i) noexcept { return get_val()->operator[](i); }
     /// @brief const index into array
-    constexpr decltype(auto) operator[](std::size_t i) const noexcept { return val->operator[](i); }
+    constexpr decltype(auto) operator[](std::size_t i) const noexcept { return get_val()->operator[](i); }
 
     /// @brief index into array
     /// @throws ArrayException on out of bounds access
-    inline decltype(auto) get(std::size_t i) { return val->get(i); }
+    inline decltype(auto) get(std::size_t i) { return get_val()->get(i); }
     /// @brief index into array
     /// @throws ArrayException on out of bounds access
-    inline decltype(auto) get(std::size_t i) const { return val->get(i); }
+    inline decltype(auto) get(std::size_t i) const { return get_val()->get(i); }
 
     /// @brief index into array
     /// @return nullopt for out of bounds access, value otherwise
-    inline decltype(auto) try_get(std::size_t i) noexcept { return val->try_get(i); }
+    inline decltype(auto) try_get(std::size_t i) noexcept { return get_val()->try_get(i); }
     /// @brief index into array
     /// @return nullopt for out of bounds access, const value otherwise
-    inline decltype(auto) try_get(std::size_t i) const noexcept { return val->try_get(i); }
+    inline decltype(auto) try_get(std::size_t i) const noexcept { return get_val()->try_get(i); }
 
     /// @brief C# GetEnumerator method
     template<class U = Il2CppObject*>
-    inline U GetEnumerator() { return val->template GetEnumerator<U>(); }
+    inline U GetEnumerator() { return get_val()->template GetEnumerator<U>(); }
     /// @brief C# Contains method
-    inline bool Contains(T&& item) { return val->Contains(item); }
+    inline bool Contains(T&& item) { return get_val()->Contains(item); }
     /// @brief C# IndexOf method
-    inline int IndexOf(T&& item) { return val->IndexOf(item); }
+    inline int IndexOf(T&& item) { return get_val()->IndexOf(item); }
     /// @brief copies the contents of this array into the given array, starting at arrayIndex of the target array
-    inline void CopyTo(::Array<T>* array, int arrayIndex) { return val->CopyTo(array, arrayIndex); }
+    inline void CopyTo(::Array<T>* array, int arrayIndex) { return get_val()->CopyTo(array, arrayIndex); }
     /// @brief copies the contents of this array into the given vector
-    inline void copy_into(std::vector<T>& vec) const { return val->copy_into(vec); }
+    inline void copy_into(std::vector<T>& vec) const { return get_val()->copy_into(vec); }
 
     // iterators
 
     /// @brief iterator at array start
-    constexpr decltype(auto) begin() noexcept { return val->begin(); }
+    constexpr decltype(auto) begin() noexcept { return get_val()->begin(); }
     /// @brief iterator at one past array end
-    constexpr decltype(auto) end() noexcept { return val->begin(); }
+    constexpr decltype(auto) end() noexcept { return get_val()->begin(); }
     /// @brief iterator at reverse start
-    inline decltype(auto) rbegin() noexcept { return val->rbegin(); }
+    inline decltype(auto) rbegin() noexcept { return get_val()->rbegin(); }
     /// @brief iterator at one past reverse end
-    inline decltype(auto) rend() noexcept { return val->rend(); }
+    inline decltype(auto) rend() noexcept { return get_val()->rend(); }
 
     /// @brief const iterator at array start
-    constexpr decltype(auto) begin() const noexcept { return val->begin(); }
+    constexpr decltype(auto) begin() const noexcept { return get_val()->begin(); }
     /// @brief const iterator at one past array end
-    constexpr decltype(auto) end() const noexcept { return val->begin(); }
+    constexpr decltype(auto) end() const noexcept { return get_val()->begin(); }
     /// @brief const iterator at reverse start
-    inline decltype(auto) rbegin() const noexcept { return val->rbegin(); }
+    inline decltype(auto) rbegin() const noexcept { return get_val()->rbegin(); }
     /// @brief const iterator at one past reverse end
-    inline decltype(auto) rend() const noexcept { return val->rend(); }
+    inline decltype(auto) rend() const noexcept { return get_val()->rend(); }
 
     // search methods
 
     /// @brief attempts to get the first element of the array
     /// @throws ArrayException if array is length 0
-    inline decltype(auto) First() const { return val->First(); }
+    inline decltype(auto) First() const { return get_val()->First(); }
     /// @brief attempts to get the first element of the array
     /// @return first element, or nullptr constructed if length is 0
-    constexpr decltype(auto) FirstOrDefault() const noexcept { return val->FirstOrDefault(); }
+    constexpr decltype(auto) FirstOrDefault() const noexcept { return get_val()->FirstOrDefault(); }
     /// @brief attempts to get the last element of the array
     /// @throws ArrayException if array is length 0
-    inline decltype(auto) Last() const { return val->Last(); }
+    inline decltype(auto) Last() const { return get_val()->Last(); }
     /// @brief attempts to get the last element of the array
     /// @return last element, or nullptr constructed if length is 0
-    constexpr decltype(auto) LastOrDefault() const noexcept { return val->LastOrDefault(); }
+    constexpr decltype(auto) LastOrDefault() const noexcept { return get_val()->LastOrDefault(); }
 
     /// @brief attempts to get the first element of the array that matches the given predicate
     /// @throws ArrayException if not found
     template<typename Pred>
-    inline decltype(auto) First(Pred predicate) const { return val->First(predicate); }
+    inline decltype(auto) First(Pred predicate) const { return get_val()->First(predicate); }
 
     /// @brief attempts to get the first element of the array that matches the given predicate
     /// @return first element that matches, or nullptr constructed if not found
     template<typename Pred>
-    inline decltype(auto) FirstOrDefault(Pred predicate) const { return val->FirstOrDefault(predicate); }
+    inline decltype(auto) FirstOrDefault(Pred predicate) const { return get_val()->FirstOrDefault(predicate); }
 
     /// @brief attempts to get the last element of the array that matches the given predicate
     /// @throws ArrayException if not found
     template<typename Pred>
-    inline decltype(auto) Last(Pred predicate) const { return val->Last(predicate); }
+    inline decltype(auto) Last(Pred predicate) const { return get_val()->Last(predicate); }
 
     /// @brief attempts to get the last element of the array that matches the given predicate
     /// @return last element that matches, or nullptr constructed if not found
     template<typename Pred>
-    inline decltype(auto) LastOrDefault(Pred predicate) const { return val->LastOrDefault(predicate); }
+    inline decltype(auto) LastOrDefault(Pred predicate) const { return get_val()->LastOrDefault(predicate); }
 
     /// @brief span of the backing array values
-    inline decltype(auto) ref_to() { return val->ref_to(); }
+    inline decltype(auto) ref_to() { return get_val()->ref_to(); }
     /// @brief span of the backing array values
-    inline decltype(auto) ref_to() const { return val->ref_to(); }
+    inline decltype(auto) ref_to() const { return get_val()->ref_to(); }
 
     /// @brief shorthand for creating an array T with size 0
     static inline ArrayW<T> Empty() { return ArrayW<T>(il2cpp_array_size_t(0)); }
@@ -803,25 +800,26 @@ struct ArrayW {
     constexpr explicit operator ArrayW<U>() { return ArrayW<T>(convert()); }
 
     /// @brief conversion into backing pointer
-    constexpr explicit operator Il2CppArray*() { return val; }
+    constexpr explicit operator Il2CppArray*() { return get_val(); }
     /// @brief conversion into backing pointer
-    constexpr explicit operator const Il2CppArray*() const { return val; }
+    constexpr explicit operator const Il2CppArray*() const { return get_val(); }
 
     /// @brief conversion into backing pointer
-    constexpr explicit operator Ptr() { return val; }
+    constexpr explicit operator Ptr() { return get_val(); }
     /// @brief conversion into backing pointer
-    constexpr explicit operator const Ptr() const { return val; }
+    constexpr explicit operator const Ptr() const { return get_val(); }
 
     /// @brief member access into pointer through operator->
-    constexpr Ptr operator ->() { return val; }
+    constexpr Ptr operator ->() { return get_val(); }
     /// @brief member access into pointer through operator->
-    constexpr const Ptr operator ->() const { return val; }
+    constexpr const Ptr operator ->() const { return get_val(); }
 
     explicit operator void*() const noexcept { return convert(); }
 
-    operator bool() const { return val; }
+    operator bool() const { return get_val(); }
     protected:
-        Ptr val;
+        constexpr Ptr get_val() noexcept { return static_cast<Ptr>(::bs_hook::Il2CppWrapperType::instance); }
+        constexpr const Ptr get_val() const noexcept { return static_cast<const Ptr>(::bs_hook::Il2CppWrapperType::instance); }
 };
 
 MARK_GEN_REF_T(ArrayW);
