@@ -125,10 +125,24 @@ static void doThing() {
 
     auto wrapperArr = ArrayW<SomeWrapper>(10);
     wrapperArr[0] = nullptr;
+    // use operator-> to directly access the underlying wrapper type
+    wrapperArr[0]->method();
 
+    // apparently an iter with operator* gets dereffed automatically
+    // also auto& or const auto& is just not possible with wrapper types now, unless we were to specify their sizes to match
     for (auto v : wrapperArr) {
+        static_assert(std::is_same_v<decltype(v), SomeWrapper>);
+
         v = nullptr;
         v.method();
+    }
+
+    // when using operator[] you instead get a IndexRef<T>
+    for(il2cpp_array_size_t i = 0; i < wrapperArr.size(); i++) {
+        auto v = wrapperArr[i];
+        static_assert(std::is_same_v<decltype(v), IndexRef<SomeWrapper>>);
+
+        v = nullptr;
     }
 }
 
