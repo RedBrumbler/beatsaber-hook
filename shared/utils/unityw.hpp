@@ -1,9 +1,9 @@
 #pragma once
-#include "base-wrapper-type.hpp"
+#include "typedefs-object.hpp"
 
 namespace bs_hook {
-    class UnityW : public Il2CppWrapperType {
+    class UnityW : public ::ObjectWrapperType {
         public:
-        constexpr UnityW(void* o) : Il2CppWrapperType(o) {}
+        constexpr UnityW(void* o) : ObjectWrapperType(o) {}
     };
 }
