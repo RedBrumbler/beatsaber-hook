@@ -133,16 +133,16 @@ struct Array : Il2CppArray {
     // TODO: replace these optional with the wrapper ref stuff from bs hook
     /// @brief index into array
     /// @return nullopt for out of bounds access, IndexRef<T> otherwise
-    inline std::optional<value> try_get(std::size_t i) noexcept {
+    inline std::optional<WrapperRef<T>> try_get(std::size_t i) noexcept {
         if (i >= Length() || i < 0) return std::nullopt;
-        return *internal_get(i);
+        return WrapperRef<T>(*internal_get(i));
     }
 
     /// @brief index into array
     /// @return nullopt for out of bounds access, IndexRef<const T> otherwise
-    inline std::optional<const_value> try_get(std::size_t i) const noexcept {
+    inline std::optional<WrapperRef<const T>> try_get(std::size_t i) const noexcept {
         if (i >= Length() || i < 0) return std::nullopt;
-        return *internal_get(i);
+        return WrapperRef<T>(*internal_get(i));
     }
 
     /// @brief creates array of length size and elements T
@@ -347,7 +347,9 @@ struct IndexRef {
     void set(T&& v) const {
         static_assert(!std::is_const_v<T>);
         ::il2cpp_functions::Init();
-        ::il2cpp_functions::gc_wbarrier_set_field(obj, _value, v.convert());
+        *_value = v.convert();
+        // whenever assigning something that contains refs, you need to set the write barrier!
+        ::il2cpp_functions::GarbageCollector_SetWriteBarrier(_value);
     }
 
     /// @brief operator eq
@@ -412,6 +414,8 @@ struct Iter : public IndexRef<T> {
 };
 
 template<::il2cpp_utils::il2cpp_reference_type T>
+// if il2cpp size happens to be right for the wrapper type, fall back to the general T implementation
+requires(!::il2cpp_utils::is_il2cpp_size_safe_v<T>)
 struct Array<T> : ::Il2CppArray {
     // ref types are void*
     ALIGN_TYPE(8) void* values[IL2CPP_ZERO_LEN_ARRAY];

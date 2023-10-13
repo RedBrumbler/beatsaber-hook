@@ -49,31 +49,31 @@ struct ListW<T, Ptr> {
     [[nodiscard]] constexpr int size() const {
         return ptr->size;
     }
-    auto operator[](size_t i) {
+    decltype(auto) operator[](size_t i) {
         return ptr->items[i];
     }
-    auto operator[](size_t i) const {
+    decltype(auto) operator[](size_t i) const {
         return ptr->items[i];
     }
 
     /// @brief Get a given index, performs bound checking and throws std::runtime_error on failure.
     /// @param i The index to get.
     /// @return The reference to the item.
-    T& get(size_t i) {
+    decltype(auto) get(size_t i) {
         THROW_UNLESS(i < size() && i >= 0);
         return ptr->items[i];
     }
     /// @brief Get a given index, performs bound checking and throws std::runtime_error on failure.
     /// @param i The index to get.
     /// @return The const reference to the item.
-    const T& get(size_t i) const {
+    decltype(auto) get(size_t i) const {
         THROW_UNLESS(i < size() && i >= 0);
         return ptr->items[i];
     }
     /// @brief Tries to get a given index, performs bound checking and returns a std::nullopt on failure.
     /// @param i The index to get.
     /// @return The WrapperRef<T> to the item, mostly considered to be a T&.
-    std::optional<WrapperRef<T>> try_get(size_t i) {
+    decltype(auto) try_get(size_t i) {
         if (i >= size() || i < 0) {
             return std::nullopt;
         }
@@ -82,32 +82,36 @@ struct ListW<T, Ptr> {
     /// @brief Tries to get a given index, performs bound checking and returns a std::nullopt on failure.
     /// @param i The index to get.
     /// @return The WrapperRef<const T> to the item, mostly considered to be a const T&.
-    std::optional<WrapperRef<const T>> try_get(size_t i) const {
+    decltype(auto) try_get(size_t i) const {
         if (i >= size() || i < 0) {
             return std::nullopt;
         }
         return WrapperRef(ptr->items[i]);
     }
 
-    iterator begin() {
+    decltype(auto) begin() {
         return ptr->items.begin();
     }
-    iterator end() {
-        return &ptr->items[size()];
+    decltype(auto) end() {
+        return ptr->items.begin() + size();
     }
-    const_iterator begin() const {
+    decltype(auto) begin() const {
         return ptr->items.begin();
     }
-    const_iterator end() const {
-        return &ptr->items[size()];
+    decltype(auto) end() const {
+        return ptr->items.begin() + size();
     }
 
-    operator std::span<T const> const() const {
-        return std::span<T const>(this->begin(), this->end());
+    template<typename D = T>
+    requires(std::is_same_v<D, T> && il2cpp_utils::is_il2cpp_size_safe_v<D>)
+    operator std::span<D const> () const {
+        return std::span<D const>(this->begin(), this->end());
     }
 
-    operator std::span<T>() {
-        return std::span<T>(this->begin(), this->end());
+    template<typename D = T>
+    requires(std::is_same_v<D, T> && il2cpp_utils::is_il2cpp_size_safe_v<D>)
+    operator std::span<D> () {
+        return std::span<D>(this->begin(), this->end());
     }
 
     operator Ptr() noexcept {

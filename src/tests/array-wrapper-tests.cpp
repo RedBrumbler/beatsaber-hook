@@ -49,7 +49,7 @@ static_assert(::il2cpp_utils::il2cpp_reference_type_requirements<MatchingWrapper
 static_assert(::il2cpp_utils::il2cpp_reference_type<MatchingWrapper>);
 static_assert(::il2cpp_utils::RefTypeTrait<MatchingWrapper>::value);
 static_assert(sizeof(MatchingWrapper) == 0x8);
-static_assert(std::is_same_v<decltype(std::remove_pointer_t<ArrayW<MatchingWrapper>::Ptr>::values), void*[0]>);
+static_assert(std::is_same_v<decltype(std::remove_pointer_t<ArrayW<MatchingWrapper>::Ptr>::values), MatchingWrapper[0]>);
 
 struct Color : public ::bs_hook::ValueTypeWrapper<0x10> {
     static constexpr auto __IL2CPP_VALUE_TYPE = true;
