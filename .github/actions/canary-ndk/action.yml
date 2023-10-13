@@ -26,7 +26,7 @@ runs:
 
     - name: Unzip ndk
       if: ${{ !steps.cache.outputs.cache-hit }}
-      run: 7z x ${HOME}/ndk.zip -o ${HOME}/
+      run: 7z x "${HOME}/ndk.zip" -o "${HOME}/"
       shell: bash
 
     - name: Set output
