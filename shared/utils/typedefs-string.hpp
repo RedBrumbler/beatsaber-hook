@@ -10,7 +10,7 @@
 #include <codecvt>
 #include <span>
 #include "type-concepts.hpp"
-#include "utils/base-wrapper-type.hpp"
+#include "base-wrapper-type.hpp"
 
 struct UseBeforeInitError : il2cpp_utils::exceptions::StackTraceException {
     UseBeforeInitError(const char* v) : il2cpp_utils::exceptions::StackTraceException(v) {}
