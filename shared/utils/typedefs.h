@@ -45,6 +45,8 @@ extern "C" {
 #include "il2cpp-type-check.hpp"
 
 #include "typedefs-array.hpp"
+#include "typedefs-list.hpp"
+#include "typedefs-string.hpp"
 #include "typedefs-wrappers.hpp"
 
 #include <stdint.h>

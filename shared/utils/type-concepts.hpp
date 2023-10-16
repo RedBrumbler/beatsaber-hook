@@ -11,7 +11,7 @@ namespace il2cpp_utils {
     /// @brief A concept depicting if a type is a wrapper type.
     // TODO: Make this use a static creation method instead of a constructor
     concept has_il2cpp_conversion = requires (T t) {
-        {t.convert()} -> std::same_as<void*>;
+        {t.convert()} -> convertible_to<void*>;
         std::is_constructible_v<T, void*>;
     };
 
