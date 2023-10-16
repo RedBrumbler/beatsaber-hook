@@ -7,6 +7,14 @@ namespace il2cpp_utils {
     template<typename T, typename U>
     concept convertible_to = std::is_convertible_v<T, U>;
 
+    template<class T>
+    /// @brief A concept depicting if a type is a wrapper type.
+    // TODO: Make this use a static creation method instead of a constructor
+    concept has_il2cpp_conversion = requires (T t) {
+        {t.convert()} -> std::same_as<void*>;
+        std::is_constructible_v<T, void*>;
+    };
+
 #pragma region value marker
     /// @brief not all types will have the value marker
     template<typename T>
