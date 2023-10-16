@@ -55,5 +55,7 @@ struct ::il2cpp_utils::il2cpp_type_check::il2cpp_arg_type<ByRef<T>> {
     }
 };
 
+MARK_GEN_REF_T(ByRef);
+
 // Creates a ByRef type to wrap a reference
 #define byref(...) (ByRef(__VA_ARGS__))

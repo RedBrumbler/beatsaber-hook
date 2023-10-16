@@ -5,7 +5,7 @@
 #include <optional>
 #include "typedefs-array.hpp"
 #include "size-concepts.hpp"
-#include "typedefs-object.hpp"
+#include "base-wrapper-type.hpp"
 
 // System.Collections.Generic.List
 template<class T>
@@ -25,18 +25,18 @@ MARK_GEN_REF_T(ListW);
 
 // il2cpp safe implementation of ListW
 template<class T, class Ptr>
-struct ListW : public ::ObjectWrapperType {
+struct ListW : public ::bs_hook::Il2CppWrapperType {
     static_assert(sizeof(Ptr) == sizeof(void*), "Size of Ptr type must be the same as a void*!");
 
     // TODO: Consider requirementally constexpr-ifying this call
     // TODO: Apply these il2cpp conversion changes to ArrayW as well, to permit ArrayW to hold wrapper types and not pure pointers
-    constexpr ListW(Ptr const& p) noexcept : ::ObjectWrapperType(nullptr) { set_ptr(p); }
+    constexpr ListW(Ptr const& p) noexcept : ::bs_hook::Il2CppWrapperType(nullptr) { set_ptr(p); }
 
     template<class V = void>
     requires (std::is_pointer_v<Ptr> && !il2cpp_utils::has_il2cpp_conversion<Ptr>)
-    explicit constexpr ListW(void* alterInit) noexcept : ::ObjectWrapperType(alterInit) {}
+    explicit constexpr ListW(void* alterInit) noexcept : ::bs_hook::Il2CppWrapperType(alterInit) {}
 
-    constexpr ListW(std::span<T> const p) : ::ObjectWrapperType(il2cpp_utils::NewSpecific<Ptr>(p.size())) {
+    constexpr ListW(std::span<T> const p) : ::bs_hook::Il2CppWrapperType(il2cpp_utils::NewSpecific<Ptr>(p.size())) {
         std::copy(p.begin(), p.end(), begin());
     }
 

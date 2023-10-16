@@ -10,7 +10,7 @@
 #include <codecvt>
 #include <span>
 #include "type-concepts.hpp"
-#include "typedefs-object.hpp"
+#include "utils/base-wrapper-type.hpp"
 
 struct UseBeforeInitError : il2cpp_utils::exceptions::StackTraceException {
     UseBeforeInitError(const char* v) : il2cpp_utils::exceptions::StackTraceException(v) {}
@@ -128,17 +128,17 @@ struct ConstString {
     char16_t chars[sz] = {};
 };
 
-struct StringW : public ::ObjectWrapperType {
+struct StringW : public ::bs_hook::Il2CppWrapperType {
     // Dynamically allocated string
     template<class T>
     requires (!std::is_convertible_v<T, Il2CppString*> && (std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T>))
-    StringW(T str) noexcept : ::ObjectWrapperType(il2cpp_utils::detail::alloc_str(str)) {}
-    constexpr StringW(void* ins) noexcept : ObjectWrapperType(static_cast<Il2CppString*>(ins)) {}
-    constexpr StringW(Il2CppString* ins) noexcept : ObjectWrapperType(ins) {}
+    StringW(T str) noexcept : ::bs_hook::Il2CppWrapperType(il2cpp_utils::detail::alloc_str(str)) {}
+    constexpr StringW(void* ins) noexcept : ::bs_hook::Il2CppWrapperType(static_cast<Il2CppString*>(ins)) {}
+    constexpr StringW(Il2CppString* ins) noexcept : ::bs_hook::Il2CppWrapperType(ins) {}
     template <int sz>
-    constexpr StringW(ConstString<sz>& conststring) noexcept : ObjectWrapperType(static_cast<Il2CppString*>(conststring)) {}
-    constexpr StringW(std::nullptr_t npt) noexcept : ObjectWrapperType(npt) {}
-    constexpr StringW() noexcept : ObjectWrapperType(nullptr) {}
+    constexpr StringW(ConstString<sz>& conststring) noexcept : ::bs_hook::Il2CppWrapperType(static_cast<Il2CppString*>(conststring)) {}
+    constexpr StringW(std::nullptr_t npt) noexcept : ::bs_hook::Il2CppWrapperType(npt) {}
+    constexpr StringW() noexcept : ::bs_hook::Il2CppWrapperType(nullptr) {}
 
     constexpr operator Il2CppString const*() const noexcept {
         return get_inst();
