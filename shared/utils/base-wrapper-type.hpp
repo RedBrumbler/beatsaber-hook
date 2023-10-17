@@ -9,6 +9,7 @@ namespace bs_hook {
     /// @brief Represents the most basic wrapper type.
     /// All other wrapper types should inherit from this or otherwise satisfy the constraint above.
     struct Il2CppWrapperType {
+        constexpr explicit Il2CppWrapperType() noexcept : instance(nullptr) {}
         constexpr explicit Il2CppWrapperType(void* i) noexcept : instance(i) {}
         constexpr Il2CppWrapperType(Il2CppWrapperType const& other) = default;
         constexpr Il2CppWrapperType(Il2CppWrapperType && other) = default;
