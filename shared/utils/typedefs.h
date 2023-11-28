@@ -81,8 +81,6 @@ namespace il2cpp_utils {
     }
 }
 
-#include "typedefs-list.hpp"
-
 // From Runtime.cpp (some may need the * removed):
 DEFINE_IL2CPP_DEFAULT_TYPE(Il2CppMulticastDelegate*, multicastdelegate);
 NEED_NO_BOX(Il2CppMulticastDelegate);

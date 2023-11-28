@@ -19,7 +19,7 @@ void* test2(void* one, void*) {
 
 template<>
 struct ::il2cpp_utils::il2cpp_type_check::MetadataGetter<&test2> {
-    static const MethodInfo* get() {
+    static const MethodInfo* methodInfo() {
         return nullptr;
     }
 };

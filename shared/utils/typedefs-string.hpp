@@ -199,18 +199,18 @@ struct StringW : public ::bs_hook::Il2CppWrapperType {
         requires(std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T> || std::is_same_v<T, StringW>)
     bool starts_with(T const& rhs) const noexcept {
         if constexpr (std::is_same_v<T, StringW>)
-            return il2cpp_utils::detail::strstart(inst, rhs.inst);
+            return il2cpp_utils::detail::strstart(get_inst(), rhs.inst);
         else
-            return il2cpp_utils::detail::strstart(inst, rhs);
+            return il2cpp_utils::detail::strstart(get_inst(), rhs);
     }
 
     template <typename T>
         requires(std::is_constructible_v<std::u16string_view, T> || std::is_constructible_v<std::string_view, T> || std::is_same_v<T, StringW>)
     bool ends_with(T const& rhs) const noexcept {
         if constexpr (std::is_same_v<T, StringW>)
-            return il2cpp_utils::detail::strend(inst, rhs.inst);
+            return il2cpp_utils::detail::strend(get_inst(), rhs.inst);
         else
-            return il2cpp_utils::detail::strend(inst, rhs);
+            return il2cpp_utils::detail::strend(get_inst(), rhs);
     }
 
     using iterator = Il2CppChar*;

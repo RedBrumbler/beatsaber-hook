@@ -1,4 +1,5 @@
 #pragma once
+#include "type-concepts.hpp"
 #include "il2cpp-type-check.hpp"
 
 /// @brief Represents a byref parameter.
