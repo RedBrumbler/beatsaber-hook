@@ -202,12 +202,10 @@ template <typename T>
             }
             return *first < *second;
         }
-        return *first < *second;
+        // if we got here, and second is not second end, we had a shorter first, so it should be true
+        // if second is the end, we are longer, so it should be false
+        return second != secondEnd;
     }
-    // if we got here, and second is not second end, we had a shorter first, so it should be true
-    // if second is the end, we are longer, so it should be false
-    return second != secondEnd;
-}
 
     bool strless(Il2CppString const* lhs, std::string_view const rhs) noexcept {
         return strless<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
@@ -236,12 +234,10 @@ template <typename T>
             }
             return *first < *second;
         }
-        return *first < *second;
+        // if we got here, and second is not second end, we had a shorter first, so it should be true
+        // if second is the end, we are longer, so it should be false
+        return second != secondEnd;
     }
-    // if we got here, and second is not second end, we had a shorter first, so it should be true
-    // if second is the end, we are longer, so it should be false
-    return second != secondEnd;
-}
 
 template <typename T>
     requires(std::is_same_v<T, std::string_view> || std::is_same_v<T, std::u16string_view>)
@@ -262,12 +258,9 @@ template <typename T>
             // we got a mismatch! return false;
             return false;
         }
-        // we got a mismatch! return false;
-        return false;
+        // if we got through the entire string it was all equal, return true
+        return true;
     }
-    // if we got through the entire string it was all equal, return true
-    return true;
-}
 
     bool strstart(Il2CppString const* lhs, std::string_view const rhs) noexcept {
         return strstart<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
@@ -295,12 +288,9 @@ template <typename T>
             // we got a mismatch! return false;
             return false;
         }
-        // we got a mismatch! return false;
-        return false;
+        // if we got through the entire string it was all equal, return true
+        return true;
     }
-    // if we got through the entire string it was all equal, return true
-    return true;
-}
 
 template <typename T>
     requires(std::is_same_v<T, std::string_view> || std::is_same_v<T, std::u16string_view>)
@@ -321,12 +311,9 @@ template <typename T>
             // we got a mismatch! return false;
             return false;
         }
-        // we got a mismatch! return false;
-        return false;
+        // if we got through the entire string it was all equal, return true
+        return true;
     }
-    // if we got through the entire string it was all equal, return true
-    return true;
-}
 
 bool strend(Il2CppString const* lhs, std::string_view const rhs) noexcept {
     return strend<std::remove_const_t<decltype(rhs)>>(lhs, rhs);
@@ -397,11 +384,6 @@ StringW::operator std::span<Il2CppChar>() {
 StringW::operator std::span<Il2CppChar const> const() const {
     return { begin(), end() };
 }
-Il2CppChar const& StringW::operator[](size_t const& idx) const {
-    return inst->chars[idx];
-}
-Il2CppChar& StringW::operator[](size_t const& idx) {
-    return inst->chars[idx];
-}
+
 Il2CppChar const& StringW::operator [](size_t const& idx) const { return get_inst()->chars[idx]; }
 Il2CppChar& StringW::operator [](size_t const& idx) { return get_inst()->chars[idx]; }
