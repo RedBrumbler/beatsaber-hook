@@ -1,28 +1,27 @@
 #include <unistd.h>
 
+#include "../../shared/utils/capstone-utils.hpp"
 #include "../../shared/utils/hooking.hpp"
 #include "../../shared/utils/il2cpp-functions.hpp"
-#include "capstone/shared/capstone/capstone.h"
 #include "../../shared/utils/logging.hpp"
-#include "../../shared/utils/capstone-utils.hpp"
-#include "modloader/shared/modloader.hpp"
+#include "capstone/shared/capstone/capstone.h"
 
-#define API_INIT(rt, name, ...) rt (*il2cpp_functions::il2cpp_##name)__VA_ARGS__
+#define API_INIT(rt, name, ...) rt(*il2cpp_functions::il2cpp_##name) __VA_ARGS__
 // All the fields...
 #if defined(UNITY_2019) || defined(UNITY_2021)
 API_INIT(int, init, (const char* domain_name));
-API_INIT(int, init_utf16, (const Il2CppChar * domain_name));
+API_INIT(int, init_utf16, (const Il2CppChar* domain_name));
 #else
 API_INIT(void, init, (const char* domain_name));
-API_INIT(void, init_utf16, (const Il2CppChar * domain_name));
+API_INIT(void, init_utf16, (const Il2CppChar* domain_name));
 #endif
 API_INIT(void, shutdown, ());
-API_INIT(void, set_config_dir, (const char *config_path));
-API_INIT(void, set_data_dir, (const char *data_path));
-API_INIT(void, set_temp_dir, (const char *temp_path));
+API_INIT(void, set_config_dir, (const char* config_path));
+API_INIT(void, set_data_dir, (const char* data_path));
+API_INIT(void, set_temp_dir, (const char* temp_path));
 API_INIT(void, set_commandline_arguments, (int argc, const char* const argv[], const char* basedir));
-API_INIT(void, set_commandline_arguments_utf16, (int argc, const Il2CppChar * const argv[], const char* basedir));
-API_INIT(void, set_config_utf16, (const Il2CppChar * executablePath));
+API_INIT(void, set_commandline_arguments_utf16, (int argc, const Il2CppChar* const argv[], const char* basedir));
+API_INIT(void, set_config_utf16, (const Il2CppChar* executablePath));
 API_INIT(void, set_config, (const char* executablePath));
 API_INIT(void, set_memory_callbacks, (Il2CppMemoryCallbacks * callbacks));
 API_INIT(const Il2CppImage*, get_corlib, ());
@@ -35,7 +34,7 @@ API_INIT(uint32_t, array_length, (Il2CppArray * array));
 API_INIT(uint32_t, array_get_byte_length, (Il2CppArray * array));
 API_INIT(Il2CppArray*, array_new, (Il2CppClass * elementTypeInfo, il2cpp_array_size_t length));
 API_INIT(Il2CppArray*, array_new_specific, (Il2CppClass * arrayTypeInfo, il2cpp_array_size_t length));
-API_INIT(Il2CppArray*, array_new_full, (Il2CppClass * array_class, il2cpp_array_size_t * lengths, il2cpp_array_size_t * lower_bounds));
+API_INIT(Il2CppArray*, array_new_full, (Il2CppClass * array_class, il2cpp_array_size_t* lengths, il2cpp_array_size_t* lower_bounds));
 API_INIT(Il2CppClass*, bounded_array_class_get, (Il2CppClass * element_class, uint32_t rank, bool bounded));
 API_INIT(int, array_element_size, (const Il2CppClass * array_class));
 API_INIT(const Il2CppImage*, assembly_get_image, (const Il2CppAssembly * assembly));
@@ -43,13 +42,13 @@ API_INIT(const Il2CppImage*, assembly_get_image, (const Il2CppAssembly * assembl
 API_INIT(void, class_for_each, (void(*klassReportFunc)(Il2CppClass* klass, void* userData), void* userData));
 #endif
 API_INIT(const Il2CppType*, class_enum_basetype, (Il2CppClass * klass));
-API_INIT(bool, class_is_generic, (const Il2CppClass * klass));
-API_INIT(bool, class_is_inflated, (const Il2CppClass * klass));
-API_INIT(bool, class_is_assignable_from, (Il2CppClass * klass, Il2CppClass * oklass));
-API_INIT(bool, class_is_subclass_of, (Il2CppClass * klass, Il2CppClass * klassc, bool check_interfaces));
-API_INIT(bool, class_has_parent, (Il2CppClass * klass, Il2CppClass * klassc));
-API_INIT(Il2CppClass*, class_from_il2cpp_type, (const Il2CppType * type));
-API_INIT(Il2CppClass*, class_from_name, (const Il2CppImage * image, const char* namespaze, const char *name));
+API_INIT(bool, class_is_generic, (const Il2CppClass* klass));
+API_INIT(bool, class_is_inflated, (const Il2CppClass* klass));
+API_INIT(bool, class_is_assignable_from, (Il2CppClass * klass, Il2CppClass* oklass));
+API_INIT(bool, class_is_subclass_of, (Il2CppClass * klass, Il2CppClass* klassc, bool check_interfaces));
+API_INIT(bool, class_has_parent, (Il2CppClass * klass, Il2CppClass* klassc));
+API_INIT(Il2CppClass*, class_from_il2cpp_type, (const Il2CppType* type));
+API_INIT(Il2CppClass*, class_from_name, (const Il2CppImage* image, const char* namespaze, const char* name));
 API_INIT(Il2CppClass*, class_from_system_type, (Il2CppReflectionType * type));
 API_INIT(Il2CppClass*, class_get_element_class, (Il2CppClass * klass));
 API_INIT(const EventInfo*, class_get_events, (Il2CppClass * klass, void* *iter));
@@ -65,24 +64,24 @@ API_INIT(const char*, class_get_name, (const Il2CppClass * klass));
 #if defined(UNITY_2019) || defined(UNITY_2021)
 API_INIT(void, type_get_name_chunked, (const Il2CppType * type, void(*chunkReportFunc)(void* data, void* userData), void* userData));
 #endif
-API_INIT(const char*, class_get_namespace, (const Il2CppClass * klass));
+API_INIT(const char*, class_get_namespace, (const Il2CppClass* klass));
 API_INIT(Il2CppClass*, class_get_parent, (Il2CppClass * klass));
-API_INIT(Il2CppClass*, class_get_declaring_type, (const Il2CppClass * klass));
+API_INIT(Il2CppClass*, class_get_declaring_type, (const Il2CppClass* klass));
 API_INIT(int32_t, class_instance_size, (Il2CppClass * klass));
-API_INIT(size_t, class_num_fields, (const Il2CppClass * enumKlass));
-API_INIT(bool, class_is_valuetype, (const Il2CppClass * klass));
-API_INIT(int32_t, class_value_size, (Il2CppClass * klass, uint32_t * align));
-API_INIT(bool, class_is_blittable, (const Il2CppClass * klass));
-API_INIT(int, class_get_flags, (const Il2CppClass * klass));
-API_INIT(bool, class_is_abstract, (const Il2CppClass * klass));
-API_INIT(bool, class_is_interface, (const Il2CppClass * klass));
-API_INIT(int, class_array_element_size, (const Il2CppClass * klass));
-API_INIT(Il2CppClass*, class_from_type, (const Il2CppType * type));
+API_INIT(size_t, class_num_fields, (const Il2CppClass* enumKlass));
+API_INIT(bool, class_is_valuetype, (const Il2CppClass* klass));
+API_INIT(int32_t, class_value_size, (Il2CppClass * klass, uint32_t* align));
+API_INIT(bool, class_is_blittable, (const Il2CppClass* klass));
+API_INIT(int, class_get_flags, (const Il2CppClass* klass));
+API_INIT(bool, class_is_abstract, (const Il2CppClass* klass));
+API_INIT(bool, class_is_interface, (const Il2CppClass* klass));
+API_INIT(int, class_array_element_size, (const Il2CppClass* klass));
+API_INIT(Il2CppClass*, class_from_type, (const Il2CppType* type));
 API_INIT(const Il2CppType*, class_get_type, (Il2CppClass * klass));
 API_INIT(uint32_t, class_get_type_token, (Il2CppClass * klass));
-API_INIT(bool, class_has_attribute, (Il2CppClass * klass, Il2CppClass * attr_class));
+API_INIT(bool, class_has_attribute, (Il2CppClass * klass, Il2CppClass* attr_class));
 API_INIT(bool, class_has_references, (Il2CppClass * klass));
-API_INIT(bool, class_is_enum, (const Il2CppClass * klass));
+API_INIT(bool, class_is_enum, (const Il2CppClass* klass));
 API_INIT(const Il2CppImage*, class_get_image, (Il2CppClass * klass));
 API_INIT(const char*, class_get_assemblyname, (const Il2CppClass * klass));
 API_INIT(int, class_get_rank, (const Il2CppClass * klass));
@@ -90,9 +89,9 @@ API_INIT(int, class_get_rank, (const Il2CppClass * klass));
 API_INIT(uint32_t, class_get_data_size, (const Il2CppClass * klass));
 API_INIT(void*, class_get_static_field_data, (const Il2CppClass * klass));
 #endif
-API_INIT(size_t, class_get_bitmap_size, (const Il2CppClass * klass));
-API_INIT(void, class_get_bitmap, (Il2CppClass * klass, size_t * bitmap));
-API_INIT(bool, stats_dump_to_file, (const char *path));
+API_INIT(size_t, class_get_bitmap_size, (const Il2CppClass* klass));
+API_INIT(void, class_get_bitmap, (Il2CppClass * klass, size_t* bitmap));
+API_INIT(bool, stats_dump_to_file, (const char* path));
 API_INIT(uint64_t, stats_get_value, (Il2CppStat stat));
 API_INIT(Il2CppDomain*, domain_get, ());
 API_INIT(const Il2CppAssembly*, domain_assembly_open, (Il2CppDomain * domain, const char* name));
@@ -100,10 +99,10 @@ API_INIT(const Il2CppAssembly**, domain_get_assemblies, (const Il2CppDomain * do
 #if defined(UNITY_2019) || defined(UNITY_2021)
 API_INIT(void, raise_exception, (Il2CppException*));
 #endif
-API_INIT(Il2CppException*, exception_from_name_msg, (const Il2CppImage * image, const char *name_space, const char *name, const char *msg));
-API_INIT(Il2CppException*, get_exception_argument_null, (const char *arg));
-API_INIT(void, format_exception, (const Il2CppException * ex, char* message, int message_size));
-API_INIT(void, format_stack_trace, (const Il2CppException * ex, char* output, int output_size));
+API_INIT(Il2CppException*, exception_from_name_msg, (const Il2CppImage* image, const char* name_space, const char* name, const char* msg));
+API_INIT(Il2CppException*, get_exception_argument_null, (const char* arg));
+API_INIT(void, format_exception, (const Il2CppException* ex, char* message, int message_size));
+API_INIT(void, format_stack_trace, (const Il2CppException* ex, char* output, int output_size));
 API_INIT(void, unhandled_exception, (Il2CppException*));
 API_INIT(int, field_get_flags, (FieldInfo * field));
 API_INIT(const char*, field_get_name, (FieldInfo * field));
@@ -165,21 +164,21 @@ API_INIT(void, il2cpp_unity_liveness_free_struct, (void* state));
 #endif
 API_INIT(void, unity_liveness_calculation_from_root, (Il2CppObject * root, void* state));
 API_INIT(void, unity_liveness_calculation_from_statics, (void* state));
-API_INIT(const Il2CppType*, method_get_return_type, (const MethodInfo * method));
-API_INIT(Il2CppClass*, method_get_declaring_type, (const MethodInfo * method));
-API_INIT(const char*, method_get_name, (const MethodInfo * method));
-API_INIT(const MethodInfo*, method_get_from_reflection, (const Il2CppReflectionMethod * method));
-API_INIT(Il2CppReflectionMethod*, method_get_object, (const MethodInfo * method, Il2CppClass * refclass));
-API_INIT(bool, method_is_generic, (const MethodInfo * method));
-API_INIT(bool, method_is_inflated, (const MethodInfo * method));
-API_INIT(bool, method_is_instance, (const MethodInfo * method));
-API_INIT(uint32_t, method_get_param_count, (const MethodInfo * method));
-API_INIT(const Il2CppType*, method_get_param, (const MethodInfo * method, uint32_t index));
-API_INIT(Il2CppClass*, method_get_class, (const MethodInfo * method));
-API_INIT(bool, method_has_attribute, (const MethodInfo * method, Il2CppClass * attr_class));
-API_INIT(uint32_t, method_get_flags, (const MethodInfo * method, uint32_t * iflags));
-API_INIT(uint32_t, method_get_token, (const MethodInfo * method));
-API_INIT(const char*, method_get_param_name, (const MethodInfo * method, uint32_t index));
+API_INIT(const Il2CppType*, method_get_return_type, (const MethodInfo* method));
+API_INIT(Il2CppClass*, method_get_declaring_type, (const MethodInfo* method));
+API_INIT(const char*, method_get_name, (const MethodInfo* method));
+API_INIT(const MethodInfo*, method_get_from_reflection, (const Il2CppReflectionMethod* method));
+API_INIT(Il2CppReflectionMethod*, method_get_object, (const MethodInfo* method, Il2CppClass* refclass));
+API_INIT(bool, method_is_generic, (const MethodInfo* method));
+API_INIT(bool, method_is_inflated, (const MethodInfo* method));
+API_INIT(bool, method_is_instance, (const MethodInfo* method));
+API_INIT(uint32_t, method_get_param_count, (const MethodInfo* method));
+API_INIT(const Il2CppType*, method_get_param, (const MethodInfo* method, uint32_t index));
+API_INIT(Il2CppClass*, method_get_class, (const MethodInfo* method));
+API_INIT(bool, method_has_attribute, (const MethodInfo* method, Il2CppClass* attr_class));
+API_INIT(uint32_t, method_get_flags, (const MethodInfo* method, uint32_t* iflags));
+API_INIT(uint32_t, method_get_token, (const MethodInfo* method));
+API_INIT(const char*, method_get_param_name, (const MethodInfo* method, uint32_t index));
 
 // ONLY IF THE PROFILER EXISTS FOR UNITY_2019
 API_INIT(void, profiler_install, (Il2CppProfiler * prof, Il2CppProfileFunc shutdown_callback));
@@ -190,15 +189,15 @@ API_INIT(void, profiler_install_gc, (Il2CppProfileGCFunc callback, Il2CppProfile
 API_INIT(void, profiler_install_fileio, (Il2CppProfileFileIOFunc callback));
 API_INIT(void, profiler_install_thread, (Il2CppProfileThreadFunc start, Il2CppProfileThreadFunc end));
 
-API_INIT(uint32_t, property_get_flags, (const PropertyInfo * prop));
-API_INIT(const MethodInfo*, property_get_get_method, (const PropertyInfo * prop));
-API_INIT(const MethodInfo*, property_get_set_method, (const PropertyInfo * prop));
-API_INIT(const char*, property_get_name, (const PropertyInfo * prop));
-API_INIT(Il2CppClass*, property_get_parent, (const PropertyInfo * prop));
+API_INIT(uint32_t, property_get_flags, (const PropertyInfo* prop));
+API_INIT(const MethodInfo*, property_get_get_method, (const PropertyInfo* prop));
+API_INIT(const MethodInfo*, property_get_set_method, (const PropertyInfo* prop));
+API_INIT(const char*, property_get_name, (const PropertyInfo* prop));
+API_INIT(Il2CppClass*, property_get_parent, (const PropertyInfo* prop));
 API_INIT(Il2CppClass*, object_get_class, (Il2CppObject * obj));
 API_INIT(uint32_t, object_get_size, (Il2CppObject * obj));
-API_INIT(const MethodInfo*, object_get_virtual_method, (Il2CppObject * obj, const MethodInfo * method));
-API_INIT(Il2CppObject*, object_new, (const Il2CppClass * klass));
+API_INIT(const MethodInfo*, object_get_virtual_method, (Il2CppObject * obj, const MethodInfo* method));
+API_INIT(Il2CppObject*, object_new, (const Il2CppClass* klass));
 // Always returns (void*, (obj + 1)
 API_INIT(void*, object_unbox, (Il2CppObject * obj));
 // If klass is not a ValueType, returns (Il2CppObject*, (*data), else boxes
@@ -210,8 +209,8 @@ API_INIT(void, monitor_pulse, (Il2CppObject * obj));
 API_INIT(void, monitor_pulse_all, (Il2CppObject * obj));
 API_INIT(void, monitor_wait, (Il2CppObject * obj));
 API_INIT(bool, monitor_try_wait, (Il2CppObject * obj, uint32_t timeout));
-API_INIT(Il2CppObject*, runtime_invoke, (const MethodInfo * method, void *obj, void **params, Il2CppException **exc));
-API_INIT(Il2CppObject*, runtime_invoke_convert_args, (const MethodInfo * method, void *obj, Il2CppObject **params, int paramCount, Il2CppException **exc));
+API_INIT(Il2CppObject*, runtime_invoke, (const MethodInfo* method, void* obj, void** params, Il2CppException** exc));
+API_INIT(Il2CppObject*, runtime_invoke_convert_args, (const MethodInfo* method, void* obj, Il2CppObject** params, int paramCount, Il2CppException** exc));
 API_INIT(void, runtime_class_init, (Il2CppClass * klass));
 API_INIT(void, runtime_object_init, (Il2CppObject * obj));
 API_INIT(void, runtime_object_init_exception, (Il2CppObject * obj, Il2CppException** exc));
@@ -220,7 +219,7 @@ API_INIT(int32_t, string_length, (Il2CppString * str));
 API_INIT(Il2CppChar*, string_chars, (Il2CppString * str));
 API_INIT(Il2CppString*, string_new, (const char* str));
 API_INIT(Il2CppString*, string_new_len, (const char* str, uint32_t length));
-API_INIT(Il2CppString*, string_new_utf16, (const Il2CppChar * text, int32_t len));
+API_INIT(Il2CppString*, string_new_utf16, (const Il2CppChar* text, int32_t len));
 API_INIT(Il2CppString*, string_new_wrapper, (const char* str));
 API_INIT(Il2CppString*, string_intern, (Il2CppString * str));
 API_INIT(Il2CppString*, string_is_interned, (Il2CppString * str));
@@ -232,9 +231,9 @@ API_INIT(bool, is_vm_thread, (Il2CppThread * thread));
 API_INIT(void, current_thread_walk_frame_stack, (Il2CppFrameWalkFunc func, void* user_data));
 API_INIT(void, thread_walk_frame_stack, (Il2CppThread * thread, Il2CppFrameWalkFunc func, void* user_data));
 API_INIT(bool, current_thread_get_top_frame, (Il2CppStackFrameInfo * frame));
-API_INIT(bool, thread_get_top_frame, (Il2CppThread * thread, Il2CppStackFrameInfo * frame));
-API_INIT(bool, current_thread_get_frame_at, (int32_t offset, Il2CppStackFrameInfo * frame));
-API_INIT(bool, thread_get_frame_at, (Il2CppThread * thread, int32_t offset, Il2CppStackFrameInfo * frame));
+API_INIT(bool, thread_get_top_frame, (Il2CppThread * thread, Il2CppStackFrameInfo* frame));
+API_INIT(bool, current_thread_get_frame_at, (int32_t offset, Il2CppStackFrameInfo* frame));
+API_INIT(bool, thread_get_frame_at, (Il2CppThread * thread, int32_t offset, Il2CppStackFrameInfo* frame));
 API_INIT(int32_t, current_thread_get_stack_depth, ());
 API_INIT(int32_t, thread_get_stack_depth, (Il2CppThread * thread));
 #if defined(UNITY_2019) || defined(UNITY_2021)
@@ -252,12 +251,12 @@ API_INIT(char*, type_get_assembly_qualified_name, (const Il2CppType * type));
 API_INIT(bool, type_is_static, (const Il2CppType * type));
 API_INIT(bool, type_is_pointer_type, (const Il2CppType * type));
 #endif
-API_INIT(const Il2CppAssembly*, image_get_assembly, (const Il2CppImage * image));
-API_INIT(const char*, image_get_name, (const Il2CppImage * image));
-API_INIT(const char*, image_get_filename, (const Il2CppImage * image));
-API_INIT(const MethodInfo*, image_get_entry_point, (const Il2CppImage * image));
-API_INIT(size_t, image_get_class_count, (const Il2CppImage * image));
-API_INIT(const Il2CppClass*, image_get_class, (const Il2CppImage * image, size_t index));
+API_INIT(const Il2CppAssembly*, image_get_assembly, (const Il2CppImage* image));
+API_INIT(const char*, image_get_name, (const Il2CppImage* image));
+API_INIT(const char*, image_get_filename, (const Il2CppImage* image));
+API_INIT(const MethodInfo*, image_get_entry_point, (const Il2CppImage* image));
+API_INIT(size_t, image_get_class_count, (const Il2CppImage* image));
+API_INIT(const Il2CppClass*, image_get_class, (const Il2CppImage* image, size_t index));
 API_INIT(Il2CppManagedMemorySnapshot*, capture_memory_snapshot, ());
 API_INIT(void, free_captured_memory_snapshot, (Il2CppManagedMemorySnapshot * snapshot));
 API_INIT(void, set_find_plugin_callback, (Il2CppSetFindPlugInCallback method));
@@ -266,13 +265,13 @@ API_INIT(void, debugger_set_agent_options, (const char* options));
 API_INIT(bool, is_debugger_attached, ());
 #if defined(UNITY_2019) || defined(UNITY_2021)
 API_INIT(void, register_debugger_agent_transport, (Il2CppDebuggerTransport * debuggerTransport));
-API_INIT(bool, debug_get_method_info, (const MethodInfo*, Il2CppMethodDebugInfo * methodDebugInfo));
+API_INIT(bool, debug_get_method_info, (const MethodInfo*, Il2CppMethodDebugInfo* methodDebugInfo));
 #endif
 API_INIT(void, unity_install_unitytls_interface, (const void* unitytlsInterfaceStruct));
 API_INIT(Il2CppCustomAttrInfo*, custom_attrs_from_class, (Il2CppClass * klass));
-API_INIT(Il2CppCustomAttrInfo*, custom_attrs_from_method, (const MethodInfo * method));
-API_INIT(Il2CppObject*, custom_attrs_get_attr, (Il2CppCustomAttrInfo * ainfo, Il2CppClass * attr_klass));
-API_INIT(bool, custom_attrs_has_attr, (Il2CppCustomAttrInfo * ainfo, Il2CppClass * attr_klass));
+API_INIT(Il2CppCustomAttrInfo*, custom_attrs_from_method, (const MethodInfo* method));
+API_INIT(Il2CppObject*, custom_attrs_get_attr, (Il2CppCustomAttrInfo * ainfo, Il2CppClass* attr_klass));
+API_INIT(bool, custom_attrs_has_attr, (Il2CppCustomAttrInfo * ainfo, Il2CppClass* attr_klass));
 API_INIT(Il2CppArray*, custom_attrs_construct, (Il2CppCustomAttrInfo * cinfo));
 API_INIT(void, custom_attrs_free, (Il2CppCustomAttrInfo * ainfo));
 #if defined(UNITY_2019) || defined(UNITY_2021)
@@ -281,11 +280,11 @@ API_INIT(int, class_get_userdata_offset, ());
 #endif
 
 // MANUALLY DEFINED CONST DEFINITIONS
-API_INIT(const Il2CppType*, class_get_type_const, (const Il2CppClass * klass));
-API_INIT(const char*, class_get_name_const, (const Il2CppClass * klass));
+API_INIT(const Il2CppType*, class_get_type_const, (const Il2CppClass* klass));
+API_INIT(const char*, class_get_name_const, (const Il2CppClass* klass));
 
 // SELECT NON-API LIBIL2CPP FUNCTIONS:
-API_INIT(bool, Class_Init, (Il2CppClass* klass));
+API_INIT(bool, Class_Init, (Il2CppClass * klass));
 
 API_INIT(Il2CppClass*, MetadataCache_GetTypeInfoFromHandle, (Il2CppMetadataTypeHandle index));
 API_INIT(Il2CppClass*, MetadataCache_GetTypeInfoFromTypeIndex, (TypeIndex index));
@@ -295,16 +294,16 @@ API_INIT(Il2CppClass*, GlobalMetadata_GetTypeInfoFromHandle, (TypeDefinitionInde
 #if defined(UNITY_2019) || defined(UNITY_2021)
 API_INIT(std::string, _Type_GetName_, (const Il2CppType *type, Il2CppTypeNameFormat format));
 #else
-API_INIT(gnu_string, _Type_GetName_, (const Il2CppType *type, Il2CppTypeNameFormat format));
+API_INIT(gnu_string, _Type_GetName_, (const Il2CppType* type, Il2CppTypeNameFormat format));
 #endif
 API_INIT(void, GC_free, (void* addr));
 
 API_INIT(void, GarbageCollector_SetWriteBarrier, (void** ptr));
 API_INIT(void*, GarbageCollector_AllocateFixed, (size_t sz, void* descr));
 
-API_INIT(Il2CppClass*, Class_FromIl2CppType, (Il2CppType* typ));
-API_INIT(Il2CppClass*, Class_GetPtrClass, (Il2CppClass* elementClass));
-API_INIT(Il2CppClass*, GenericClass_GetClass, (Il2CppGenericClass* gclass));
+API_INIT(Il2CppClass*, Class_FromIl2CppType, (Il2CppType * typ));
+API_INIT(Il2CppClass*, Class_GetPtrClass, (Il2CppClass * elementClass));
+API_INIT(Il2CppClass*, GenericClass_GetClass, (Il2CppGenericClass * gclass));
 API_INIT(AssemblyVector*, Assembly_GetAllAssemblies, ());
 
 const Il2CppMetadataRegistration** il2cpp_functions::s_Il2CppMetadataRegistrationPtr;
@@ -383,7 +382,7 @@ TypeDefinitionIndex il2cpp_functions::MetadataCache_GetIndexForTypeDefinition(co
     return static_cast<TypeDefinitionIndex>(index);
 }
 
-char* il2cpp_functions::Type_GetName(const Il2CppType *type, Il2CppTypeNameFormat format) {
+char* il2cpp_functions::Type_GetName(const Il2CppType* type, Il2CppTypeNameFormat format) {
     if (!il2cpp__Type_GetName_) return nullptr;
     // TODO debug the ref/lifetime weirdness with _Type_GetName_ to avoid the need for explicit allocation
     const auto str = il2cpp_functions::_Type_GetName_(type, format);
@@ -439,8 +438,10 @@ bool il2cpp_functions::trace_GC_AllocFixed(const uint32_t* DomainGetCurrent) {
 bool il2cpp_functions::find_GC_AllocFixed(const uint32_t* DomainGetCurrent) {
     if (!trace_GC_AllocFixed(DomainGetCurrent)) {
         bool multipleMatches;
-        auto sigMatch = findUniquePatternInLibil2cpp(multipleMatches, "f5 0f 1d f8 f4 4f 01 a9 fd 7b 02 a9"
-            "fd 83 00 91 ?? ?? ?? ?? ?? ?? ?? ?? 1f 00 20 f1 f3 03 01 2a", "GC_Malloc_Uncollectable");
+        auto sigMatch = findUniquePatternInLibil2cpp(multipleMatches,
+                                                     "f5 0f 1d f8 f4 4f 01 a9 fd 7b 02 a9"
+                                                     "fd 83 00 91 ?? ?? ?? ?? ?? ?? ?? ?? 1f 00 20 f1 f3 03 01 2a",
+                                                     "GC_Malloc_Uncollectable");
 
         if (sigMatch && !multipleMatches) {
             // We need to make a wrapper method instead and set that.
@@ -462,10 +463,9 @@ LoggerContextObject& il2cpp_functions::getFuncLogger() {
     return logger;
 }
 
-
-#define API_SYM(name) \
-*(void**)(&il2cpp_##name) = dlsym(imagehandle, "il2cpp_" #name); \
-logger.debug("Loaded: " #name ", error: %s", dlerror())
+#define API_SYM(name)                                                \
+    *(void**)(&il2cpp_##name) = dlsym(imagehandle, "il2cpp_" #name); \
+    logger.debug("Loaded: " #name ", error: %s", dlerror())
 // Autogenerated
 // Initializes all of the IL2CPP functions via dlopen and dlsym for use.
 void il2cpp_functions::Init() {
@@ -475,19 +475,18 @@ void il2cpp_functions::Init() {
     static auto logger = getFuncLogger().WithContext("Init");
     logger.info("il2cpp_functions: Init: Initializing all IL2CPP Functions...");
     dlerror();  // clears existing errors
-    auto path = Modloader::getLibIl2CppPath();
-    void *imagehandle = dlopen(path.c_str(), RTLD_GLOBAL | RTLD_LAZY);
+    void* imagehandle = modloader_libil2cpp_handle;
     if (!imagehandle) {
-        logger.error("Failed to dlopen %s: %s!", path.c_str(), dlerror());
+        logger.error("Failed to grab modloader libil2cpp.so handle: %p", imagehandle);
         return;
     }
     #if defined(UNITY_2019) || defined(UNITY_2021)
     API_SYM(init);
     API_SYM(init_utf16);
-    #else
+#else
     API_SYM(init);
     API_SYM(init_utf16);
-    #endif
+#endif
     API_SYM(shutdown);
     API_SYM(set_config_dir);
     API_SYM(set_data_dir);
@@ -513,7 +512,7 @@ void il2cpp_functions::Init() {
     API_SYM(assembly_get_image);
     #if defined(UNITY_2019) || defined(UNITY_2021)
     API_SYM(class_for_each);
-    #endif
+#endif
     API_SYM(class_enum_basetype);
     API_SYM(class_is_generic);
     API_SYM(class_is_inflated);
@@ -536,7 +535,7 @@ void il2cpp_functions::Init() {
     API_SYM(class_get_name);
     #if defined(UNITY_2019) || defined(UNITY_2021)
     API_SYM(type_get_name_chunked);
-    #endif
+#endif
     API_SYM(class_get_namespace);
     API_SYM(class_get_parent);
     API_SYM(class_get_declaring_type);
@@ -561,7 +560,7 @@ void il2cpp_functions::Init() {
     #if defined(UNITY_2019) || defined(UNITY_2021)
     API_SYM(class_get_data_size);
     API_SYM(class_get_static_field_data);
-    #endif
+#endif
     API_SYM(class_get_bitmap_size);
     API_SYM(class_get_bitmap);
     API_SYM(stats_dump_to_file);
@@ -571,7 +570,7 @@ void il2cpp_functions::Init() {
     API_SYM(domain_get_assemblies);
     #if defined(UNITY_2019) || defined(UNITY_2021)
     API_SYM(raise_exception);
-    #endif
+#endif
     API_SYM(exception_from_name_msg);
     API_SYM(get_exception_argument_null);
     API_SYM(format_exception);
@@ -591,7 +590,7 @@ void il2cpp_functions::Init() {
     API_SYM(field_set_value_object);
     #if defined(UNITY_2019) || defined(UNITY_2021)
     API_SYM(field_is_literal);
-    #endif
+#endif
     API_SYM(gc_collect);
     API_SYM(gc_collect_a_little);
     API_SYM(gc_disable);
@@ -601,7 +600,7 @@ void il2cpp_functions::Init() {
     API_SYM(gc_get_max_time_slice_ns);
     API_SYM(gc_set_max_time_slice_ns);
     API_SYM(gc_is_incremental);
-    #endif
+#endif
     API_SYM(gc_get_used_size);
     API_SYM(gc_get_heap_size);
     API_SYM(gc_wbarrier_set_field);
@@ -614,7 +613,7 @@ void il2cpp_functions::Init() {
     API_SYM(gc_free_fixed);
     API_SYM(stop_gc_world);
     API_SYM(start_gc_world);
-    #endif
+#endif
     API_SYM(gchandle_new);
     API_SYM(gchandle_new_weakref);
     API_SYM(gchandle_get_target);
@@ -707,7 +706,7 @@ void il2cpp_functions::Init() {
     API_SYM(thread_get_stack_depth);
     #if defined(UNITY_2019) || defined(UNITY_2021)
     API_SYM(override_stack_backtrace);
-    #endif
+#endif
     API_SYM(type_get_object);
     API_SYM(type_get_type);
     API_SYM(type_get_class_or_element_class);
@@ -719,7 +718,7 @@ void il2cpp_functions::Init() {
     #if defined(UNITY_2019) || defined(UNITY_2021)
     API_SYM(type_is_static);
     API_SYM(type_is_pointer_type);
-    #endif
+#endif
     API_SYM(image_get_assembly);
     API_SYM(image_get_name);
     API_SYM(image_get_filename);
@@ -735,7 +734,7 @@ void il2cpp_functions::Init() {
     #if defined(UNITY_2019) || defined(UNITY_2021)
     API_SYM(register_debugger_agent_transport);
     API_SYM(debug_get_method_info);
-    #endif
+#endif
     API_SYM(unity_install_unitytls_interface);
     API_SYM(custom_attrs_from_class);
     API_SYM(custom_attrs_from_method);
@@ -746,7 +745,7 @@ void il2cpp_functions::Init() {
     #if defined(UNITY_2019) || defined(UNITY_2021)
     API_SYM(class_set_userdata);
     API_SYM(class_get_userdata_offset);
-    #endif
+#endif
 
     // MANUALLY DEFINED CONST DEFINITIONS
     *(void**)(&il2cpp_class_get_type_const) = dlsym(imagehandle, "il2cpp_class_get_type");
@@ -951,18 +950,15 @@ void il2cpp_functions::Init() {
 
         auto tmp = cs::getpcaddr<3, 1>(reinterpret_cast<const uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex));
         if (!tmp) SAFE_ABORT_MSG("Failed to find 3rd pcaddr for s_GlobalMetadataHeaderPtr!");
-        s_GlobalMetadataHeaderPtr = reinterpret_cast<decltype(s_GlobalMetadataHeaderPtr)>(
-            std::get<2>(*tmp));
+        s_GlobalMetadataHeaderPtr = reinterpret_cast<decltype(s_GlobalMetadataHeaderPtr)>(std::get<2>(*tmp));
 
         tmp = cs::getpcaddr<4, 1>(reinterpret_cast<const uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex));
         if (!tmp) SAFE_ABORT_MSG("Failed to find 4th pcaddr for s_Il2CppMetadataRegistrationPtr!");
-        s_Il2CppMetadataRegistrationPtr = reinterpret_cast<decltype(s_Il2CppMetadataRegistrationPtr)>(
-            std::get<2>(*tmp));
+        s_Il2CppMetadataRegistrationPtr = reinterpret_cast<decltype(s_Il2CppMetadataRegistrationPtr)>(std::get<2>(*tmp));
 
         tmp = cs::getpcaddr<5, 1>(reinterpret_cast<const uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex));
         if (!tmp) SAFE_ABORT_MSG("Failed to find 5th pcaddr for s_GlobalMetadataPtr!");
-        s_GlobalMetadataPtr = reinterpret_cast<decltype(s_GlobalMetadataPtr)>(
-            std::get<2>(*tmp));
+        s_GlobalMetadataPtr = reinterpret_cast<decltype(s_GlobalMetadataPtr)>(std::get<2>(*tmp));
         logger.debug("%p %p %p metadata pointers", s_GlobalMetadataHeaderPtr, s_Il2CppMetadataRegistrationPtr, s_GlobalMetadataPtr);
         logger.debug("All global constants found!");
     }

@@ -2,16 +2,18 @@
 #define CONFIG_DEFINED_H
 
 #include <stddef.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
-#include "../../shared/config/config-utils.hpp"
-#include <string>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
 #include <fstream>
-#include "modloader/shared/modloader.hpp"
+#include <iostream>
+#include <string>
+#include "../../shared/config/config-utils.hpp"
+#include "scotland2/shared/loader.hpp"
+#include "scotland2/shared/modloader.h"
+
 
 // CONFIG
 
@@ -62,8 +64,8 @@ bool parsejsonfile(ConfigDocument& doc, std::string_view filename) {
     std::ifstream is;
     is.open(filename.data());
 
-    IStreamWrapper wrapper {is};
-    
+    IStreamWrapper wrapper{ is };
+
     return !doc.ParseStream(wrapper).HasParseError();
 }
 
@@ -78,9 +80,9 @@ bool parsejson(ConfigDocument& doc, std::string_view js) {
     return true;
 }
 
-std::string Configuration::getConfigFilePath(const ModInfo& info) {
+std::string Configuration::getConfigFilePath(const modloader::ModInfo& info) {
     if (!Configuration::configDir) {
-        Configuration::configDir = string_format(CONFIG_PATH_FORMAT, Modloader::getApplicationId().c_str());
+        Configuration::configDir = string_format(CONFIG_PATH_FORMAT, modloader_get_application_id());
         if (!direxists(Configuration::configDir->c_str())) {
             mkpath(Configuration::configDir->c_str());
         }
@@ -89,19 +91,19 @@ std::string Configuration::getConfigFilePath(const ModInfo& info) {
 }
 
 static std::optional<std::string> dataDir;
-std::string getDataDir(const ModInfo& info) {
+std::string getDataDir(const CModInfo& info) {
     if (!dataDir) {
-        dataDir = string_format(PERSISTENT_DIR, Modloader::getApplicationId().c_str());
+        dataDir = string_format(PERSISTENT_DIR, modloader_get_application_id());
         if (!direxists(*dataDir)) {
             mkpath(*dataDir);
         }
     }
-    return *dataDir + info.id.c_str() + "/";
+    return *dataDir + info.id + "/";
 }
 
 std::string getDataDir(std::string_view id) {
     if (!dataDir) {
-        dataDir = string_format(PERSISTENT_DIR, Modloader::getApplicationId().c_str());
+        dataDir = string_format(PERSISTENT_DIR, modloader_get_application_id());
         if (!direxists(*dataDir)) {
             mkpath(*dataDir);
         }

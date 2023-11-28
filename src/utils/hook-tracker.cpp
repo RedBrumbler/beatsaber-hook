@@ -1,7 +1,7 @@
 #include "../../shared/utils/hook-tracker.hpp"
 #include "../../shared/utils/capstone-utils.hpp"
-#include "modloader/shared/modloader.hpp"
 #include "../../shared/utils/logging.hpp"
+#include "scotland2/shared/modloader.h"
 
 std::unordered_map<const void*, std::list<HookInfo>> HookTracker::hooks;
 
@@ -75,8 +75,8 @@ const void* HookTracker::GetOrigInternal(const void* const location) noexcept {
 
 void HookTracker::CombineHooks() noexcept {
     static auto logger = Logger::get().WithContext("HookTracker");
-    auto libsFolder = string_format(LIBS_FILE_PATH, Modloader::getApplicationId().c_str());
-    auto tmpPath = Modloader::getDestinationPath();
+    auto libsFolder = string_format(LIBS_FILE_PATH, modloader_get_application_id());
+    auto const& tmpPath = modloader::get_modloader_root_load_path();
     DIR* dir = opendir(libsFolder.c_str());
     if (dir == nullptr) {
         logger.warning("Failed to open libs folder! At path: %s", libsFolder.c_str());
@@ -86,7 +86,7 @@ void HookTracker::CombineHooks() noexcept {
     while ((dp = readdir(dir)) != NULL) {
         if (std::string(dp->d_name).starts_with("libbeatsaber-hook")) {
             // Find and combine
-            auto path = tmpPath + dp->d_name;
+            auto path = tmpPath / dp->d_name;
             auto* image = dlopen(path.c_str(), RTLD_LAZY | RTLD_LOCAL);
             auto* err = dlerror();
             if (image == nullptr || err != nullptr) {
@@ -100,13 +100,13 @@ void HookTracker::CombineHooks() noexcept {
                 continue;
             }
             // Of course, if the function returns something that is of a different HookInfo type, for example, this may cause all sorts of pain.
-            auto otherHooks = *reinterpret_cast<const std::unordered_map<const void*, std::list<HookInfo>>*(*)()>(getter)();
+            auto otherHooks = *reinterpret_cast<const std::unordered_map<const void*, std::list<HookInfo>>* (*)()>(getter)();
             Logger::get().debug("Found other hooks: %zu for module: %s", otherHooks.size(), path.c_str());
             for (auto itr : otherHooks) {
                 // For each void*, find our match
                 auto match = hooks.find(itr.first);
                 if (match == hooks.end()) {
-                    hooks.insert({itr.first, itr.second});
+                    hooks.insert({ itr.first, itr.second });
                 } else {
                     // Add only unique items
                     for (auto item : itr.second) {

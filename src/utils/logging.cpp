@@ -3,17 +3,16 @@
 // This would either return or initialize a logger instance for us to use with future calls to "log"
 
 #include "../../shared/utils/logging.hpp"
-#include "modloader/shared/modloader.hpp"
-#include <string_view>
-#include <string>
-#include <memory>
-#include "../../shared/utils/utils-functions.h"
-#include "../../shared/utils/utils.h"
-#include <fstream>
 #include <chrono>
 #include <ctime>
+#include <fstream>
 #include <iomanip>
+#include <memory>
 #include <sstream>
+#include <string>
+#include <string_view>
+#include "../../shared/utils/utils-functions.h"
+#include "../../shared/utils/utils.h"
 
 #ifndef VERSION
 #define VERSION "0.0.0"
@@ -24,27 +23,26 @@ bool Logger::consumerStarted = false;
 std::mutex Logger::bufferMutex;
 
 const char* get_level(Logging::Level level) {
-    switch (level)
-    {
-    case Logging::Level::CRITICAL:
-        return "CRITICAL";
-    case Logging::Level::ERROR:
-        return "ERROR";
-    case Logging::Level::WARNING:
-        return "WARNING";
-    case Logging::Level::INFO:
-        return "INFO";
-    case Logging::Level::DEBUG:
-        return "DEBUG";
-    default:
-        return "UNKNOWN";
+    switch (level) {
+        case Logging::Level::CRITICAL:
+            return "CRITICAL";
+        case Logging::Level::ERROR:
+            return "ERROR";
+        case Logging::Level::WARNING:
+            return "WARNING";
+        case Logging::Level::INFO:
+            return "INFO";
+        case Logging::Level::DEBUG:
+            return "DEBUG";
+        default:
+            return "UNKNOWN";
     }
 }
 
 bool createdGlobal = false;
 
 LoggerBuffer& get_global() {
-    static LoggerBuffer g(ModInfo{"GlobalLog", VERSION});
+    static LoggerBuffer g(modloader::ModInfo{ "GlobalLog", VERSION, VERSION_NUMBER });
     if (!createdGlobal) {
         if (fileexists(g.get_path())) {
             deletefile(g.get_path());
@@ -57,7 +55,7 @@ LoggerBuffer& get_global() {
 
 // UtilsLogger will (by default) log to file.
 Logger& Logger::get() {
-    static auto utilsLogger = new Logger(ModInfo{"UtilsLogger", VERSION}, LoggerOptions(false, true));
+    static auto utilsLogger = new Logger(modloader::ModInfo{ "UtilsLogger", VERSION, VERSION_NUMBER }, LoggerOptions(false, true));
     return *utilsLogger;
 }
 
@@ -92,7 +90,7 @@ std::size_t LoggerBuffer::length() {
 
 std::string LoggerBuffer::get_logDir() {
     // Copy it
-    static std::string d = string_format(LOG_PATH, Modloader::getApplicationId().c_str());
+    static std::string d = string_format(LOG_PATH, modloader_get_application_id());
     return d;
 }
 
@@ -110,7 +108,7 @@ void LoggerBuffer::addMessage(std::string_view msg) {
 // Flushing while holding the bufferMutex means that new loggers take awhile to create (everything else must be flushed)
 // Flushing itself is pretty quick, new messages aren't allowed to be added while the writing is happening (I'm not sure HOW quick it is)
 class Consumer {
-    public:
+   public:
     void operator()() {
         // Goal here is that we want to iterate over all of the buffers
         // For each one, we flush our log to the file specified by the path of that buffer.
@@ -221,7 +219,7 @@ void Logger::Backtrace(uint16_t frameCount) {
             long addr = reinterpret_cast<char*>(buffer[i]) - reinterpret_cast<char*>(info.dli_fbase) - 4;
             if (info.dli_sname) {
                 int status;
-                const char *demangled = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
+                const char* demangled = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
                 if (status) {
                     demangled = info.dli_sname;
                 }
@@ -251,7 +249,7 @@ void LoggerContextObject::Backtrace(uint16_t frameCount) {
             long addr = reinterpret_cast<char*>(buffer[i]) - reinterpret_cast<char*>(info.dli_fbase) - 4;
             if (info.dli_sname) {
                 int status;
-                const char *demangled = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
+                const char* demangled = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
                 if (status) {
                     demangled = info.dli_sname;
                 }
@@ -366,7 +364,7 @@ void Logger::log(Logging::Level lvl, std::string str) {
             auto newline = sub.find('\n');
             if (newline != std::string::npos) {
                 sub = sub.substr(0, newline);
-                i += newline + 1; // Skip actual newline character
+                i += newline + 1;  // Skip actual newline character
             } else {
                 i += LOG_MAX_CHARS;
             }

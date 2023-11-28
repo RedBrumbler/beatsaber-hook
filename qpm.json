@@ -6,12 +6,16 @@
     "id": "beatsaber-hook",
     "version": "4.0.0",
     "url": "https://github.com/sc2ad/beatsaber-hook",
-    "additionalData": {}
+    "additionalData": {
+      "soLink": "https://github.com/sc2ad/beatsaber-hook/releases/download/v0.5.8/libbeatsaber-hook.so",
+      "debugSoLink": "https://github.com/sc2ad/beatsaber-hook/releases/download/v0.5.8/debug_libbeatsaber-hook.so",
+      "branchName": "master"
+    }
   },
   "dependencies": [
     {
-      "id": "modloader",
-      "versionRange": "^1.2.0",
+      "id": "scotland2",
+      "versionRange": "^0.1.2",
       "additionalData": {}
     },
     {
@@ -28,6 +32,13 @@
     }
   ],
   "workspace": {
-    "scripts": {}
+    "scripts": {
+      "build": [
+        "pwsh ./build.ps1"
+      ],
+      "install": [
+        "pwsh ./scripts/install.ps1"
+      ]
+    }
   }
 }

@@ -8,8 +8,8 @@ bool valid = false;
 #define VERSION "0.0.0"
 #endif
 
-#ifndef ID
-#define ID "beatsaber-hook"
+#ifndef MOD_ID
+#define MOD_ID "beatsaber-hook"
 #endif
 
 namespace cs {
@@ -17,10 +17,10 @@ void __attribute__((constructor)) init_capstone() {
     cs_err e1 = cs_open(CS_ARCH_ARM64, CS_MODE_ARM, &handle);
     cs_option(handle, CS_OPT_DETAIL, 1);
     if (e1) {
-        __android_log_print(Logging::CRITICAL, "QuestHook[" ID "|" VERSION "] capstone", "Capstone initialization failed! %u", e1);
+        __android_log_print(Logging::CRITICAL, "QuestHook[" MOD_ID "|" VERSION "] capstone", "Capstone initialization failed! %u", e1);
         SAFE_ABORT();
     }
-    __android_log_print(Logging::INFO, "QuestHook[" ID "|" VERSION "] capstone", "Capstone initialized!");
+    __android_log_print(Logging::INFO, "QuestHook[" MOD_ID "|" VERSION "] capstone", "Capstone initialized!");
     valid = true;
 }
 
@@ -69,10 +69,10 @@ std::optional<std::tuple<uint32_t*, arm64_reg, uint32_t*>> pcRelConv(cs_insn* in
         case ARM64_INS_ADR:
         // ADR is just pc + imm, capstone handles this
         case ARM64_INS_ADRP:
-        // ADRP is (pc & 1:12(0)) + (imm << 12), capstone handles this
-        return tup{reinterpret_cast<uint32_t*>(insn->address), insn->detail->arm64.operands[0].reg, reinterpret_cast<uint32_t*>(insn->detail->arm64.operands[1].imm)};
+            // ADRP is (pc & 1:12(0)) + (imm << 12), capstone handles this
+            return tup{ reinterpret_cast<uint32_t*>(insn->address), insn->detail->arm64.operands[0].reg, reinterpret_cast<uint32_t*>(insn->detail->arm64.operands[1].imm) };
         default:
-        return std::nullopt;
+            return std::nullopt;
     }
 }
 
@@ -84,13 +84,13 @@ std::optional<std::tuple<uint32_t*, arm64_reg, int64_t>> regMatchConv(cs_insn* m
     switch (match->id) {
         case ARM64_INS_ADD:
             if (arm.operands[1].reg != toMatch) return std::nullopt;
-            return tup{reinterpret_cast<uint32_t*>(match->address), arm.operands[0].reg, arm.operands[2].imm};
+            return tup{ reinterpret_cast<uint32_t*>(match->address), arm.operands[0].reg, arm.operands[2].imm };
         case ARM64_INS_LDR:
             if (arm.operands[1].mem.base != toMatch) return std::nullopt;
-            return tup{reinterpret_cast<uint32_t*>(match->address), arm.operands[0].reg, arm.operands[1].mem.disp};
+            return tup{ reinterpret_cast<uint32_t*>(match->address), arm.operands[0].reg, arm.operands[1].mem.disp };
         // TODO: Add more conversions for instructions!
         default:
-        return std::nullopt;
+            return std::nullopt;
     }
 }
-}
+}  // namespace cs

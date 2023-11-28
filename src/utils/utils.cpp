@@ -1,42 +1,41 @@
 // thx https://github.com/jbro129/Unity-Substrate-Hook-Android
 #include "../../shared/utils/utils.h"
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
-#include <unistd.h>
 #include <dlfcn.h>
-#include <iostream>
+#include <unistd.h>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <unordered_set>
 #include "il2cpp-object-internals.h"
-#include "modloader/shared/modloader.hpp"
 #include "shared/utils/gc-alloc.hpp"
 
 namespace backtrace_helpers {
-    _Unwind_Reason_Code unwindCallback(struct _Unwind_Context *context, void *arg) {
-        BacktraceState *state = static_cast<BacktraceState *>(arg);
-        uintptr_t pc = _Unwind_GetIP(context);
-        if (pc) {
-            if (state->current == state->end) {
-                return _URC_END_OF_STACK;
-            }
-            if (state->skip == 0) {
-                // Skip writing for the number of frames we have specified we would like to skip.
-                *state->current++ = reinterpret_cast<void *>(pc);
-            } else {
-                state->skip--;
-            }
+_Unwind_Reason_Code unwindCallback(struct _Unwind_Context* context, void* arg) {
+    BacktraceState* state = static_cast<BacktraceState*>(arg);
+    uintptr_t pc = _Unwind_GetIP(context);
+    if (pc) {
+        if (state->current == state->end) {
+            return _URC_END_OF_STACK;
         }
-        return _URC_NO_REASON;
+        if (state->skip == 0) {
+            // Skip writing for the number of frames we have specified we would like to skip.
+            *state->current++ = reinterpret_cast<void*>(pc);
+        } else {
+            state->skip--;
+        }
     }
-    size_t captureBacktrace(void **buffer, uint16_t max, uint16_t skip) {
-        BacktraceState state{buffer, buffer + max, skip};
-        _Unwind_Backtrace(unwindCallback, &state);
-
-        return state.current - buffer;
-    }
+    return _URC_NO_REASON;
 }
+size_t captureBacktrace(void** buffer, uint16_t max, uint16_t skip) {
+    BacktraceState state{ buffer, buffer + max, skip };
+    _Unwind_Backtrace(unwindCallback, &state);
+
+    return state.current - buffer;
+}
+}  // namespace backtrace_helpers
 
 void safeAbort(const char* func, const char* file, int line, uint16_t frameCount) {
     static auto logger = Logger::get().WithContext("CRASH_UNLESS");
@@ -48,7 +47,7 @@ void safeAbort(const char* func, const char* file, int line, uint16_t frameCount
     }
     logger.Backtrace(frameCount);
     Logger::closeAll();
-    usleep(100000L);  // 0.1s
+    usleep(100000L);   // 0.1s
     std::terminate();  // cleans things up and then calls abort
 }
 
@@ -66,7 +65,7 @@ __attribute__((format(printf, 4, 5))) void safeAbortMsg(const char* func, const 
     }
     logger.Backtrace(512);
     Logger::closeAll();
-    usleep(100000L);  // 0.1s
+    usleep(100000L);   // 0.1s
     std::terminate();  // cleans things up and then calls abort
 }
 
@@ -88,10 +87,9 @@ void print(std::stringstream& ss, Logging::Level lvl) {
 }
 
 std::string string_vformat(const std::string_view format, va_list args) {
-    size_t size = vsnprintf(nullptr, 0, format.data(), args) + 1; // Extra space for '\0'
-    if (size <= 0)
-        return "";
-    std::unique_ptr<char[]> buf(new char[size]); 
+    size_t size = vsnprintf(nullptr, 0, format.data(), args) + 1;  // Extra space for '\0'
+    if (size <= 0) return "";
+    std::unique_ptr<char[]> buf(new char[size]);
     vsnprintf(buf.get(), size, format.data(), args);
     return std::string(buf.get(), buf.get() + size - 1);
 }
@@ -127,8 +125,7 @@ void analyzeBytes(std::stringstream& ss, const void* ptr, int indent) {
             ss << " (as int = " << std::dec << asInts[i] << ")";  // signed int
         } else if (asUInts[i] <= 0x7f00000000ll) {
             ss << " (as int = " << std::dec << asUInts[i] << ")";
-        }
-        else {
+        } else {
             Dl_info inf;
             if (dladdr((void*)asUInts[i], &inf)) {
                 ss << " (dli_fname: " << inf.dli_fname << ", dli_fbase: " << std::hex << std::setw(16) << (uintptr_t)inf.dli_fbase;
@@ -152,7 +149,7 @@ uintptr_t getLibil2cppSize() {
     static auto contextLogger = Logger::get().WithContext("getSize");
     if (soSize == 0) {
         struct stat st;
-        if (!stat(Modloader::getLibIl2CppPath().c_str(), &st)) {
+        if (!stat(modloader_get_libil2cpp_path(), &st)) {
             soSize = st.st_size;
         }
         contextLogger.debug("libil2cpp.so size: 0x%lx", soSize);
@@ -172,42 +169,37 @@ void analyzeBytes(const void* ptr) {
     analyzed.clear();
     std::stringstream ss;
     ss << std::setfill('0');
-    ss << "ptr: " << std::hex << std::setw(16) << (uintptr_t) ptr;
+    ss << "ptr: " << std::hex << std::setw(16) << (uintptr_t)ptr;
     print(ss);
     analyzeBytes(ss, ptr, 0);
 }
 
-uintptr_t baseAddr(const char *soname)  // credits to https://github.com/ikoz/AndroidSubstrate_hookingC_examples/blob/master/nativeHook3/jni/nativeHook3.cy.cpp
+uintptr_t baseAddr(const char* soname)  // credits to https://github.com/ikoz/AndroidSubstrate_hookingC_examples/blob/master/nativeHook3/jni/nativeHook3.cy.cpp
 {
-    void *imagehandle = dlopen(soname, RTLD_LOCAL | RTLD_LAZY);
-    if (soname == NULL)
-        return (uintptr_t)NULL;
-    if (imagehandle == NULL)
-        return (uintptr_t)NULL;
+    void* imagehandle = dlopen(soname, RTLD_LOCAL | RTLD_LAZY);
+    if (soname == NULL) return (uintptr_t)NULL;
+    if (imagehandle == NULL) return (uintptr_t)NULL;
 
-    FILE *f = NULL;
-    char line[200] = {0};
-    char *state = NULL;
-    char *tok = NULL;
-    char * baseAddr = NULL;
-    if ((f = fopen("/proc/self/maps", "r")) == NULL)
-        return (uintptr_t)NULL;
-    while (fgets(line, 199, f) != NULL)
-    {
+    FILE* f = NULL;
+    char line[200] = { 0 };
+    char* state = NULL;
+    char* tok = NULL;
+    char* baseAddr = NULL;
+    if ((f = fopen("/proc/self/maps", "r")) == NULL) return (uintptr_t)NULL;
+    while (fgets(line, 199, f) != NULL) {
         tok = strtok_r(line, "-", &state);
         baseAddr = tok;
         strtok_r(NULL, "\t ", &state);
-        strtok_r(NULL, "\t ", &state); // "r-xp" field
-        strtok_r(NULL, "\t ", &state); // "0000000" field
-        strtok_r(NULL, "\t ", &state); // "01:02" field
-        strtok_r(NULL, "\t ", &state); // "133224" field
-        tok = strtok_r(NULL, "\t ", &state); // path field
+        strtok_r(NULL, "\t ", &state);        // "r-xp" field
+        strtok_r(NULL, "\t ", &state);        // "0000000" field
+        strtok_r(NULL, "\t ", &state);        // "01:02" field
+        strtok_r(NULL, "\t ", &state);        // "133224" field
+        tok = strtok_r(NULL, "\t ", &state);  // path field
 
         if (tok != NULL) {
             int i;
-            for (i = (int)strlen(tok)-1; i >= 0; --i) {
-                if (!(tok[i] == ' ' || tok[i] == '\r' || tok[i] == '\n' || tok[i] == '\t'))
-                    break;
+            for (i = (int)strlen(tok) - 1; i >= 0; --i) {
+                if (!(tok[i] == ' ' || tok[i] == '\r' || tok[i] == '\n' || tok[i] == '\t')) break;
                 tok[i] = 0;
             }
             {
@@ -216,7 +208,7 @@ uintptr_t baseAddr(const char *soname)  // credits to https://github.com/ikoz/An
                 if (toklen > 0) {
                     if (toklen >= solen && strcmp(tok + (toklen - solen), soname) == 0) {
                         fclose(f);
-                        return (uintptr_t)strtoll(baseAddr,NULL,16);
+                        return (uintptr_t)strtoll(baseAddr, NULL, 16);
                     }
                 }
             }
@@ -226,16 +218,15 @@ uintptr_t baseAddr(const char *soname)  // credits to https://github.com/ikoz/An
     return (uintptr_t)NULL;
 }
 
-uintptr_t location; // save lib.so base address so we do not have to recalculate every time causing lag.
+uintptr_t location;  // save lib.so base address so we do not have to recalculate every time causing lag.
 
-uintptr_t getRealOffset(const void* offset) // calculate dump.cs address + lib.so base address.
+uintptr_t getRealOffset(const void* offset)  // calculate dump.cs address + lib.so base address.
 {
-    if (location == 0)
-    {
-        //arm
-        // TOOD: Lets get the instance via some sort of initialization function
-        // OR we make EVERYTHING on an instance level
-        location = baseAddr(Modloader::getLibIl2CppPath().c_str());
+    if (location == 0) {
+        // arm
+        //  TOOD: Lets get the instance via some sort of initialization function
+        //  OR we make EVERYTHING on an instance level
+        location = baseAddr(modloader_get_libil2cpp_path());
     }
     return location + (uintptr_t)offset;
 }
@@ -245,13 +236,13 @@ int mkpath(std::string_view file_path) {
 }
 
 uintptr_t findPattern(uintptr_t dwAddress, const char* pattern, uintptr_t dwSearchRangeLen) {
-    #define in_range(x, a, b) (x >= a && x <= b)
-    #define get_bits(x) (in_range((x & (~0x20)), 'A', 'F') ? ((x & (~0x20)) - 'A' + 0xA): (in_range(x, '0', '9') ? x - '0': 0))
-    #define get_byte(x) (get_bits(x[0]) << 4 | get_bits(x[1]))
+#define in_range(x, a, b) (x >= a && x <= b)
+#define get_bits(x) (in_range((x & (~0x20)), 'A', 'F') ? ((x & (~0x20)) - 'A' + 0xA) : (in_range(x, '0', '9') ? x - '0' : 0))
+#define get_byte(x) (get_bits(x[0]) << 4 | get_bits(x[1]))
 
     // To avoid a lot of bad match candidates, pre-process wildcards at the front of the pattern
     uintptr_t skippedStartBytes = 0;
-    while(pattern[0] == '\?') {
+    while (pattern[0] == '\?') {
         // see comments below for insight on these numbers
         pattern += (pattern[1] == '\?') ? 3 : 2;
         skippedStartBytes++;
@@ -269,7 +260,7 @@ uintptr_t findPattern(uintptr_t dwAddress, const char* pattern, uintptr_t dwSear
             return match;
         }
         // For each byte, if the pattern starts with a ? or the current byte matches:
-        if (pat[0] == '\?' || *(char *)pCur == get_byte(pat)) {
+        if (pat[0] == '\?' || *(char*)pCur == get_byte(pat)) {
             // If we do not have a match, begin it
             if (!match) {
                 match = pCur - skippedStartBytes;
@@ -283,8 +274,7 @@ uintptr_t findPattern(uintptr_t dwAddress, const char* pattern, uintptr_t dwSear
             } else {
                 pat += 2;  // advance past "? "
             }
-        }
-        else {
+        } else {
             // reset search position to beginning of the failed match; for loop will begin new search at match + 1
             if (match) pCur = match + skippedStartBytes;
             pat = pattern;
@@ -347,7 +337,7 @@ uintptr_t findUniquePatternInLibil2cpp(bool& multiple, const char* pattern, cons
 
 void setcsstr(Il2CppString* in, std::u16string_view str) {
     in->length = str.length();
-    for(int i = 0; i < in->length; i++) {
+    for (int i = 0; i < in->length; i++) {
         // Can assume that each char is only a single char (a single word --> double word)
         in->chars[i] = str[i];
     }
@@ -357,9 +347,7 @@ void setcsstr(Il2CppString* in, std::u16string_view str) {
 // Inspired by DaNike
 std::string to_utf8(std::u16string_view view) {
     char* dat = static_cast<char*>(calloc(view.length() + 1, sizeof(char)));
-    std::transform(view.data(), view.data() + view.size(), dat, [](auto utf16_char) {
-        return static_cast<char>(utf16_char);
-    });
+    std::transform(view.data(), view.data() + view.size(), dat, [](auto utf16_char) { return static_cast<char>(utf16_char); });
     dat[view.length()] = '\0';
     std::string out(dat);
     free(dat);
@@ -368,18 +356,15 @@ std::string to_utf8(std::u16string_view view) {
 
 std::u16string to_utf16(std::string_view view) {
     char16_t* dat = static_cast<char16_t*>(calloc(view.length() + 1, sizeof(char16_t)));
-    std::transform(view.data(), view.data() + view.size(), dat, [](auto standardChar) {
-        return static_cast<char16_t>(standardChar);
-    });
+    std::transform(view.data(), view.data() + view.size(), dat, [](auto standardChar) { return static_cast<char16_t>(standardChar); });
     dat[view.length()] = '\0';
     std::u16string out(dat);
     free(dat);
     return out;
 }
 
-std::u16string_view csstrtostr(Il2CppString* in)
-{
-    return {in->chars, static_cast<uint32_t>(in->length)};
+std::u16string_view csstrtostr(Il2CppString* in) {
+    return { in->chars, static_cast<uint32_t>(in->length) };
 }
 
 // Thanks DaNike!
@@ -403,7 +388,8 @@ bool direxists(std::string_view dirname) {
 
     if (stat(dirname.data(), &info) != 0) {
         return false;
-    } if (info.st_mode & S_IFDIR) {
+    }
+    if (info.st_mode & S_IFDIR) {
         return true;
     }
     return false;
@@ -437,7 +423,6 @@ bool writefile(std::string_view filename, std::string_view text) {
 }
 
 bool deletefile(std::string_view filename) {
-    if (fileexists(filename))
-        return remove(filename.data()) == 0;
+    if (fileexists(filename)) return remove(filename.data()) == 0;
     return false;
 }

@@ -22,6 +22,7 @@ libs/
 obj/
 
 extern/
+.cache/
 *.backup
 extern.cmake
 qpm_defines.cmake
@@ -37,4 +38,3 @@ compile_commands.json
 *.ninja
 *.txt
 tombstone_*
-.cache

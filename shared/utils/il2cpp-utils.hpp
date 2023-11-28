@@ -83,6 +83,13 @@ namespace il2cpp_utils {
     template<CreationType creationType = CreationType::Temporary>
     Il2CppString* newcsstr(std::u16string_view inp) {
         il2cpp_functions::Init();
+
+        // if null string input,
+        // return an empty allocated il2cpp string
+        if (inp.data() == nullptr) {
+            return newcsstr<creationType>(u"");
+        }
+
         if constexpr (creationType == CreationType::Manual) {
             auto len = inp.length();
             auto mallocSize = sizeof(Il2CppString) + sizeof(Il2CppChar) * (len + 1);
@@ -108,6 +115,13 @@ namespace il2cpp_utils {
     template<CreationType creationType = CreationType::Temporary>
     Il2CppString* newcsstr(std::string_view inp) {
         il2cpp_functions::Init();
+
+        // if null string input,
+        // return an empty allocated il2cpp string
+        if (inp.data() == nullptr) {
+            return newcsstr<creationType>("");
+        }
+
         if constexpr (creationType == CreationType::Manual) {
             // TODO: Perhaps manually call createManual instead
             auto len = inp.length();

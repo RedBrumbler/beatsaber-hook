@@ -19,7 +19,8 @@ add_compile_options(-frtti -fPIE -fPIC -fexceptions -flto)
 add_compile_options(-Wall -Wextra -Werror -Wno-unused-function)
 # compile definitions used
 add_compile_definitions(VERSION=\"${MOD_VERSION}\")
-add_compile_definitions(ID=\"${MOD_ID}\")
+add_compile_definitions(MOD_ID=\"${MOD_ID}\")
+add_compile_definitions(VERSION_NUMBER=300150000)
 add_compile_definitions(UNITY_2021)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
