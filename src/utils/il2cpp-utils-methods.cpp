@@ -88,6 +88,10 @@ namespace il2cpp_utils {
 
     const MethodInfo* ResolveVtableSlot(Il2CppClass* klass, Il2CppClass* declaringClass, uint16_t slot) noexcept {
         il2cpp_functions::Init();
+        // initialize classes if they haven't yet been initialized
+        if (!klass->initialized) il2cpp_functions::Class_Init(klass);
+        if (!declaringClass->initialized) il2cpp_functions::Class_Init(declaringClass);
+
         static auto logger = getLogger().WithContext("ResolveVtableSlot");
         if(il2cpp_functions::class_is_interface(declaringClass)) {
             RET_DEFAULT_UNLESS(logger, slot < declaringClass->vtable_count);
