@@ -10,7 +10,7 @@
 
 class SomeWrapper : public ::bs_hook::Il2CppWrapperType {
     public:
-        static constexpr auto __IL2CPP_VALUE_TYPE = false;
+        static constexpr auto __IL2CPP_IS_VALUE_TYPE = false;
         SomeWrapper(void* i) : ::bs_hook::Il2CppWrapperType(i) {}
 
         virtual ~SomeWrapper() {}
@@ -33,7 +33,7 @@ static_assert(std::is_same_v<decltype(std::remove_pointer_t<ArrayW<SomeWrapper>:
 
 class MatchingWrapper : public ::bs_hook::Il2CppWrapperType {
     public:
-        static constexpr auto __IL2CPP_VALUE_TYPE = false;
+        static constexpr auto __IL2CPP_IS_VALUE_TYPE = false;
         MatchingWrapper(void* i) : ::bs_hook::Il2CppWrapperType(i) {}
 
 };
@@ -52,7 +52,7 @@ static_assert(sizeof(MatchingWrapper) == 0x8);
 static_assert(std::is_same_v<decltype(std::remove_pointer_t<ArrayW<MatchingWrapper>::Ptr>::values), MatchingWrapper[0]>);
 
 struct Color : public ::bs_hook::ValueTypeWrapper<0x10> {
-    static constexpr auto __IL2CPP_VALUE_TYPE = true;
+    static constexpr auto __IL2CPP_IS_VALUE_TYPE = true;
     Color(std::array<std::byte, 0x10> i) noexcept : ::bs_hook::ValueTypeWrapper<0x10>(i) {}
 };
 
