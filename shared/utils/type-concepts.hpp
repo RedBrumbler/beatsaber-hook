@@ -19,7 +19,7 @@ namespace il2cpp_utils {
     /// @brief not all types will have the value marker
     template<typename T>
     concept has_value_marker = requires {
-        { T::__IL2CPP_VALUE_TYPE } -> convertible_to<bool>;
+        { T::__IL2CPP_IS_VALUE_TYPE } -> convertible_to<bool>;
     };
 
     /// @brief all types will evaluate false for the check
@@ -31,7 +31,7 @@ namespace il2cpp_utils {
     /// @brief types that have the marker will actually evaluate the check
     template<has_value_marker T, bool check>
     struct value_marker_check<T, check> {
-        constexpr static bool value = T::__IL2CPP_VALUE_TYPE == check;
+        constexpr static bool value = T::__IL2CPP_IS_VALUE_TYPE == check;
     };
 
     template<has_value_marker T, bool check>
