@@ -879,11 +879,12 @@ void il2cpp_functions::Init() {
     }
 
     {
-        // Class::GetPtrClass.
+        // Class::GetPtrClass(Il2CppClass*).
 
-        // FIXME: instead of evaluating the switch, just find the 3rd bl (might be a bad idea in the end tho, for now this will work)
-        auto Class_GetPtrClass_addr = cs::findNthBl<3, 1>(reinterpret_cast<uint32_t*>(il2cpp_Class_FromIl2CppType));
-        if (!Class_GetPtrClass_addr) SAFE_ABORT_MSG("Failed to find GenericClass::GetClass!");
+        logger.debug("Attempting to find Class::GetPtrClass");
+        // FIXME: instead of evaluating the switch, just find the 3rd b (might be a bad idea in the end tho, for now this will work)
+        auto Class_GetPtrClass_addr = cs::findNthB<3, false>(reinterpret_cast<uint32_t*>(il2cpp_Class_FromIl2CppType));
+        if (!Class_GetPtrClass_addr) SAFE_ABORT_MSG("Failed to find Class_GetPtrClass!");
         il2cpp_Class_GetPtrClass = reinterpret_cast<decltype(il2cpp_Class_GetPtrClass)>(*Class_GetPtrClass_addr);
         logger.debug("Class::GetPtrClass found? offset: %lX", ((uintptr_t)il2cpp_Class_GetPtrClass) - getRealOffset(0));
 
