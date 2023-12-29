@@ -27,7 +27,7 @@ struct List : Il2CppObject {
     int _version;
     Il2CppObject* _syncRoot;
 
-#ifdef BS_OHOK_LIST_USE_IL2CPP
+#ifdef BS_HOOK_LIST_USE_IL2CPP
     // Add an item to this list
     void Add(T item) {
         if (!static_cast<void*>(this)) throw ListException(nullptr, "Running instance method on nullptr instance!");
