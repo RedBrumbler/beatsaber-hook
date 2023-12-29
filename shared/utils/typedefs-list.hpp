@@ -190,16 +190,17 @@ struct ListWrapper {
 
     // method to create a new list easily
     template <typename U, il2cpp_utils::CreationType creationType = il2cpp_utils::CreationType::Temporary>
-        requires(std::is_convertible_v<U, T>)
+    requires(std::is_convertible_v<U, T>)
     static ListWrapper<T, Ptr> New(std::initializer_list<U> values) {
         il2cpp_functions::Init();
         auto ls = il2cpp_utils::New<Ptr, creationType>();
         if (!ls) throw ListException(nullptr, "Could not create list!");
 
-        ls->EnsureCapacity(values.size());
-        for (auto& v : values) ls->Add(v);
+        ListWrapper<T, Ptr> lsWrap = {*ls};
 
-        return { *ls };
+        lsWrap.insert_range(values);
+
+        return lsWrap;
     }
 
     std::optional<uint_t> index_of(T item) {
@@ -291,7 +292,7 @@ struct ListWrapper {
     }
 
     template <typename... TArgs>
-        requires(il2cpp_utils::il2cpp_reference_type<T>)
+    requires(il2cpp_utils::il2cpp_reference_type<T>)
     void emplace_back(TArgs&&... args) {
         this->push_back(T::New_ctor(std::forward<TArgs>(args)...));
     }
@@ -367,8 +368,8 @@ struct ListWrapper {
      * @param end
      */
     template <typename It>
-    void insert(It begin, It end) {
-        insert(std::span<T>(begin, end));
+    void insert_range(It begin, It end) {
+        insert_span(std::span<T>(begin, end));
     }
 
     /**
@@ -379,13 +380,13 @@ struct ListWrapper {
      * @param count amount of items
      */
     template <typename It>
-    void insert(It begin, int count) {
-        insert(std::span<T>(begin, count));
+    void insert_range(It begin, int count) {
+        insert_span(std::span<T>(begin, count));
     }
 
     template <typename C>
-    void insert(C container) {
-        insert(std::span<T>(container.begin(), container.end()));
+    void insert_range(C container) {
+        insert_span(std::span<T>(container.begin(), container.end()));
     }
 
     /**
@@ -393,7 +394,7 @@ struct ListWrapper {
      *
      * @param span
      */
-    void insert(std::span<T> span) {
+    void insert_span(std::span<T> span) {
         if (span.empty()) return;
 
         this->EnsureCapacity(span.size() + this->size());
