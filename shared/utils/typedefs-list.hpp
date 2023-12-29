@@ -2,13 +2,14 @@
 // This file should only ever be included in typedefs.h
 
 #include <sys/types.h>
+#include <algorithm>
+#include <iterator>
 #include <optional>
 #include <span>
 #include <stdexcept>
 #include <utility>
 #include "il2cpp-utils-methods.hpp"
 #include "type-concepts.hpp"
-
 
 #include "typedefs-array.hpp"
 #include "typedefs-object.hpp"
@@ -27,7 +28,6 @@ struct List : Il2CppObject {
     int _version;
     Il2CppObject* _syncRoot;
 
-#ifdef BS_HOOK_LIST_USE_IL2CPP
     // Add an item to this list
     void Add(T item) {
         if (!static_cast<void*>(this)) throw ListException(nullptr, "Running instance method on nullptr instance!");
@@ -50,104 +50,6 @@ struct List : Il2CppObject {
 
         il2cpp_utils::RunMethodRethrow<void, false>(this, ___internal_method, min);
     }
-#else   
-    void Insert(int index, T item) {
-        if (index > this->size()) {
-            throw std::runtime_error("Capacity size too small");
-        }
-        if (_size == this->get_items().size()) {
-            this->EnsureCapacity(this->size() + 1);
-        }
-        if (index < this->size()) {
-            std::copy(this->begin() + index, this->begin() + index + 1, this->begin() + (this->size() - index));
-            // Array.Copy(this._items, index, this._items, index + 1,
-            //            this._size - index);
-        }
-        this->_items[index] = item;
-        this->_size++;
-        this->_version++;
-    }
-    void Add(T item) {
-        this->_version++;
-        auto items = this->get_items();
-        auto size = this->size();
-        if (size < items.Length) {
-            this->_size = size + 1;
-            items[size] = item;
-            return;
-        }
-        this->AddWithResize(item);
-    }
-
-    void Clear() {
-        this->_version++;
-        if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
-            int size = this->_size;
-            this->_size = 0;
-            if (size > 0) {
-                std::fill(this->_items.begin(), this->items.begin() + this->_size, {});
-                return;
-            }
-        } else {
-            this->_size = 0;
-        }
-    }
-
-    int IndexOf(T item) {
-        auto start = this->items.begin();
-        auto end = this->items.begin() + this->_size;
-        auto it = std::find(start, end, item);
-
-        if (it == end) return -1;
-
-        return std::distance(start, it);
-    }
-
-    ArrayW<T> ToArray() {
-        ArrayW<T> newArr = ArrayW<T>(this->_size);
-        std::copy(this->_items.begin(), this->_items.begin() + _size, newArr.begin());
-
-        return newArr;
-    }
-
-   protected:
-    void SetCapacity(int value) {
-        if (value < this->_size) {
-            throw std::runtime_error("Capacity size too small");
-        }
-        if (value != this->_items.size()) {
-            if (value > 0) {
-                auto array = ArrayW<T>(value);
-                if (this->size() > 0) {
-                    std::copy(this->begin(), this->end(), array.begin());
-                }
-                this->_items = array;
-                return;
-            }
-            this->_items = ArrayW<T>(0);
-        }
-    }
-
-    void AddWithResize(T item) {
-        auto size = this->size();
-        this->EnsureCapacity(size + 1);
-        this->_size = size + 1;
-        this->_items[size] = item;
-    }
-
-    void EnsureCapacity(int min) {
-        if (this->_items->size() < min) {
-            int num = (this->_items.size() == 0) ? 4 : (this->_items.size() * 2);
-            if (num > 2146435071) {
-                num = 2146435071;
-            }
-            if (num < min) {
-                num = min;
-            }
-            SetCapacity(num);
-        }
-    }
-#endif
 };
 DEFINE_IL2CPP_ARG_TYPE_GENERIC_CLASS(List, "System.Collections.Generic", "List`1");
 
@@ -301,44 +203,253 @@ struct ListWrapper {
     }
 
     std::optional<uint_t> index_of(T item) {
-        auto index = this->as_il2cpp_list()->IndexOf(item);
-        if (index < 0) return std::nullopt;
+        auto start = this->items.begin();
+        auto end = this->items.begin() + this->_size;
+        auto it = std::find(start, end, item);
 
-        return index;
+        if (it == end) return std::nullopt;
+
+        return std::distance(start, it);
+    }
+
+    template <typename F>
+    T First(F&& func) {
+        auto start = this->items.begin();
+        auto end = this->items.begin() + this->_size;
+        auto it = std::find_if(start, end, std::forward<F>(func));
+
+        if (it == end) return std::nullopt;
+
+        return std::distance(start, it);
+    }
+
+    template <typename F>
+    T FirstOrDefault(F&& func) {
+        return First(func).value_or({});
+    }
+
+    template <typename F>
+    T Last(F&& func) {
+        auto start = this->items.begin();
+        auto end = this->items.begin() + this->_size;
+
+        auto rev_start = std::make_reverse_iterator(start);
+        auto rev_end = std::make_reverse_iterator(end);
+
+        auto it = std::find_if(rev_start, rev_end, std::forward<F>(func));
+
+        if (it == end) return std::nullopt;
+
+        return std::distance(start, it);
+    }
+
+    template <typename F>
+    T LastOrDefault(F&& func) {
+        return Last(func).value_or({});
     }
 
     void clear() {
-        this->as_il2cpp_list()->Clear();
+        this->_version++;
+        if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
+            int size = this->_size;
+            this->_size = 0;
+            if (size > 0) {
+                std::fill(this->_items.begin(), this->items.begin() + this->_size, {});
+                return;
+            }
+        } else {
+            this->_size = 0;
+        }
     }
 
     void insert_at(int index, T item) {
-        this->as_il2cpp_list()->Insert(index, item);
+        if (index > this->size()) {
+            throw std::runtime_error("Capacity size too small");
+        }
+        if (this->size() == this->get_items().size()) {
+            this->EnsureCapacity(this->size() + 1);
+        }
+        if (index < this->size()) {
+            std::copy(this->begin() + index, this->begin() + index + 1, this->begin() + (this->size() - index));
+            // Array.Copy(this._items, index, this._items, index + 1,
+            //            this._size - index);
+        }
+        this->_items[index] = item;
+        this->_size++;
+        this->_version++;
     }
     void push_back(T item) {
-        this->as_il2cpp_list()->Add(item);
+        this->_version++;
+        auto items = this->get_items();
+        auto size = this->size();
+        if (size < items.Length) {
+            this->_size = size + 1;
+            items[size] = item;
+            return;
+        }
+        this->AddWithResize(item);
     }
 
     template <typename... TArgs>
-    requires(il2cpp_utils::il2cpp_reference_type<T>)
+        requires(il2cpp_utils::il2cpp_reference_type<T>)
     void emplace_back(TArgs&&... args) {
-        this->as_il2cpp_list()->Add(T::New_ctor(std::forward<TArgs>(args)...));
+        this->push_back(T::New_ctor(std::forward<TArgs>(args)...));
     }
-    
+
     template <typename... TArgs>
     void emplace_back(TArgs&&... args) {
         this->as_il2cpp_list()->Add(T(std::forward<TArgs>(args)...));
     }
 
+    ArrayW<T> to_array() {
+        ArrayW<T> newArr = ArrayW<T>(this->_size);
+        std::copy(this->_items.begin(), this->_items.begin() + this->size(), newArr.begin());
+
+        return newArr;
+    }
+
+    bool erase(T item) {
+        auto index = index_of(item);
+        if (!index.has_value()) {
+            return false;
+        }
+
+        erase_at(index.value());
+        return true;
+    }
+
+    void erase_at(int index) {
+        if (index >= this->size()) {
+            throw std::runtime_error("index is over size bounds");
+        }
+        this->ptr->_size--;
+        if (index < this->size()) {
+            std::copy(this->begin() + 1, this->end(), this->begin() + this->size() - index);
+            // Array.Copy(this._items, index + 1, this._items, index, this._size - index);
+        }
+        if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
+            this->_items[this->size()] = {};
+        }
+        this->ptr->_version++;
+    }
+
+    void erase_range(int index, int count) {
+        if (index < 0) {
+            throw std::runtime_error("index is less than 0");
+        }
+        if (count < 0) {
+            throw std::runtime_error("count is less than 0");
+        }
+        if (this->size() - index < count) {
+            throw std::runtime_error("count is over bounds");
+        }
+        if (count > 0) {
+            // int size = this->size();
+            this->_size -= count;
+            if (index < this->size()) {
+                std::copy(this->begin() + index + count, this->begin() + (this->size() - index), this->begin() + index);
+                // Array.Copy(this._items, index + count, this._items, index, this._size - index);
+            }
+            this->_version++;
+            if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
+                std::fill(this->_items.begin() + this->size(), this->items.begin() + this->size() + count, {});
+                // Array.Clear(this._items, this._size, count);
+            }
+        }
+    }
+
+    /**
+     * @brief Adds the collection to the end of the List. Ensures capacity is appropiate
+     *
+     * @tparam It Iterator type
+     * @param begin
+     * @param end
+     */
+    template <typename It>
+    void insert(It begin, It end) {
+        insert(std::span<T>(begin, end));
+    }
+
+    /**
+     * @brief Adds the collection to the end of the List. Ensures capacity is appropiate
+     *
+     * @tparam It
+     * @param begin
+     * @param count amount of items
+     */
+    template <typename It>
+    void insert(It begin, int count) {
+        insert(std::span<T>(begin, count));
+    }
+
+    template <typename C>
+    void insert(C container) {
+        insert(std::span<T>(container.begin(), container.end()));
+    }
+
+    /**
+     * @brief Adds the collection to the end of the List. Ensures capacity is appropiate
+     *
+     * @param span
+     */
+    void insert(std::span<T> span) {
+        if (span.empty()) return;
+
+        this->EnsureCapacity(span.size() + this->size());
+        auto start = this->begin() + this->size();
+        std::copy(span.begin(), span.end(), start);
+
+        ptr->_version++;
+    }
+
    private:
-    auto get_items() const {
+    auto const& get_items() const {
         return ptr->_items;
     }
-    auto get_items() {
+    auto& get_items() {
         return ptr->_items;
     }
 
     auto as_il2cpp_list() {
         return reinterpret_cast<List<T>*>(ptr);
+    }
+
+   protected:
+    void SetCapacity(int value) {
+        if (value < this->_size) {
+            throw std::runtime_error("Capacity size too small");
+        }
+        if (value != this->_items.size()) {
+            if (value > 0) {
+                auto array = ArrayW<T>(value);
+                if (this->size() > 0) {
+                    std::copy(this->begin(), this->end(), array.begin());
+                }
+                ptr->_items = array;
+                return;
+            }
+            ptr->_items = ArrayW<T>(0);
+        }
+    }
+
+    void AddWithResize(T item) {
+        auto size = this->size();
+        this->EnsureCapacity(size + 1);
+        ptr->_size = size + 1;
+        get_items()[size] = item;
+    }
+
+    void EnsureCapacity(int min) {
+        if (get_items()->size() < min) {
+            int num = (get_items().size() == 0) ? 4 : (get_items().size() * 2);
+            if (num > 2146435071) {
+                num = 2146435071;
+            }
+            if (num < min) {
+                num = min;
+            }
+            SetCapacity(num);
+        }
     }
 
     Ptr ptr;
