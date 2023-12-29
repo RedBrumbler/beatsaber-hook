@@ -343,18 +343,19 @@ struct ListWrapper {
         if (this->size() - index < count) {
             throw std::runtime_error("count is over bounds");
         }
-        if (count > 0) {
-            // int size = this->size();
-            this->_size -= count;
-            if (index < this->size()) {
-                std::copy(this->begin() + index + count, this->begin() + (this->size() - index), this->begin() + index);
-                // Array.Copy(this._items, index + count, this._items, index, this._size - index);
-            }
-            this->_version++;
-            if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
-                std::fill(this->_items.begin() + this->size(), this->items.begin() + this->size() + count, {});
-                // Array.Clear(this._items, this._size, count);
-            }
+        if (count <= 0) {
+            return;
+        }
+        // int size = this->size();
+        this->_size -= count;
+        if (index < this->size()) {
+            std::copy(this->begin() + index + count, this->begin() + (this->size() - index), this->begin() + index);
+            // Array.Copy(this._items, index + count, this._items, index, this._size - index);
+        }
+        this->_version++;
+        if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
+            std::fill(this->_items.begin() + this->size(), this->items.begin() + this->size() + count, {});
+            // Array.Clear(this._items, this._size, count);
         }
     }
 
@@ -399,7 +400,20 @@ struct ListWrapper {
         auto start = this->begin() + this->size();
         std::copy(span.begin(), span.end(), start);
 
+        ptr->_size += span.size();
         ptr->_version++;
+    }
+
+    /// @brief Provides a reference span of the held data within this array. The span should NOT outlive this instance.
+    /// @return The created span.
+    std::span<T> ref_to() {
+        return std::span(begin(), end());
+    }
+
+    /// @brief Provides a reference span of the held data within this array. The span should NOT outlive this instance.
+    /// @return The created span.
+    const std::span<T> ref_to() const {
+        return std::span(begin()());
     }
 
    private:
