@@ -23,7 +23,7 @@ struct ListException : il2cpp_utils::exceptions::StackTraceException {
 // System.Collections.Generic.List
 template <class T>
 struct List : Il2CppObject {
-    Array<T>* _items;
+    ArrayW<T> _items;
     int _size;
     int _version;
     Il2CppObject* _syncRoot;
@@ -83,7 +83,7 @@ struct ListWrapper {
     using const_iterator = const_pointer;
 
     [[nodiscard]] constexpr int size() const {
-        return ptr->_size;
+        return this->ptr->_size;
     }
     T& operator[](size_t i) {
         return get_items()->values[i];
@@ -196,7 +196,7 @@ struct ListWrapper {
         auto ls = il2cpp_utils::New<Ptr, creationType>();
         if (!ls) throw ListException(nullptr, "Could not create list!");
 
-        ListWrapper<T, Ptr> lsWrap = {*ls};
+        ListWrapper<T, Ptr> lsWrap = { *ls };
 
         lsWrap.insert_range(values);
 
@@ -211,8 +211,8 @@ struct ListWrapper {
      * @param item
      */
     std::optional<uint_t> index_of(T item) {
-        auto start = this->items.begin();
-        auto end = this->items.begin() + this->_size;
+        auto start = this->begin();
+        auto end = this->begin() + this->size();
         auto it = std::find(start, end, item);
 
         if (it == end) return std::nullopt;
@@ -221,39 +221,39 @@ struct ListWrapper {
     }
 
     template <typename F>
-    T First(F&& func) {
-        auto start = this->items.begin();
-        auto end = this->items.begin() + this->_size;
+    std::optional<T> First(F&& func) {
+        auto start = this->begin();
+        auto end = this->begin() + this->size();
         auto it = std::find_if(start, end, std::forward<F>(func));
 
         if (it == end) return std::nullopt;
 
-        return std::distance(start, it);
+        return *it;
     }
 
     template <typename F>
     T FirstOrDefault(F&& func) {
-        return First(func).value_or({});
+        return First(func).value_or(T());
     }
 
     template <typename F>
-    T Last(F&& func) {
-        auto start = this->items.begin();
-        auto end = this->items.begin() + this->_size;
+    std::optional<T> Last(F&& func) {
+        auto start = this->begin();
+        auto end = this->begin() + this->size();
 
         auto rev_start = std::make_reverse_iterator(start);
         auto rev_end = std::make_reverse_iterator(end);
 
         auto it = std::find_if(rev_start, rev_end, std::forward<F>(func));
 
-        if (it == end) return std::nullopt;
+        if (it == rev_end) return std::nullopt;
 
-        return std::distance(start, it);
+        return *it;
     }
 
     template <typename F>
     T LastOrDefault(F&& func) {
-        return Last(func).value_or({});
+        return Last(func).value_or(T());
     }
 
     /**
@@ -264,16 +264,16 @@ struct ListWrapper {
      * @param item
      */
     void clear() {
-        this->_version++;
+        this->ptr->_version++;
         if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
-            int size = this->_size;
-            this->_size = 0;
+            int size = this->size();
+            this->ptr->_size = 0;
             if (size > 0) {
-                std::fill(this->_items.begin(), this->items.begin() + this->_size, {});
+                std::fill(this->begin(), this->begin() + this->size(), T());
                 return;
             }
         } else {
-            this->_size = 0;
+            this->ptr->_size = 0;
         }
     }
 
@@ -296,9 +296,9 @@ struct ListWrapper {
             // Array.Copy(this._items, index, this._items, index + 1,
             //            this._size - index);
         }
-        this->_items[index] = item;
-        this->_size++;
-        this->_version++;
+        this->ptr->_items[index] = item;
+        this->ptr->_size++;
+        this->ptr->_version++;
     }
     /**
      * @brief System.Collections.Generic::List<T>.Add(T item)
@@ -307,11 +307,11 @@ struct ListWrapper {
      * @param item
      */
     void push_back(T item) {
-        this->_version++;
+        this->ptr->_version++;
         auto items = this->get_items();
         auto size = this->size();
-        if (size < items.Length) {
-            this->_size = size + 1;
+        if (size < items.size()) {
+            this->ptr->_size = size + 1;
             items[size] = item;
             return;
         }
@@ -370,7 +370,7 @@ struct ListWrapper {
             // Array.Copy(this._items, index + 1, this._items, index, this._size - index);
         }
         if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
-            this->_items[this->size()] = {};
+            this->_items[this->size()] = T();
         }
         this->ptr->_version++;
     }
@@ -403,7 +403,7 @@ struct ListWrapper {
         }
         this->_version++;
         if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
-            std::fill(this->_items.begin() + this->size(), this->items.begin() + this->size() + count, {});
+            std::fill(this->_items.begin() + this->size(), this->items.begin() + this->size() + count, T());
             // Array.Clear(this._items, this._size, count);
         }
     }
@@ -497,10 +497,10 @@ struct ListWrapper {
 
    protected:
     void SetCapacity(int value) {
-        if (value < this->_size) {
+        if (value < this->size()) {
             throw std::runtime_error("Capacity size too small");
         }
-        if (value != this->_items.size()) {
+        if (value != this->get_items().size()) {
             if (value > 0) {
                 auto array = ArrayW<T>(value);
                 if (this->size() > 0) {
@@ -509,7 +509,7 @@ struct ListWrapper {
                 ptr->_items = array;
                 return;
             }
-            ptr->_items = ArrayW<T>(0);
+            ptr->_items = ArrayW<T>(il2cpp_array_size_t(0));
         }
     }
 
@@ -521,7 +521,7 @@ struct ListWrapper {
     }
 
     void EnsureCapacity(int min) {
-        if (get_items()->size() < min) {
+        if (get_items().size() < min) {
             int num = (get_items().size() == 0) ? 4 : (get_items().size() * 2);
             if (num > 2146435071) {
                 num = 2146435071;
