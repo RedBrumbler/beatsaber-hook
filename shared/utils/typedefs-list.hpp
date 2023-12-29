@@ -203,6 +203,13 @@ struct ListWrapper {
         return lsWrap;
     }
 
+    /**
+     * @brief System.Collections.Generic::List<T>.IndexOf(T item)
+     *
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.indexof?view=net-8.0
+     * @param index
+     * @param item
+     */
     std::optional<uint_t> index_of(T item) {
         auto start = this->items.begin();
         auto end = this->items.begin() + this->_size;
@@ -249,6 +256,13 @@ struct ListWrapper {
         return Last(func).value_or({});
     }
 
+    /**
+     * @brief System.Collections.Generic::List<T>.Clear()
+     *
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.clear?view=net-8.0
+     * @param index
+     * @param item
+     */
     void clear() {
         this->_version++;
         if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
@@ -263,6 +277,13 @@ struct ListWrapper {
         }
     }
 
+    /**
+     * @brief System.Collections.Generic::List<T>.Insert(int index, T item)
+     *
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.insert?view=net-8.0
+     * @param index
+     * @param item
+     */
     void insert_at(int index, T item) {
         if (index > this->size()) {
             throw std::runtime_error("Capacity size too small");
@@ -279,6 +300,12 @@ struct ListWrapper {
         this->_size++;
         this->_version++;
     }
+    /**
+     * @brief System.Collections.Generic::List<T>.Add(T item)
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.add?view=net-8.0
+     *
+     * @param item
+     */
     void push_back(T item) {
         this->_version++;
         auto items = this->get_items();
@@ -309,6 +336,13 @@ struct ListWrapper {
         return newArr;
     }
 
+    /**
+     * @brief System.Collections.Generic::List<T>.Remove(T item)
+     *
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.remove?view=net-8.0
+     * @param index
+     * @param item
+     */
     bool erase(T item) {
         auto index = index_of(item);
         if (!index.has_value()) {
@@ -319,6 +353,13 @@ struct ListWrapper {
         return true;
     }
 
+    /**
+     * @brief System.Collections.Generic::List<T>.RemoveAt(int index)
+     *
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.removeat?view=net-8.0
+     * @param index
+     * @param item
+     */
     void erase_at(int index) {
         if (index >= this->size()) {
             throw std::runtime_error("index is over size bounds");
@@ -334,6 +375,13 @@ struct ListWrapper {
         this->ptr->_version++;
     }
 
+    /**
+     * @brief System.Collections.Generic::List<T>.RemoveRange(int index, int count)
+     *
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.removerange?view=net-8.0
+     * @param index
+     * @param item
+     */
     void erase_range(int index, int count) {
         if (index < 0) {
             throw std::runtime_error("index is less than 0");
@@ -363,6 +411,9 @@ struct ListWrapper {
     /**
      * @brief Adds the collection to the end of the List. Ensures capacity is appropiate
      *
+     * System.Collections.Generic::List<T>.AddRange(Enumerable<T> enumerable)
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.addrange?view=net-8.0
+     *
      * @tparam It Iterator type
      * @param begin
      * @param end
@@ -375,6 +426,9 @@ struct ListWrapper {
     /**
      * @brief Adds the collection to the end of the List. Ensures capacity is appropiate
      *
+     * System.Collections.Generic::List<T>.AddRange(Enumerable<T> enumerable)
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.addrange?view=net-8.0
+     *
      * @tparam It
      * @param begin
      * @param count amount of items
@@ -384,6 +438,15 @@ struct ListWrapper {
         insert_span(std::span<T>(begin, count));
     }
 
+    /**
+     * @brief Adds the collection to the end of the List. Ensures capacity is appropiate
+     *
+     * System.Collections.Generic::List<T>.AddRange(Enumerable<T> enumerable)
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.addrange?view=net-8.0
+     *
+     * @tparam C
+     * @param container
+     */
     template <typename C>
     void insert_range(C container) {
         insert_span(std::span<T>(container.begin(), container.end()));
@@ -391,6 +454,9 @@ struct ListWrapper {
 
     /**
      * @brief Adds the collection to the end of the List. Ensures capacity is appropiate
+     *
+     * System.Collections.Generic::List<T>.AddRange(Enumerable<T> enumerable)
+     * https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.addrange?view=net-8.0
      *
      * @param span
      */
