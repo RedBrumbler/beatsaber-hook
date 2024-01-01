@@ -286,7 +286,7 @@ struct ListWrapper {
      */
     void insert_at(int index, T item) {
         if (index > this->size()) {
-            throw std::runtime_error("Capacity size too small");
+            throw ListException(ptr, "Capacity size too small");
         }
         if (this->size() == this->get_items().size()) {
             this->EnsureCapacity(this->size() + 1);
@@ -362,7 +362,7 @@ struct ListWrapper {
      */
     void erase_at(int index) {
         if (index >= this->size()) {
-            throw std::runtime_error("index is over size bounds");
+            throw ListException(ptr, "index is over size bounds");
         }
         this->ptr->_size--;
         if (index < this->size()) {
@@ -384,13 +384,13 @@ struct ListWrapper {
      */
     void erase_range(int index, int count) {
         if (index < 0) {
-            throw std::runtime_error("index is less than 0");
+            throw ListException(ptr, "index is less than 0");
         }
         if (count < 0) {
-            throw std::runtime_error("count is less than 0");
+            throw ListException(ptr, "count is less than 0");
         }
         if (this->size() - index < count) {
-            throw std::runtime_error("count is over bounds");
+            throw ListException(ptr, "count is over bounds");
         }
         if (count <= 0) {
             return;
@@ -498,7 +498,7 @@ struct ListWrapper {
    protected:
     void SetCapacity(int value) {
         if (value < this->size()) {
-            throw std::runtime_error("Capacity size too small");
+            throw ListException(ptr, "Capacity size too small");
         }
         if (value != this->get_items().size()) {
             if (value > 0) {
