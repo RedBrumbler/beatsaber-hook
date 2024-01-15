@@ -3,6 +3,7 @@
 #include "../../shared/utils/hashing.hpp"
 #include "utils/il2cpp-functions.hpp"
 #include "utils/il2cpp-utils-classes.hpp"
+#include "utils/il2cpp-utils-methods.hpp"
 #include <sstream>
 
 namespace std {
@@ -27,12 +28,27 @@ namespace std {
             return hash_seq(seq);
         }
     };
+    // Specializes std::hash for std::vector
+    template <>
+    struct hash<il2cpp_utils::FindMethodInfo> {
+        std::size_t operator()(il2cpp_utils::FindMethodInfo const& info) const noexcept {
+            auto hashPtr = std::hash<void*>{};
+
+            auto hashSeqClass = std::hash<vector<const Il2CppClass*>>{};
+            auto hashSeqType = std::hash<vector<const Il2CppType*>>{};
+
+            auto hashStr = std::hash<std::string_view>{};
+
+            return hashPtr(info.klass) ^ hashPtr(info.returnType) ^ hashStr(info.name) ^ hashSeqType(info.argTypes) ^ hashSeqClass(info.genTypes);
+        }
+    };
 }
 
+
 namespace il2cpp_utils {
-    static std::unordered_map<std::pair<const Il2CppClass*, std::pair<std::string, decltype(MethodInfo::parameters_count)>>, const MethodInfo*, hash_pair_3> classesNamesToMethodsCache;
     typedef std::pair<std::string, std::vector<const Il2CppType*>> classesNamesTypesInnerPairType;
-    static std::unordered_map<std::pair<const Il2CppClass*, classesNamesTypesInnerPairType>, const MethodInfo*, hash_pair_3> classesNamesTypesToMethodsCache;
+    static std::unordered_map<std::pair<const Il2CppClass*, std::pair<std::string, decltype(MethodInfo::parameters_count)>>, const MethodInfo*, hash_pair_3> classesNamesToMethodsCache;
+    static std::unordered_map<FindMethodInfo, const MethodInfo*> classesNamesTypesToMethodsCache;
     std::mutex classNamesMethodsLock;
     std::mutex classTypesMethodsLock;
 
@@ -234,10 +250,8 @@ namespace il2cpp_utils {
 
         // TODO: make cache work for generics (stratify by generics count?) and differing return types?
         // Check Cache
-        auto innerPair = classesNamesTypesInnerPairType(info.name, info.argTypes);
-        auto key = std::pair<Il2CppClass*, classesNamesTypesInnerPairType>(klass, innerPair);
         classTypesMethodsLock.lock();
-        auto itr = classesNamesTypesToMethodsCache.find(key);
+        auto itr = classesNamesTypesToMethodsCache.find(info);
         if (itr != classesNamesTypesToMethodsCache.end()) {
             classTypesMethodsLock.unlock();
             return itr->second;
@@ -335,7 +349,7 @@ namespace il2cpp_utils {
         }
         // cache only if basic match
         classTypesMethodsLock.lock();
-        classesNamesTypesToMethodsCache.emplace(key, methodInfo);
+        classesNamesTypesToMethodsCache.emplace(info, methodInfo);
         classTypesMethodsLock.unlock();
         return methodInfo;
     }
