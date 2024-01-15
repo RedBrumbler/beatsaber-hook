@@ -33,8 +33,8 @@ struct List : Il2CppObject {
             il2cpp_utils::FindMethod(
                 klass,
                 "Add",
-                std::vector<Il2CppClass*>{},
-                ::std::vector<const Il2CppType*>{::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_type<T>::get()}
+                ::std::array<::Il2CppClass*, 0>{},
+                ::std::array<const Il2CppType*, 1>{::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_type<T>::get()}
             )
         );
         il2cpp_utils::RunMethodRethrow<void, false>(this, ___internal_method, item);
@@ -50,8 +50,8 @@ struct List : Il2CppObject {
             il2cpp_utils::FindMethod(
                 klass,
                 "EnsureCapacity",
-                std::vector<Il2CppClass*>{},
-                ::std::vector<const Il2CppType*>{::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_type<int32_t>::get()}
+                std::array<Il2CppClass*, 0>{},
+                ::std::array<const Il2CppType*, 1>{::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_type<int32_t>::get()}
             )
         );
 

@@ -82,6 +82,7 @@ namespace il2cpp_utils {
 
     std::vector<Il2CppClass*> ClassesFrom(std::span<std::string_view> const strings) {
         std::vector<Il2CppClass*> classes;
+        classes.reserve((strings.size() - 1) / 2);
         for (size_t i = 0; i < strings.size() - 1; i += 2) {
             classes.push_back(GetClassFromName(strings[i].data(), strings[i+1].data()));
         }

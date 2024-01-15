@@ -62,13 +62,6 @@ namespace il2cpp_utils {
     /// @return The created instance.
     Il2CppObject* createManualThrow(Il2CppClass* const klass);
 
-    ::std::vector<Il2CppClass*> ClassesFrom(::std::span<Il2CppClass*> classes);
-    ::std::vector<Il2CppClass*> ClassesFrom(::std::span<::std::string_view> strings);
-
-    ::std::vector<const Il2CppType*> TypesFrom(std::span<const Il2CppType*> types);
-    ::std::vector<const Il2CppType*> TypesFrom(std::span<const Il2CppClass*> classes);
-    ::std::vector<const Il2CppType*> TypesFrom(std::span<std::string_view> strings);
-
     struct FindMethodInfo {
         Il2CppClass* klass = nullptr;
         ::std::string name;
