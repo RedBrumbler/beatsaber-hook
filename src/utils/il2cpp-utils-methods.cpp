@@ -329,8 +329,10 @@ namespace il2cpp_utils {
 
         if (!multiplePerfectMatches && perfectMatch) {
             // It's important that these kinds of matches aren't added to the general cache
+            // TODO: Explain why!
             return perfectMatch;
         } else if (!multipleReturnMatches && returnMatch) {
+            // TODO: Explain why!
             return returnMatch;
         } else if (!methodInfo || multipleBasicMatches) {
             std::stringstream ss;
@@ -361,6 +363,7 @@ namespace il2cpp_utils {
             LogMethods(logger, klass);
             RET_DEFAULT_UNLESS(logger, !methodInfo || multipleBasicMatches);
         }
+        // cache only if basic match
         classTypesMethodsLock.lock();
         classesNamesTypesToMethodsCache.emplace(key, methodInfo);
         classTypesMethodsLock.unlock();
