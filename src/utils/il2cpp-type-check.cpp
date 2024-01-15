@@ -97,7 +97,7 @@ namespace il2cpp_utils {
         return nullptr;
     }
 
-    Il2CppClass* MakeGeneric(const Il2CppClass* klass, std::vector<const Il2CppClass*> args) {
+    Il2CppClass* MakeGeneric(const Il2CppClass* klass, std::span<const Il2CppClass*> const args) {
         il2cpp_functions::Init();
         static auto logger = getLogger().WithContext("MakeGeneric");
 

@@ -29,7 +29,6 @@ constexpr bool has_get = std::experimental::is_detected_v<get_t, T>;
 
 #include "utils.h"
 #include <string_view>
-#include <vector>
 
 #ifndef classof
 // Returns the Il2CppClass* of the provided type T.
@@ -75,7 +74,7 @@ namespace il2cpp_utils {
 
     // Function made by zoller27osu, modified by Sc2ad
     // PLEASE don't use, there are easier ways to get generics (see CreateParam, CreateFieldValue)
-    Il2CppClass* MakeGeneric(const Il2CppClass* klass, std::vector<const Il2CppClass*> args);
+    Il2CppClass* MakeGeneric(const Il2CppClass* klass, std::span<const Il2CppClass*> args);
     Il2CppClass* MakeGeneric(const Il2CppClass* klass, const Il2CppType** types, uint32_t numTypes);
 
     // Framework provided by DaNike
@@ -432,7 +431,8 @@ namespace il2cpp_utils {
                 } else {
                     static_assert(false_t<S<TArgs...>>);
                 }
-                auto* genInst = il2cpp_utils::MakeGeneric(genTemplate, {il2cpp_no_arg_class<TArgs>::get()...});
+                auto genericArgs = std::array<const Il2CppClass*, sizeof...(TArgs)>({ il2cpp_no_arg_class<TArgs>::get()... });
+                auto* genInst = il2cpp_utils::MakeGeneric(genTemplate, std::span(genericArgs));
                 if (isStruct) {
                     il2cpp_functions::Init();
                     return il2cpp_functions::Class_GetPtrClass(genInst);

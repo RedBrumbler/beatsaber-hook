@@ -15,7 +15,7 @@
 // Please see comments in il2cpp-utils.hpp
 // TODO: Make this into a static class
 namespace il2cpp_utils {
-    std::vector<const Il2CppType*> ClassVecToTypes(std::vector<const Il2CppClass*> seq) {
+    std::vector<const Il2CppType*> ClassVecToTypes(std::span<const Il2CppClass*> const seq) {
         il2cpp_functions::Init();
 
         std::vector<const Il2CppType*> types(seq.size());
@@ -79,18 +79,19 @@ namespace il2cpp_utils {
             (klass->byval_arg.type == IL2CPP_TYPE_MVAR);
     }
 
-    std::vector<Il2CppClass*> ClassesFrom(std::vector<Il2CppClass*> classes) { return classes; }
-    std::vector<Il2CppClass*> ClassesFrom(std::vector<std::string_view> strings) {
+
+    std::vector<Il2CppClass*> ClassesFrom(std::span<std::string_view> const strings) {
         std::vector<Il2CppClass*> classes;
         for (size_t i = 0; i < strings.size() - 1; i += 2) {
             classes.push_back(GetClassFromName(strings[i].data(), strings[i+1].data()));
         }
         return classes;
     }
-    std::vector<const Il2CppType*> TypesFrom(std::vector<const Il2CppType*> types) { return types; }
-    std::vector<const Il2CppType*> TypesFrom(std::vector<const Il2CppClass*> classes) { return ClassVecToTypes(classes); }
-    std::vector<const Il2CppType*> TypesFrom(std::vector<std::string_view> strings) {
+
+    std::vector<const Il2CppType*> TypesFrom(std::span<const Il2CppClass*> classes) { return ClassVecToTypes(classes); }
+    std::vector<const Il2CppType*> TypesFrom(std::span<std::string_view> strings) {
         std::vector<const Il2CppType*> types;
+        types.reserve((strings.size() - 1) / 2);
         il2cpp_functions::Init();
         for (size_t i = 0; i < strings.size() - 1; i += 2) {
             auto clazz = GetClassFromName(strings[i].data(), strings[i+1].data());

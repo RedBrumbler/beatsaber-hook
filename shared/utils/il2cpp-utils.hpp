@@ -43,16 +43,30 @@ namespace il2cpp_utils {
     // Generally, it's better to just use class_from_type!
     const Il2CppType* UnRef(const Il2CppType* type);
 
-    ::std::vector<const Il2CppType*> ClassVecToTypes(::std::vector<const Il2CppClass*> seq);
+    ::std::vector<const Il2CppType*> ClassVecToTypes(::std::span<const Il2CppClass*> seq);
 
     bool IsInterface(const Il2CppClass* klass);
 
-    ::std::vector<Il2CppClass*> ClassesFrom(::std::vector<Il2CppClass*> classes);
-    ::std::vector<Il2CppClass*> ClassesFrom(::std::vector<::std::string_view> strings);
+    // instant return
+    inline ::std::vector<Il2CppClass*>& ClassesFrom(::std::vector<Il2CppClass*>& classes) {
+        return classes;
+    }
+    inline ::std::vector<Il2CppClass*> const& ClassesFrom(::std::vector<Il2CppClass*> const& classes) {
+        return classes;
+    }
+    ::std::vector<Il2CppClass*> ClassesFrom(::std::span<::std::string_view> strings);
 
-    ::std::vector<const Il2CppType*> TypesFrom(::std::vector<const Il2CppType*> types);
-    ::std::vector<const Il2CppType*> TypesFrom(::std::vector<const Il2CppClass*> classes);
-    ::std::vector<const Il2CppType*> TypesFrom(::std::vector<::std::string_view> strings);
+
+    ::std::vector<const Il2CppType*> TypesFrom(::std::span<const Il2CppClass*> classes);
+    ::std::vector<const Il2CppType*> TypesFrom(::std::span<::std::string_view> strings);
+
+    // instant return
+    inline std::vector<const Il2CppType*>& TypesFrom(std::vector<const Il2CppType*>& types) {
+        return types;
+    }
+    inline std::vector<const Il2CppType*> const& TypesFrom(std::vector<const Il2CppType*> const& types) {
+        return types;
+    }
 
     Il2CppClass* GetParamClass(const MethodInfo* method, int paramIdx);
 
@@ -515,9 +529,9 @@ namespace il2cpp_utils {
         return il2cpp_functions::runtime_invoke(method, reference, invokeParams, exc);
     }
 
-    template<typename... TArgs>
-    ::std::vector<const Il2CppClass*> ExtractFromFunctionNoArgs() {
-        return { classof(TArgs)... };
+    template <typename... TArgs>
+    auto ExtractFromFunctionNoArgs() {
+        return std::array<const Il2CppClass*, sizeof...(TArgs)>(classof(TArgs)...);
     }
 
     /// @brief Creates and returns a C# System.Func<TArgs..., Ret> from the provided function_ptr_t.
@@ -613,12 +627,12 @@ namespace il2cpp_utils {
         /// @brief Finds a MethodInfo* that matches the template types.
         static const MethodInfo* find(::std::string_view nameSpace, ::std::string_view className, ::std::string_view methodName) {
             il2cpp_functions::Init();
-            return ::il2cpp_utils::FindMethod(nameSpace, className, methodName, ::std::vector<Il2CppClass*>{}, ::std::array<const Il2CppType*, sizeof...(TArgs)>{ExtractIndependentType<TArgs>()...});
+            return ::il2cpp_utils::FindMethod(nameSpace, className, methodName, ::std::array<Il2CppClass*, 0>{}, ::std::array<const Il2CppType*, sizeof...(TArgs)>{ExtractIndependentType<TArgs>()...});
         }
         /// @brief Finds a MethodInfo* that matches the template types.
         static const MethodInfo* find(Il2CppClass* klass, ::std::string_view methodName) {
             il2cpp_functions::Init();
-            return ::il2cpp_utils::FindMethod(klass, methodName, ::std::vector<Il2CppClass*>{}, ::std::array<const Il2CppType*, sizeof...(TArgs)>{ExtractIndependentType<TArgs>()...});
+            return ::il2cpp_utils::FindMethod(klass, methodName, ::std::array<Il2CppClass*, 0>{}, ::std::array<const Il2CppType*, sizeof...(TArgs)>{ExtractIndependentType<TArgs>()...});
         }
         /// @brief Finds a MethodInfo* that matches the template types.
         static const MethodInfo* find_unsafe(::std::string_view nameSpace, ::std::string_view className, ::std::string_view methodName, bool instance = false) {
@@ -665,12 +679,12 @@ namespace il2cpp_utils {
         /// @brief Finds a MethodInfo* that matches the template types.
         static const MethodInfo* find(::std::string_view nameSpace, ::std::string_view className, ::std::string_view methodName) {
             il2cpp_functions::Init();
-            return ::il2cpp_utils::FindMethod(nameSpace, className, methodName, ::std::vector<Il2CppClass*>{}, ::std::array<const Il2CppType*, sizeof...(TArgs)>{ExtractIndependentType<TArgs>()...});
+            return ::il2cpp_utils::FindMethod(nameSpace, className, methodName, ::std::array<Il2CppClass*, 0>{}, ::std::array<const Il2CppType*, sizeof...(TArgs)>{ExtractIndependentType<TArgs>()...});
         }
         /// @brief Finds a MethodInfo* that matches the template types.
         static const MethodInfo* find(Il2CppClass* klass, ::std::string_view methodName) {
             il2cpp_functions::Init();
-            return ::il2cpp_utils::FindMethod(klass, methodName, ::std::vector<Il2CppClass*>{}, ::std::array<const Il2CppType*, sizeof...(TArgs)>{ExtractIndependentType<TArgs>()...});
+            return ::il2cpp_utils::FindMethod(klass, methodName, ::std::array<Il2CppClass*, 0>{}, ::std::array<const Il2CppType*, sizeof...(TArgs)>{ExtractIndependentType<TArgs>()...});
         }
     };
 

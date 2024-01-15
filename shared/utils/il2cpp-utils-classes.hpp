@@ -139,15 +139,14 @@ namespace il2cpp_utils {
     }
 
     inline auto ExtractTypes() {
-        return ::std::vector<const Il2CppType*>();
+        return ::std::array<const Il2CppType*, 0>();
     }
 
-    template<typename T, typename... TArgs>
-    ::std::vector<const Il2CppType*> ExtractTypes(T&& arg, TArgs&&... args) {
-        auto* tFirst = ExtractType(arg);
-        auto tOthers = ExtractTypes(args...);
-        if (tFirst) tOthers.insert(tOthers.begin(), tFirst);
-        return tOthers;
+    template <typename... TArgs>
+    auto ExtractTypes(TArgs&&... args) {
+        constexpr std::size_t array_count = sizeof...(TArgs);
+
+        return std::array<const Il2CppType*, array_count>(ExtractType(args)...);
     }
 
     // Adds the given TypeDefinitionIndex to the class hash table of a given image
