@@ -265,9 +265,14 @@ namespace il2cpp_utils {
         bool multiplePerfectMatches = false;
         // Does NOT automatically recurse through klass's parents
         while (const MethodInfo* current = il2cpp_functions::class_get_methods(info.klass, &myIter)) {
-            if (info.name != current->name) continue;
-            if (!ParameterMatch(current, info.genTypes, info.argTypes)) continue;
-
+            if (info.name != current->name) {
+                logger.debug("Method name does not match for method %s", current->name);
+                continue;
+            }
+            if (!ParameterMatch(current, info.genTypes, info.argTypes)) {
+                logger.debug("Parameters do not match for method %s", current->name);
+                continue;
+            }
             // check return type
             if (info.returnType) {
                 auto* returnClass = il2cpp_functions::class_from_il2cpp_type(current->return_type);
@@ -284,6 +289,10 @@ namespace il2cpp_utils {
                         multipleReturnMatches = true;
                     } else
                         returnMatch = current;
+                }
+
+                if (!perfectMatch && !returnMatch) {
+                    logger.debug("Return type does not match for method %s", current->name);
                 }
             }
             if (methodInfo)
