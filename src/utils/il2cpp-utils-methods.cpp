@@ -43,8 +43,21 @@ namespace il2cpp_utils {
             logger.warning("Potential method match had wrong number of parameters %i (expected %lu)", method->parameters_count, argTypes.size());
             return false;
         }
-        auto genContainer = reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle);
-        auto genCount = (method->is_generic && !method->is_inflated) ? genContainer->type_argc : 0;
+
+        int32_t genCount = 0;
+        if (method->is_generic) {
+            if (method->is_inflated) {
+                auto genMethodInfo = method->genericMethod;
+
+                genCount = genMethodInfo->context.method_inst->type_argc;
+            } else {
+                auto genContainer =
+                    reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle);
+
+                genCount = genContainer->type_argc;
+            }
+        }
+
         if ((size_t)genCount != genTypes.size()) {
             logger.warning("Potential method match had wrong number of generics %i (expected %lu)", genCount, genTypes.size());
             logger.warning("is generic %i is inflated %i", method->is_generic, method->is_inflated);
