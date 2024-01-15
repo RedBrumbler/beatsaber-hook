@@ -44,16 +44,15 @@ namespace il2cpp_utils {
             return false;
         }
 
+        auto genContainer = reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle);
+
         int32_t genCount = 0;
         if (method->is_generic) {
+            // TODO: What to do here?
             if (method->is_inflated) {
-                auto genMethodInfo = method->genericMethod;
-
-                genCount = genMethodInfo->context.method_inst->type_argc;
+                // auto genMethodInfo = method->genericMethod;
+                // genCount = genMethodInfo->context.method_inst->type_argc;
             } else {
-                auto genContainer =
-                    reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle);
-
                 genCount = genContainer->type_argc;
             }
         }
@@ -67,6 +66,10 @@ namespace il2cpp_utils {
         for (decltype(method->parameters_count) i = 0; i < method->parameters_count; i++) {
             auto* paramType = method->parameters[i];
             if (paramType->type == IL2CPP_TYPE_MVAR) {
+                if (genCount == 0) {
+                    logger.warning("No generic args to extract paramIdx %i", i);
+                    continue;
+                }
                 auto genIdx = il2cpp_functions::MetadataCache_GetGenericParameterIndexFromParameter(paramType->data.genericParameterHandle) - genContainer->genericParameterStart;
                 if (genIdx < 0) {
                     logger.warning("Extracted invalid genIdx %i from parameter %i", genIdx, i);
