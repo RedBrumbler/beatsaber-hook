@@ -316,11 +316,11 @@ namespace il2cpp_utils {
                     first = false;
                     ss << ClassStandardName(t);
                 }
-                first = true;
                 ss << ">";
             }
 
             // start listing params
+            first = true;
             ss << "(";
             for (auto t : info.argTypes) {
                 if (!first) ss << ", ";
