@@ -278,9 +278,17 @@ namespace il2cpp_utils {
         if (method->is_generic) {
             if (method->is_inflated) {
                 auto genMethodInfo = method->genericMethod;
+#ifdef UNITY_2021
                 genContainer = reinterpret_cast<const Il2CppGenericContainer*>(genMethodInfo->methodDefinition->genericContainerHandle);
+#else
+                genContainer = genMethodInfo->methodDefinition->genericContainerHandle;
+#endif
             } else {
+#ifdef UNITY_2021
                 genContainer = reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle);
+#else
+                genContainer = method->genericContainer;
+#endif
             }
             genCount = genContainer->type_argc;
         }
