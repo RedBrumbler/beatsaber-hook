@@ -47,6 +47,7 @@ namespace il2cpp_utils {
         auto genCount = (method->is_generic && !method->is_inflated) ? genContainer->type_argc : 0;
         if ((size_t)genCount != genTypes.size()) {
             logger.warning("Potential method match had wrong number of generics %i (expected %lu)", genCount, genTypes.size());
+            logger.warning("is generic %i is inflated %i", method->is_generic, method->is_inflated);
             return false;
         }
         // TODO: supply boolStrictMatch and use type_equals instead of IsConvertibleFrom if supplied?
