@@ -40,6 +40,7 @@ namespace il2cpp_utils {
         static auto logger = getLogger().WithContext("ParameterMatch");
         il2cpp_functions::Init();
         if (method->parameters_count != argTypes.size()) {
+            logger.warning("Potential method match had wrong number of parameters %i (expected %lu)", method->parameters_count, argTypes.size());
             return false;
         }
         auto genContainer = reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle);
