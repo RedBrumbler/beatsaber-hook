@@ -44,17 +44,18 @@ namespace il2cpp_utils {
             return false;
         }
 
-        auto genContainer = reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle);
+        const Il2CppGenericContainer* genContainer;
 
         int32_t genCount = 0;
         if (method->is_generic) {
             // TODO: What to do here?
             if (method->is_inflated) {
-                // auto genMethodInfo = method->genericMethod;
-                // genCount = genMethodInfo->context.method_inst->type_argc;
+                auto genMethodInfo = method->genericMethod;
+                genContainer = reinterpret_cast<const Il2CppGenericContainer*>(genMethodInfo->methodDefinition->genericContainerHandle);
             } else {
-                genCount = genContainer->type_argc;
+                genContainer = reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle);
             }
+            genCount = genContainer->type_argc;
         }
 
         if ((size_t)genCount != genTypes.size()) {
