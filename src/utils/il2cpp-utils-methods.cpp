@@ -48,6 +48,7 @@ namespace il2cpp_utils {
 
         int32_t genCount = 0;
         if (method->is_generic) {
+            // TODO: What to do here?
             if (method->is_inflated) {
                 auto genMethodInfo = method->genericMethod;
                 genContainer = reinterpret_cast<const Il2CppGenericContainer*>(genMethodInfo->methodDefinition->genericContainerHandle);
