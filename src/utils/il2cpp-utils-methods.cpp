@@ -302,6 +302,8 @@ namespace il2cpp_utils {
         }
         // look in parent
         if (!methodInfo && klass->parent && klass->parent != klass) {
+            logger.debug("Method does not exist in %s, looking at parent %s", ClassStandardName(klass).c_str(), ClassStandardName(klass->parent).c_str());
+
             info.klass = klass->parent;
             methodInfo = FindMethod(info);
             info.klass = klass;
