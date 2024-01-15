@@ -2,6 +2,7 @@
 #include "../../shared/utils/il2cpp-utils-methods.hpp"
 #include "../../shared/utils/hashing.hpp"
 #include "utils/il2cpp-functions.hpp"
+#include "utils/il2cpp-utils-classes.hpp"
 #include <sstream>
 
 namespace std {
@@ -35,7 +36,51 @@ namespace il2cpp_utils {
     std::mutex classNamesMethodsLock;
     std::mutex classTypesMethodsLock;
 
-    #if __has_feature(cxx_exceptions)
+    bool ParameterMatch(const MethodInfo* method, std::vector<Il2CppClass*> genTypes, std::vector<const Il2CppType*> argTypes) {
+        static auto logger = getLogger().WithContext("ParameterMatch");
+        il2cpp_functions::Init();
+        if (method->parameters_count != argTypes.size()) {
+            return false;
+        }
+        auto genContainer = reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle);
+        auto genCount = (method->is_generic && !method->is_inflated) ? genContainer->type_argc : 0;
+        if ((size_t)genCount != genTypes.size()) {
+            logger.warning("Potential method match had wrong number of generics %i (expected %lu)", genCount, genTypes.size());
+            return false;
+        }
+        // TODO: supply boolStrictMatch and use type_equals instead of IsConvertibleFrom if supplied?
+        for (decltype(method->parameters_count) i = 0; i < method->parameters_count; i++) {
+            auto* paramType = method->parameters[i];
+            if (paramType->type == IL2CPP_TYPE_MVAR) {
+                auto genIdx = il2cpp_functions::MetadataCache_GetGenericParameterIndexFromParameter(paramType->data.genericParameterHandle) - genContainer->genericParameterStart;
+                if (genIdx < 0) {
+                    logger.warning("Extracted invalid genIdx %i from parameter %i", genIdx, i);
+                    continue;
+                }
+                if (genIdx >= genCount) {
+                    logger.warning(
+                        "ParameterMatch was not supplied enough genTypes to determine type of parameter %i "
+                        "(had %i, needed %i)!",
+                        i, genCount, genIdx);
+                    continue;
+                }
+                
+                auto* klass = genTypes.at(genIdx);
+                paramType = (paramType->byref) ? &klass->this_arg : &klass->byval_arg;
+            }
+            // TODO: just because two parameter lists match doesn't necessarily mean this is the best match...
+            if (!IsConvertibleFrom(paramType, argTypes.at(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool ParameterMatch(const MethodInfo* method, std::vector<const Il2CppType*> argTypes) {
+        return ParameterMatch(method, {}, argTypes);
+    }
+
+#if __has_feature(cxx_exceptions)
     const MethodInfo* MakeGenericMethod(const MethodInfo* info, std::vector<Il2CppClass*> types)
     #else
     const MethodInfo* MakeGenericMethod(const MethodInfo* info, std::vector<Il2CppClass*> types) noexcept
@@ -220,30 +265,33 @@ namespace il2cpp_utils {
         bool multiplePerfectMatches = false;
         // Does NOT automatically recurse through klass's parents
         while (const MethodInfo* current = il2cpp_functions::class_get_methods(info.klass, &myIter)) {
-            if ((info.name == current->name) && ParameterMatch(current, info.genTypes, info.argTypes)) {
-                if (info.returnType) {
-                    auto* returnClass = il2cpp_functions::class_from_il2cpp_type(current->return_type);
-                    if (info.returnType == returnClass) {
-                        if (perfectMatch) {
-                            multiplePerfectMatches = true;
-                            logger.error("Multiple perfect matches???");
-                        }
-                        else perfectMatch = current;
-                    }
-                    if (il2cpp_functions::class_is_assignable_from(info.returnType, returnClass)) {
-                        if (returnMatch) {
-                            logger.debug("Multiple return type matches.");
-                            multipleReturnMatches = true;
-                        }
-                        else returnMatch = current;
-                    }
+            if (info.name != current->name) continue;
+            if (!ParameterMatch(current, info.genTypes, info.argTypes)) continue;
+
+            // check return type
+            if (info.returnType) {
+                auto* returnClass = il2cpp_functions::class_from_il2cpp_type(current->return_type);
+                if (info.returnType == returnClass) {
+                    if (perfectMatch) {
+                        multiplePerfectMatches = true;
+                        logger.error("Multiple perfect matches???");
+                    } else
+                        perfectMatch = current;
                 }
-                if (methodInfo)
-                    multipleBasicMatches = true;
-                else
-                    methodInfo = current;
+                if (il2cpp_functions::class_is_assignable_from(info.returnType, returnClass)) {
+                    if (returnMatch) {
+                        logger.debug("Multiple return type matches.");
+                        multipleReturnMatches = true;
+                    } else
+                        returnMatch = current;
+                }
             }
+            if (methodInfo)
+                multipleBasicMatches = true;
+            else
+                methodInfo = current;
         }
+        // look in parent
         if (!methodInfo && klass->parent && klass->parent != klass) {
             info.klass = klass->parent;
             methodInfo = FindMethod(info);
@@ -258,8 +306,22 @@ namespace il2cpp_utils {
         } else if (!methodInfo || multipleBasicMatches) {
             std::stringstream ss;
             ss << ((multipleBasicMatches) ? "found multiple matches for" : "could not find");
-            ss << " method " << info.name << "(";
+            ss << " method " << info.name;
             bool first = true;
+            // start listing generic types
+            if (!info.genTypes.empty()) {
+                ss << "<";
+                for (auto t : info.genTypes) {
+                    if (!first) ss << ", ";
+                    first = false;
+                    ss << ClassStandardName(t);
+                }
+                first = true;
+                ss << ">";
+            }
+
+            // start listing params
+            ss << "(";
             for (auto t : info.argTypes) {
                 if (!first) ss << ", ";
                 first = false;

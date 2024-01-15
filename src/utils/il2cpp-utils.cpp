@@ -36,45 +36,7 @@ namespace il2cpp_utils {
         return il2cpp_functions::class_get_type(il2cpp_functions::class_from_il2cpp_type(type));
     }
 
-    bool ParameterMatch(const MethodInfo* method, std::vector<Il2CppClass*> genTypes, std::vector<const Il2CppType*> argTypes) {
-        static auto logger = getLogger().WithContext("ParameterMatch");
-        il2cpp_functions::Init();
-        if (method->parameters_count != argTypes.size()) {
-            return false;
-        }
-        auto genContainer = reinterpret_cast<const Il2CppGenericContainer*>(method->genericContainerHandle);
-        auto genCount = (method->is_generic && !method->is_inflated) ? genContainer->type_argc : 0;
-        if ((size_t)genCount != genTypes.size()) {
-            logger.warning("Potential method match had wrong number of generics %i (expected %lu)",
-                genCount, genTypes.size());
-            return false;
-        }
-        // TODO: supply boolStrictMatch and use type_equals instead of IsConvertibleFrom if supplied?
-        for (decltype(method->parameters_count) i = 0; i < method->parameters_count; i++) {
-            auto* paramType = method->parameters[i];
-            if (paramType->type == IL2CPP_TYPE_MVAR) {
-                auto genIdx = il2cpp_functions::MetadataCache_GetGenericParameterIndexFromParameter(paramType->data.genericParameterHandle) - genContainer->genericParameterStart;
-                if (genIdx < 0) {
-                    logger.warning("Extracted invalid genIdx %i from parameter %i", genIdx, i);
-                } else if (genIdx >= genCount) {
-                    logger.warning("ParameterMatch was not supplied enough genTypes to determine type of parameter %i "
-                        "(had %i, needed %i)!", i, genCount, genIdx);
-                } else {
-                    auto* klass = genTypes.at(genIdx);
-                    paramType = (paramType->byref) ? &klass->this_arg : &klass->byval_arg;
-                }
-            }
-            // TODO: just because two parameter lists match doesn't necessarily mean this is the best match...
-            if (!IsConvertibleFrom(paramType, argTypes.at(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
 
-    bool ParameterMatch(const MethodInfo* method, std::vector<const Il2CppType*> argTypes) {
-        return ParameterMatch(method, {}, argTypes);
-    }
 
     static std::unordered_map<Il2CppClass*, const char*> typeMap;
     static std::mutex typeLock;
