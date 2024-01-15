@@ -123,8 +123,10 @@ namespace il2cpp_utils {
         }
 
         template <typename... TArgs>
-        FindMethodInfo(::std::string_view namespaceName, ::std::string_view className, TArgs&&... args)
-            : FindMethodInfo(GetClassFromName(namespaceName, className), args...) { }
+        FindMethodInfo(::std::string_view namespaceName, ::std::string_view className, TArgs&&... args) : FindMethodInfo(GetClassFromName(namespaceName, className), args...) {}
+
+        bool operator==(FindMethodInfo const&) const = default;
+        bool operator!=(FindMethodInfo const&) const = default;
     };
 
     const MethodInfo* ResolveMethodWithSlot(Il2CppClass* klass, uint16_t slot) noexcept;
