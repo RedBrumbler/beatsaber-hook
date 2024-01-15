@@ -555,7 +555,7 @@ namespace il2cpp_utils {
     bool ParameterMatch(const MethodInfo* method, ::std::span<const Il2CppType*> argTypes);
 
     // Returns if a given MethodInfo's parameters match the Il2CppType vector and generic types vector
-    bool ParameterMatch(const MethodInfo* method, ::std::span<Il2CppClass*> genTypes, ::std::span<const Il2CppType*> argTypes);
+    bool ParameterMatch(const MethodInfo* method, ::std::span<Il2CppClass const*> genTypes, ::std::span<const Il2CppType*> argTypes);
     #endif
 
     // Function made by zoller27osu, modified by Sc2ad
