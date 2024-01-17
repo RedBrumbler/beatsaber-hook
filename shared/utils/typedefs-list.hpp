@@ -222,7 +222,7 @@ struct ListWrapper {
     }
 
     template <typename F>
-    std::optional<T> First(F&& func) {
+    std::optional<T> front(F&& func) {
         auto start = this->begin();
         auto end = this->begin() + this->size();
         auto it = std::find_if(start, end, std::forward<F>(func));
@@ -234,12 +234,12 @@ struct ListWrapper {
 
     template <typename F>
     requires(std::is_default_constructible_v<T>)
-    T FirstOrDefault(F&& func) {
+    T front_or_default(F&& func) {
         return First(func).value_or(T{});
     }
 
     template <typename F>
-    std::optional<T> Last(F&& func) {
+    std::optional<T> back(F&& func) {
         auto start = this->begin();
         auto end = this->begin() + this->size();
 
@@ -255,7 +255,7 @@ struct ListWrapper {
 
     template <typename F>
     requires(std::is_default_constructible_v<T>)
-    T LastOrDefault(F&& func) {
+    T back_or_default(F&& func) {
         return Last(func).value_or(T{});
     }
 
