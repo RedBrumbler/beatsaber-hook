@@ -7,6 +7,7 @@
 #include <optional>
 #include <span>
 #include <stdexcept>
+#include <type_traits>
 #include <utility>
 #include "il2cpp-utils-methods.hpp"
 #include "type-concepts.hpp"
@@ -232,6 +233,7 @@ struct ListWrapper {
     }
 
     template <typename F>
+    requires(std::is_default_constructible_v<T>)
     T FirstOrDefault(F&& func) {
         return First(func).value_or(T{});
     }
@@ -252,6 +254,7 @@ struct ListWrapper {
     }
 
     template <typename F>
+    requires(std::is_default_constructible_v<T>)
     T LastOrDefault(F&& func) {
         return Last(func).value_or(T{});
     }
