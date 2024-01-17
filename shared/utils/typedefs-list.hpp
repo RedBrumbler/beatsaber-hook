@@ -213,7 +213,7 @@ struct ListWrapper {
      */
     std::optional<uint_t> index_of(T item) {
         auto start = this->begin();
-        auto end = this->begin() + this->size();
+        auto end = this->end();
         auto it = std::find(start, end, item);
 
         if (it == end) return std::nullopt;
@@ -224,7 +224,7 @@ struct ListWrapper {
     template <typename F>
     std::optional<T> front(F&& func) {
         auto start = this->begin();
-        auto end = this->begin() + this->size();
+        auto end = this->end();
         auto it = std::find_if(start, end, std::forward<F>(func));
 
         if (it == end) return std::nullopt;
@@ -241,7 +241,7 @@ struct ListWrapper {
     template <typename F>
     std::optional<T> back(F&& func) {
         auto start = this->begin();
-        auto end = this->begin() + this->size();
+        auto end = this->end();
 
         auto rev_start = std::make_reverse_iterator(start);
         auto rev_end = std::make_reverse_iterator(end);
@@ -272,7 +272,7 @@ struct ListWrapper {
             int size = this->size();
             this->ptr->_size = 0;
             if (size > 0) {
-                std::fill(this->begin(), this->begin() + this->size(), T());
+                std::fill(this->begin(), this->end(), T());
                 return;
             }
         } else {
@@ -295,7 +295,7 @@ struct ListWrapper {
             this->EnsureCapacity(this->size() + 1);
         }
         if (index < this->size()) {
-            std::copy(this->begin() + index, this->begin() + index + 1, this->begin() + (this->size() - index));
+            std::copy(this->begin() + index, this->begin() + index + 1, this->end() - index);
             // Array.Copy(this._items, index, this._items, index + 1,
             //            this._size - index);
         }
@@ -332,9 +332,14 @@ struct ListWrapper {
         this->as_il2cpp_list()->Add(T(std::forward<TArgs>(args)...));
     }
 
+    /**
+     * @brief Copies to a new array
+     * 
+     * @return ArrayW<T> 
+     */
     ArrayW<T> to_array() {
         ArrayW<T> newArr = ArrayW<T>(this->_size);
-        std::copy(this->_items.begin(), this->_items.begin() + this->size(), newArr.begin());
+        std::copy(this->begin(), this->end(), newArr.begin());
 
         return newArr;
     }
@@ -369,7 +374,7 @@ struct ListWrapper {
         }
         this->ptr->_size--;
         if (index < this->size()) {
-            std::copy(this->begin() + 1, this->end(), this->begin() + this->size() - index);
+            std::copy(this->begin() + 1, this->end(), this->end() - index);
             // Array.Copy(this._items, index + 1, this._items, index, this._size - index);
         }
         if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
@@ -401,12 +406,12 @@ struct ListWrapper {
         // int size = this->size();
         this->_size -= count;
         if (index < this->size()) {
-            std::copy(this->begin() + index + count, this->begin() + (this->size() - index), this->begin() + index);
+            std::copy(this->begin() + index + count, this->end() - index, this->begin() + index);
             // Array.Copy(this._items, index + count, this._items, index, this._size - index);
         }
         this->_version++;
         if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
-            std::fill(this->_items.begin() + this->size(), this->items.begin() + this->size() + count, T());
+            std::fill(this->end(), this->end() + count, T());
             // Array.Clear(this._items, this._size, count);
         }
     }
@@ -467,7 +472,7 @@ struct ListWrapper {
         if (span.empty()) return;
 
         this->EnsureCapacity(span.size() + this->size());
-        auto start = this->begin() + this->size();
+        auto start = this->end();
         std::copy(span.begin(), span.end(), start);
 
         ptr->_size += span.size();
