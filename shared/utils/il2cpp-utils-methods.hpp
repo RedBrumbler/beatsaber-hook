@@ -509,17 +509,23 @@ namespace il2cpp_utils {
         static auto& logger = getLogger();
         CRASH_UNLESS(method);
 
-        if constexpr (checkTypes && sizeof...(TArgs) > 0) {
-            std::array<const Il2CppType*, sizeof...(TArgs)> types{::il2cpp_utils::ExtractType(params)...};
-            if (!ParameterMatch(method, types)) {
-                throw RunMethodException("Parameters do not match!", method);
+        if constexpr (checkTypes) {
+            // only check args if TArgs is > 0
+            if constexpr (sizeof...(TArgs) > 0) {
+                std::array<const Il2CppType*, sizeof...(TArgs)> types{ ::il2cpp_utils::ExtractType(params)... };
+                if (!ParameterMatch(method, types)) {
+                    throw RunMethodException("Parameters do not match!", method);
+                }
             }
+
+
+            if constexpr (!std::is_same_v<TOut, void>) {
             auto* outType = ExtractIndependentType<TOut>();
-            if (outType) {
-                if (!IsConvertibleFrom(outType, method->return_type, false)) {
-                    logger.warning("User requested TOut %s does not match the method's return object of type %s!",
-                        TypeGetSimpleName(outType), TypeGetSimpleName(method->return_type));
-                    throw RunMethodException(string_format("Return type of method is not convertible to: %s!", TypeGetSimpleName(outType)), method);
+                if (outType) {
+                    if (!IsConvertibleFrom(outType, method->return_type, false)) {
+                        logger.warning("User requested TOut %s does not match the method's return object of type %s!", TypeGetSimpleName(outType), TypeGetSimpleName(method->return_type));
+                        throw RunMethodException(string_format("Return type of method is not convertible to: %s!", TypeGetSimpleName(outType)), method);
+                    }
                 }
             }
         }
