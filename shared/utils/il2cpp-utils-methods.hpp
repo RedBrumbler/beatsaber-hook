@@ -518,9 +518,8 @@ namespace il2cpp_utils {
                 }
             }
 
-
             if constexpr (!std::is_same_v<TOut, void>) {
-            auto* outType = ExtractIndependentType<TOut>();
+                auto* outType = ExtractIndependentType<TOut>();
                 if (outType) {
                     if (!IsConvertibleFrom(outType, method->return_type, false)) {
                         logger.warning("User requested TOut %s does not match the method's return object of type %s!", TypeGetSimpleName(outType), TypeGetSimpleName(method->return_type));
@@ -772,7 +771,7 @@ namespace il2cpp_utils {
     /// @param args The arguments to call the constructor with.
     template<class TOut, CreationType creationType = CreationType::Temporary, typename... TArgs>
     TOut NewSpecific(TArgs&&... args) {
-        auto* klass = classof(TOut);
+        static auto* klass = classof(TOut);
         Il2CppObject* obj;
         if constexpr (creationType == CreationType::Temporary) {
             // object_new call

@@ -175,7 +175,7 @@ namespace il2cpp_utils {
     bool AssignableFrom(Il2CppClass* subOrInstanceKlass) {
         il2cpp_functions::Init();
         RET_DEFAULT_UNLESS(getLogger(), subOrInstanceKlass);
-        auto* parentK = RET_DEFAULT_UNLESS(getLogger(), classof(ParentT));
+        static auto* parentK = RET_DEFAULT_UNLESS(getLogger(), classof(ParentT));
         return il2cpp_functions::class_is_assignable_from(parentK, subOrInstanceKlass);
     }
 
@@ -189,7 +189,7 @@ namespace il2cpp_utils {
     template<class U, class T>
     [[nodiscard]] U* cast(T* inst) {
         // TODO: Assumes T* is (at least) an Il2CppClass**, this means it assumes klass as first field.
-        auto* k1 = CRASH_UNLESS(classof(U*));
+        static auto* k1 = CRASH_UNLESS(classof(U*));
         auto* k2 = *reinterpret_cast<Il2CppClass**>(CRASH_UNLESS(inst));
         CRASH_UNLESS(k2);
         if (il2cpp_functions::class_is_assignable_from(k1, k2)) {
@@ -214,7 +214,7 @@ namespace il2cpp_utils {
     /// @return A U* of the cast value, if successful.
     template<typename U, typename T>
     [[nodiscard]] std::optional<U*> try_cast(T* inst) {
-        auto* k1 = classof(U*);
+        static auto* k1 = classof(U*);
         if (!k1 || !inst) {
             return std::nullopt;
         }
