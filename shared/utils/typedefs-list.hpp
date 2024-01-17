@@ -235,7 +235,7 @@ struct ListWrapper {
     template <typename F>
     requires(std::is_default_constructible_v<T>)
     T front_or_default(F&& func) {
-        return First(func).value_or(T{});
+        return front(func).value_or(T{});
     }
 
     template <typename F>
@@ -256,7 +256,7 @@ struct ListWrapper {
     template <typename F>
     requires(std::is_default_constructible_v<T>)
     T back_or_default(F&& func) {
-        return Last(func).value_or(T{});
+        return back(func).value_or(T{});
     }
 
     /**
