@@ -233,7 +233,7 @@ struct ListWrapper {
 
     template <typename F>
     T FirstOrDefault(F&& func) {
-        return First(func).value_or(T());
+        return First(func).value_or(T{});
     }
 
     template <typename F>
@@ -253,7 +253,7 @@ struct ListWrapper {
 
     template <typename F>
     T LastOrDefault(F&& func) {
-        return Last(func).value_or(T());
+        return Last(func).value_or(T{});
     }
 
     /**
