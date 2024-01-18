@@ -696,21 +696,14 @@ namespace il2cpp_utils {
 
     struct il2cpp_aware_thread : public std::thread {
         private:
-            /// @brief clears the current threads jni env in the envs map
-            static void clear_current_jnienv();
-
-            /// @brief sets the current threads jni env in the envs map
-            static void set_current_jnienv(JNIEnv* env);
-
+            static inline thread_local JNIEnv* env;
         public:
-            static inline std::string current_thread_id() {
-                std::stringstream thread_id; thread_id << std::this_thread::get_id();
-                return thread_id.str();
+            static std::string current_thread_id() {
+                std::stringstream id; id << std::this_thread::get_id();
+                return id.str();
             }
 
-            /// @brief allows users of il2cpp_aware_thread to get the jni env for the thread they are currently on, only works for actual il2cpp_aware_thread! not for mainthread or regular std::thread!
-            /// @return JNIEnv* as bound in internal_thread, or null if not available
-            static JNIEnv* get_current_jnienv();
+            static inline JNIEnv* get_current_env() noexcept { return env; }
 
             /// @brief method executed by the thread created in il2cpp_aware_thread
             /// @param pred the predicate to use in the thread
@@ -718,15 +711,11 @@ namespace il2cpp_utils {
             template<typename Predicate, typename... TArgs>
             requires(std::is_invocable_v<Predicate, std::decay_t<TArgs>...>)
             static void internal_thread(Predicate&& pred, TArgs&&... args) {
-                std::string loggerContext("internal_thread_" + current_thread_id());
-                auto logger = getLogger().WithContext(loggerContext); // logger is per thread id, can't be static
+                auto logger = getLogger().WithContext("internal_thread_" + current_thread_id());
 
                 // attach thread to jvm
-                // TODO: provide jni env in some sort of map from thread id -> jni env?
                 auto jvm = get_modloader_jvm();
-                JNIEnv* env = nullptr;
                 jvm->AttachCurrentThread(&env, nullptr);
-                set_current_jnienv(env);
 
                 il2cpp_functions::Init();
 
@@ -759,11 +748,13 @@ namespace il2cpp_utils {
                 }
 
                 logger.info("Detaching thread");
-                clear_current_jnienv();
+
                 // detach il2cpp thread
                 il2cpp_functions::thread_detach(thread);
+
                 // detach thread from jvm
                 jvm->DetachCurrentThread();
+                env = nullptr;
             }
 
             /// @brief creates a thread that automatically will register with il2cpp and deregister once it exits, ensure your args live longer than the thread if they're by reference!
