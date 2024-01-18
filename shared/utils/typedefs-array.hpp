@@ -241,18 +241,22 @@ struct Array : public Il2CppArray
 };
 MARK_GEN_REF_PTR_T(Array);
 
-template<typename TArg>
+template <typename TArg>
 struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<Array<TArg>*> {
     static inline Il2CppClass* get() {
+        static Il2CppClass* klass;
+        if (klass) return klass;
+
         il2cpp_functions::Init();
         if constexpr (std::is_same_v<std::decay_t<TArg>, Il2CppObject*>) {
             il2cpp_functions::CheckS_GlobalMetadata();
-            return il2cpp_functions::array_class_get(il2cpp_functions::defaults->object_class, 1);
+            klass = il2cpp_functions::array_class_get(il2cpp_functions::defaults->object_class, 1);
         } else {
-            static auto& logger = getLogger();
+            auto& logger = getLogger();
             Il2CppClass* eClass = RET_0_UNLESS(logger, il2cpp_no_arg_class<TArg>::get());
-            return il2cpp_functions::array_class_get(eClass, 1);
+            klass = il2cpp_functions::array_class_get(eClass, 1);
         }
+        return klass;
     }
 };
 

@@ -248,13 +248,14 @@ namespace il2cpp_utils {
             } \
         }
 
-        #define DEFINE_IL2CPP_ARG_TYPE(type, nameSpace, className) \
-        template<> \
-        struct BS_HOOKS_HIDDEN ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<type> { \
-            static inline Il2CppClass* get() { \
-                return il2cpp_utils::GetClassFromName(nameSpace, className); \
-            } \
-        }
+#define DEFINE_IL2CPP_ARG_TYPE(type, nameSpace, className)                                \
+            template <>                                                                           \
+            struct BS_HOOKS_HIDDEN ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<type> { \
+                static inline Il2CppClass* get() {                                                \
+                    static auto klass = il2cpp_utils::GetClassFromName(nameSpace, className);     \
+                    return klass;                                                                 \
+                }                                                                                 \
+            }
 
         DEFINE_IL2CPP_DEFAULT_TYPE(int8_t, sbyte);
         DEFINE_IL2CPP_DEFAULT_TYPE(uint8_t, byte);
@@ -343,8 +344,13 @@ namespace il2cpp_utils {
         struct BS_HOOKS_HIDDEN il2cpp_no_arg_class<S<TArgs...>> {
         #endif
             static inline Il2CppClass* get() {
+                static Il2CppClass* gen_klass = nullptr;
+                if (gen_klass) return gen_klass;
+
                 auto* klass = il2cpp_gen_struct_no_arg_class<S>::get();
-                return il2cpp_utils::MakeGeneric(klass, {il2cpp_no_arg_class<TArgs>::get()...});
+                gen_klass = il2cpp_utils::MakeGeneric(klass, { il2cpp_no_arg_class<TArgs>::get()... });
+
+                return gen_klass;
             }
         };
 
@@ -362,6 +368,12 @@ namespace il2cpp_utils {
         requires (S<TArgs...>::__IL2CPP_IS_VALUE_TYPE && has_get<il2cpp_no_arg_class<typename S<TArgs...>::declaring_type>>)
         struct BS_HOOKS_HIDDEN il2cpp_no_arg_class<S<TArgs...>> {
             static inline Il2CppClass* get() {
+                static Il2CppClass* found = nullptr;
+
+                if (found) {
+                    return found;
+                }
+
                 // Resolve our declaring type
                 Il2CppClass* declaring = il2cpp_no_arg_class<typename S<TArgs...>::declaring_type>::get();
                 Il2CppClass* classWithNested = declaring;
@@ -372,7 +384,6 @@ namespace il2cpp_utils {
                 std::string typeName(S<TArgs...>::NESTED_NAME);
 
                 void* myIter = nullptr;
-                Il2CppClass* found = nullptr;
                 while (Il2CppClass* nested = il2cpp_functions::class_get_nested_types(classWithNested, &myIter)) {
                     if (typeName == nested->name) {
                         found = nested;
@@ -392,6 +403,12 @@ namespace il2cpp_utils {
         requires (!S<TArgs...>::__IL2CPP_IS_VALUE_TYPE && has_get<il2cpp_no_arg_class<typename S<TArgs...>::declaring_type>>)
         struct BS_HOOKS_HIDDEN il2cpp_no_arg_class<S<TArgs...>*> {
             static inline Il2CppClass* get() {
+                static Il2CppClass* found = nullptr;
+
+                if (found) {
+                    return found;
+                }
+
                 // Resolve our declaring type
                 Il2CppClass* declaring = il2cpp_no_arg_class<typename S<TArgs...>::declaring_type>::get();
                 Il2CppClass* classWithNested = declaring;
@@ -402,7 +419,6 @@ namespace il2cpp_utils {
                 std::string typeName(S<TArgs...>::NESTED_NAME);
 
                 void* myIter = nullptr;
-                Il2CppClass* found = nullptr;
                 while (Il2CppClass* nested = il2cpp_functions::class_get_nested_types(classWithNested, &myIter)) {
                     if (typeName == nested->name) {
                         found = nested;
@@ -421,6 +437,9 @@ namespace il2cpp_utils {
         template<typename... TArgs, template<typename... ST> class S>
         struct BS_HOOKS_HIDDEN il2cpp_no_arg_class<S<TArgs...>*> {
             static inline Il2CppClass* get() {
+                static Il2CppClass* genInst = nullptr;
+                if (genInst) return genInst;
+
                 Il2CppClass* genTemplate;
                 bool isStruct = false;
                 if constexpr (has_get<il2cpp_gen_class_no_arg_class<S>>) {
@@ -432,10 +451,10 @@ namespace il2cpp_utils {
                     static_assert(false_t<S<TArgs...>>);
                 }
                 auto genericArgs = std::array<const Il2CppClass*, sizeof...(TArgs)>({ il2cpp_no_arg_class<TArgs>::get()... });
-                auto* genInst = il2cpp_utils::MakeGeneric(genTemplate, std::span(genericArgs));
+                genInst = il2cpp_utils::MakeGeneric(genTemplate, std::span(genericArgs));
                 if (isStruct) {
                     il2cpp_functions::Init();
-                    return il2cpp_functions::Class_GetPtrClass(genInst);
+                    genInst = il2cpp_functions::Class_GetPtrClass(genInst);
                 }
                 return genInst;
             }
