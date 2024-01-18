@@ -574,61 +574,61 @@ struct UnityW {
     UnityW() = default;
     UnityW(void* p) : innerPtr(p) {}
 
-    T const* unsafePtr() const {
+    constexpr T const* unsafePtr() const noexcept {
         return innerPtr;
     }
 
-    T* unsafePtr() {
+    constexpr T* unsafePtr() noexcept {
         return innerPtr;
     }
 
-    T* ptr() {
+    constexpr T* ptr() {
         __SAFE_PTR_UNITY_NULL_HANDLE_CHECK(innerPtr);
     }
 
-    T const* ptr() const {
+    constexpr T const* ptr() const {
         __SAFE_PTR_UNITY_NULL_HANDLE_CHECK(innerPtr);
     }
 
-    constexpr void* convert() {
-        return ptr();
+    constexpr void* convert() const noexcept {
+        return const_cast<void*>(static_cast<void const*>(unsafePtr()));
     }
 
     /// @brief Explicitly cast this instance to a T*.
     /// Note, however, that the lifetime of this returned T* is not longer than the lifetime of this instance.
     /// Consider passing a SafePtrUnity reference or copy instead.
-    explicit operator T* const() const {
+    constexpr explicit operator T* const() const {
         return const_cast<T*>(ptr());
     }
 
-    T* const operator->() {
+    constexpr T* const operator->() {
         return const_cast<T*>(ptr());
     }
 
-    T* const operator->() const {
+    constexpr T* const operator->() const {
         return ptr();
     }
 
-    T& operator*() {
+    constexpr T& operator*() {
         return *ptr();
     }
 
-    T const& operator*() const {
+    constexpr T const& operator*() const {
         return *ptr();
     }
 
-    operator bool() const {
+    constexpr operator bool() const {
         return isAlive();
     }
 
     template <typename U = T>
     requires(std::is_assignable_v<T, U> || std::is_same_v<T, U>)
-    bool operator==(UnityW<U> const& other) const {
+    constexpr bool operator==(UnityW<U> const& other) const {
         return other.isAlive() == isAlive() && other.innerPtr == innerPtr;
     }
 
     template <typename U = T>
-    bool operator==(U const* other) const {
+    constexpr bool operator==(U const* other) const {
         return isAlive(other) == isAlive() && other == innerPtr;
     }
 
@@ -636,7 +636,7 @@ struct UnityW {
         return isAlive(innerPtr);
     }
 
-    [[nodiscard]] static inline bool isAlive(T* ptr) {
+    [[nodiscard]] static inline bool isAlive(T const* ptr) {
 #ifdef HAS_CODEGEN
         return ptr && ptr->___m_CachedPtr;
 #else
