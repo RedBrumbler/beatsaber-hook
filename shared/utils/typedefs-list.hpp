@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 #include <algorithm>
+#include <functional>
 #include <iterator>
 #include <optional>
 #include <span>
@@ -83,7 +84,7 @@ struct ListWrapper {
     using iterator = pointer;
     using const_iterator = const_pointer;
 
-    [[nodiscard]] constexpr int size() const {
+    [[nodiscard]] constexpr il2cpp_array_size_t size() const {
         return this->ptr->_size;
     }
     T& operator[](size_t i) {
@@ -225,30 +226,30 @@ struct ListWrapper {
         return this->size() > 0;
     }
 
-    std::optional<T&> front() {
+    std::optional<std::reference_wrapper<T>> front() {
         if (this->empty()) return std::nullopt;
 
         return *begin();
     }
-    std::optional<T&> back() {
+    std::optional<std::reference_wrapper<T>> back() {
         if (this->empty()) return std::nullopt;
 
         return *end();
     }
 
-    std::optional<T const&> front() const {
+    std::optional<std::reference_wrapper<T const>> front() const {
         if (this->empty()) return std::nullopt;
 
         return *begin();
     }
-    std::optional<T const&> back() const {
+    std::optional<std::reference_wrapper<T const>> back() const {
         if (this->empty()) return std::nullopt;
 
         return *end();
     }
 
     template <typename F>
-    std::optional<T&> find(F&& func) {
+    std::optional<std::reference_wrapper<T>> find(F&& func) {
         auto start = this->begin();
         auto end = this->end();
         auto it = std::find_if(start, end, std::forward<F>(func));
@@ -259,7 +260,7 @@ struct ListWrapper {
     }
 
     template <typename F>
-    std::optional<T const&> find(F&& func) const {
+    std::optional<std::reference_wrapper<T const>> find(F&& func) const {
         auto start = this->begin();
         auto end = this->end();
         auto it = std::find_if(start, end, std::forward<F>(func));
@@ -270,7 +271,7 @@ struct ListWrapper {
     }
 
     template <typename F>
-    std::optional<T&> reverse_find(F&& func) {
+    std::optional<std::reference_wrapper<T>> reverse_find(F&& func) {
         auto start = this->begin();
         auto end = this->end();
 
@@ -284,7 +285,7 @@ struct ListWrapper {
         return *it;
     }
     template <typename F>
-    std::optional<T const&> reverse_find(F&& func) const {
+    std::optional<std::reference_wrapper<T const>> reverse_find(F&& func) const {
         auto start = this->begin();
         auto end = this->end();
 
@@ -326,7 +327,7 @@ struct ListWrapper {
      * @param index
      * @param item
      */
-    void insert_at(int index, T item) {
+    void insert_at(il2cpp_array_size_t index, T item) {
         if (index > this->size()) {
             throw ListException(ptr, "Capacity size too small");
         }
@@ -377,7 +378,7 @@ struct ListWrapper {
      * @return ArrayW<T> 
      */
     ArrayW<T> to_array() const {
-        ArrayW<T> newArr = ArrayW<T>(this->_size);
+        ArrayW<T> newArr = ArrayW<T>(this->size());
         std::copy(this->begin(), this->end(), newArr.begin());
 
         return newArr;
@@ -407,7 +408,7 @@ struct ListWrapper {
      * @param index
      * @param item
      */
-    void erase_at(int index) {
+    void erase_at(il2cpp_array_size_t index) {
         if (index >= this->size()) {
             throw ListException(ptr, "index is over size bounds");
         }
@@ -543,7 +544,7 @@ struct ListWrapper {
     }
 
    protected:
-    void SetCapacity(int value) {
+    void SetCapacity(il2cpp_array_size_t value) {
         if (value < this->size()) {
             throw ListException(ptr, "Capacity size too small");
         }
@@ -567,9 +568,9 @@ struct ListWrapper {
         get_items()[size] = item;
     }
 
-    void EnsureCapacity(int min) {
+    void EnsureCapacity(il2cpp_array_size_t min) {
         if (get_items().size() < min) {
-            int num = (get_items().size() == 0) ? 4 : (get_items().size() * 2);
+            auto num = (get_items().size() == 0) ? 4 : (get_items().size() * 2);
             if (num > 2146435071) {
                 num = 2146435071;
             }

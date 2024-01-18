@@ -27,6 +27,24 @@ static void doThing() {
     }
     il2cpp_utils::NewSpecific<ListW<Il2CppObject*>>(1, 2, 3);
     std::cout << i << std::endl;
+
+    arr.clear();
+    arr.insert_at(0, 0);
+    arr.emplace_back(0);
+    arr.push_back(0);
+    arr.erase(0);
+    arr.find([](int&){return true;});
+    arr.reverse_find([](int&) { return true; });
+    arr.front();
+    arr.back();
+    arr.get(0);
+    auto const arrConst = arr;
+    arrConst.front();
+    arrConst.back();
+    arrConst.find([](int const&) { return true; });
+    arrConst.reverse_find([](int const&) { return true; });
+    arrConst.get(0);
+    arrConst.to_array();
 }
 
 static void doThing2() {
