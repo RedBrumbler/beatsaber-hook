@@ -1,5 +1,6 @@
 #pragma once
 #include <optional>
+#include <type_traits>
 #include <vector>
 #include <span>
 #include "il2cpp-type-check.hpp"
@@ -275,17 +276,67 @@ struct ArrayW {
     ArrayW(std::initializer_list<U> vals) : val(Array<T>::New(vals)) {}
     ArrayW(il2cpp_array_size_t size) : val(Array<T>::NewLength(size)) {}
 
+    template<bool is_const>
+    struct ArrayValue {
+        using Arr = std::conditional_t<is_const, const ArrayW<T, Ptr>, ArrayW<T, Ptr>>;
+        Arr& array;
+        size_t idx;
+
+        constexpr ArrayValue(Arr& array, size_t idx = 0) noexcept : array(array), idx(idx) {}
+
+        constexpr operator T&() noexcept requires(!is_const) { return array->values[idx]; }
+        constexpr T& operator*() noexcept requires(!is_const) { return array->values[idx]; }
+
+        constexpr operator T const&() const noexcept { return array->values[idx]; }
+        constexpr T const& operator*() const noexcept { return array->values[idx]; }
+
+        constexpr auto operator->() noexcept requires(!is_const) {
+            if constexpr(std::is_pointer_v<T>) {
+                return array->values[idx];
+            } else {
+                return &array->values[idx];
+            }
+        }
+
+        inline auto operator->() const noexcept {
+            if constexpr(std::is_pointer_v<T>) {
+                return array->values[idx];
+            } else {
+                return &array->values[idx];
+            }
+        }
+
+        template<bool other_const>
+        bool operator ==(const ArrayValue<other_const>& other) const noexcept {
+            return other.array == array && other.idx == idx;
+        }
+
+        template<typename U>
+        requires(std::is_convertible_v<U, T> && !is_const)
+        T& operator=(U&& v) {
+            array->values[idx] = static_cast<T>(v);
+            // writes on ref types should happen with wbarrier
+            if constexpr (il2cpp_utils::il2cpp_reference_type<T>) {
+                il2cpp_functions::GarbageCollector_SetWriteBarrier(array->values + idx);
+            }
+            return array->values[idx];
+        }
+    };
+
+    using value = ArrayValue<false>;
+    using const_value = ArrayValue<true>;
+
     inline il2cpp_array_size_t Length() const noexcept {
         return val->Length();
     }
     inline il2cpp_array_size_t size() const noexcept {
         return val->Length();
     }
-    T& operator[](size_t i) noexcept {
-        return val->values[i];
+    value operator[](size_t i) noexcept {
+        return value(*this, i);
     }
-    const T& operator[](size_t i) const noexcept {
-        return val->values[i];
+    const_value operator[](size_t i) const noexcept {
+        return const_value(*this, i);
     }
 
     inline void assertBounds(size_t i) {
@@ -297,34 +348,34 @@ struct ArrayW {
     /// @brief Get a given index, performs bound checking and throws std::runtime_error on failure.
     /// @param i The index to get.
     /// @return The reference to the item.
-    T& get(size_t i) {
+    value get(size_t i) {
         assertBounds(i);
-        return val->values[i];
+        return value(*this, i);
     }
     /// @brief Get a given index, performs bound checking and throws std::runtime_error on failure.
     /// @param i The index to get.
     /// @return The const reference to the item.
-    const T& get(size_t i) const {
+    const_value get(size_t i) const {
         assertBounds(i);
-        return val->values[i];
+        return const_value(*this, i);
     }
     /// @brief Tries to get a given index, performs bound checking and returns a std::nullopt on failure.
     /// @param i The index to get.
     /// @return The WrapperRef<T> to the item, mostly considered to be a T&.
-    std::optional<WrapperRef<T>> try_get(size_t i) noexcept {
+    std::optional<value> try_get(size_t i) noexcept {
         if (i >= Length() || i < 0) {
             return std::nullopt;
         }
-        return WrapperRef(val->values[i]);
+        return value(*this, i);
     }
     /// @brief Tries to get a given index, performs bound checking and returns a std::nullopt on failure.
     /// @param i The index to get.
     /// @return The WrapperRef<const T> to the item, mostly considered to be a const T&.
-    std::optional<WrapperRef<const T>> try_get(size_t i) const noexcept {
+    std::optional<const_value> try_get(size_t i) const noexcept {
         if (i >= Length() || i < 0) {
             return std::nullopt;
         }
-        return WrapperRef(val->values[i]);
+        return const_value(*this, i);
     }
 
     template<class U = Il2CppObject*>
@@ -364,38 +415,50 @@ struct ArrayW {
         return std::span(const_cast<T*>(val->values), Length());
     }
 
+    template<bool is_const, bool is_reverse>
+    struct ArrayIterator : public ArrayValue<is_const> {
+        constexpr ArrayIterator(ArrayValue<is_const>::Arr& array, size_t idx = 0) noexcept : ArrayValue<is_const>(array, idx) {}
+
+        constexpr void advance() requires(!is_reverse) {
+            this->idx++;
+        }
+
+        constexpr void advance() requires(is_reverse) {
+            this->idx--;
+        }
+
+        constexpr ArrayIterator& operator ++(int) noexcept {
+            advance();
+            return *this;
+        }
+
+        constexpr ArrayIterator& operator ++() noexcept {
+            advance();
+            return *this;
+        }
+    };
+
     using value_type = T;
     using pointer = T*;
     using const_pointer = const T*;
     using reference = T&;
     using const_reference = T const&;
-    using iterator = pointer;
-    using const_iterator = const_pointer;
 
-    iterator begin() {
-        return val->values;
-    }
-    iterator end() {
-        return val->values + Length();
-    }
-    auto rbegin() {
-        return std::reverse_iterator(val->values + Length());
-    }
-    auto rend() {
-        return std::reverse_iterator(val->values);
-    }
-    const_iterator begin() const {
-        return val->values;
-    }
-    const_iterator end() const {
-        return val->values + Length();
-    }
-    auto rbegin() const {
-        return std::reverse_iterator(val->values + Length());
-    }
-    auto rend() const {
-        return std::reverse_iterator(val->values);
-    }
+    using iterator = ArrayIterator<false, false>;
+    using reverse_iterator = ArrayIterator<false, true>;
+    using const_iterator = ArrayIterator<true, false>;
+    using reverse_const_iterator = ArrayIterator<true, true>;
+
+    iterator begin() { return iterator(*this, 0); }
+    iterator end() { return iterator(*this, Length()); }
+    reverse_iterator rbegin() { return reverse_iterator(*this, Length()); }
+    reverse_iterator rend() { return reverse_iterator(*this, 0); }
+
+    const_iterator begin() const { return const_iterator(*this, 0); }
+    const_iterator end() const { return const_iterator(*this, Length()); }
+    reverse_const_iterator rbegin() const { return reverse_const_iterator(*this, Length()); }
+    reverse_const_iterator rend() const { return reverse_const_iterator(*this, 0); }
+
     explicit operator const Ptr() const {
         return val;
     }
@@ -439,9 +502,7 @@ struct ArrayW {
             throw ArrayException(this, "First called on empty array!");
     }
 
-    template<typename D = T>
-    requires(std::is_default_constructible_v<T>)
-    T FirstOrDefault() {
+    T FirstOrDefault() requires(std::is_default_constructible_v<T>) {
         if (Length() > 0)
             return val->values[0];
         else return {};
@@ -454,9 +515,7 @@ struct ArrayW {
             throw ArrayException(this, "Last called on empty array!");
     }
 
-    template<typename D = T>
-    requires(std::is_default_constructible_v<T>)
-    T LastOrDefault() {
+    T LastOrDefault() requires(std::is_default_constructible_v<T>) {
         if (Length() > 0)
             return val->values[Length() - 1];
         else return {};
@@ -471,8 +530,7 @@ struct ArrayW {
     }
 
     template<class Predicate>
-    requires(std::is_default_constructible_v<T>)
-    T FirstOrDefault(Predicate pred) {
+    T FirstOrDefault(Predicate pred) requires(std::is_default_constructible_v<T>) {
         for (iterator it = begin(); it != end(); it++) {
             if (pred(*it)) return *it;
         }
@@ -488,8 +546,7 @@ struct ArrayW {
     }
 
     template<class Predicate>
-    requires(std::is_default_constructible_v<T>)
-    T LastOrDefault(Predicate pred) {
+    T LastOrDefault(Predicate pred) requires(std::is_default_constructible_v<T>) {
         for (auto it = rbegin(); it != rend(); it++) {
             if (pred(*it)) return *it;
         }
