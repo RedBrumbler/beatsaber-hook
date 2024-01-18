@@ -3,6 +3,7 @@
 #include "shared/utils/gc-alloc.hpp"
 #include "../../shared/utils/hashing.hpp"
 #include "../../shared/utils/il2cpp-utils.hpp"
+#include <jni.h>
 #include "../../shared/utils/utils.h"
 #include "../../shared/utils/il2cpp-functions.hpp"
 #include <algorithm>
@@ -296,5 +297,24 @@ namespace il2cpp_utils {
 
     void AddAllocatedDelegate(std::pair<Il2CppMethodPointer, bool> delegate, MethodInfo* mptr) {
         delegateMethodInfoMap.insert({delegate, mptr});
+    }
+
+    // stores jni envs for threads
+    static std::unordered_map<std::string, JNIEnv*> il2cpp_aware_thread_envs;
+
+    void il2cpp_aware_thread::clear_current_jnienv() {
+        il2cpp_aware_thread_envs.erase(current_thread_id());
+    }
+
+    void il2cpp_aware_thread::set_current_jnienv(JNIEnv* env) {
+        il2cpp_aware_thread_envs[current_thread_id()] = env;
+    }
+
+    /// @brief allows users of il2cpp_aware_thread to get the jni env for the thread they are currently on, only works for actual il2cpp_aware_thread! not for mainthread or regular std::thread!
+    /// @return JNIEnv* as bound in internal_thread, or null if not available
+    JNIEnv* il2cpp_aware_thread::get_current_jnienv() {
+        auto itr = il2cpp_aware_thread_envs.find(current_thread_id());
+        if (itr == il2cpp_aware_thread_envs.end()) return nullptr;
+        return itr->second;
     }
 }
