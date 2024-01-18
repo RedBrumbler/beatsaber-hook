@@ -5,7 +5,7 @@
 
 // System.MulticastDelegate
 typedef struct MulticastDelegate : Il2CppDelegate {
-    ::Array<Il2CppDelegate*>* delegates;
+    ::ArrayW<Il2CppDelegate*> delegates;
 } MulticastDelegate;
 
 // System.DelegateData
