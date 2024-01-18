@@ -1,7 +1,6 @@
 #ifndef IL2CPP_UTILS_H
 #define IL2CPP_UTILS_H
 
-#include <jni.h>
 #pragma pack(push)
 
 #include <stdio.h>
@@ -10,7 +9,7 @@
 #include <optional>
 #include <vector>
 #include <unordered_map>
-
+#include <jni.h>
 
 #include "gc-alloc.hpp"
 
