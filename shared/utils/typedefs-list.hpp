@@ -211,7 +211,7 @@ struct ListWrapper {
      * @param index
      * @param item
      */
-    std::optional<uint_t> index_of(T item) {
+    std::optional<uint_t> index_of(T const& item) const {
         auto start = this->begin();
         auto end = this->end();
         auto it = std::find(start, end, item);
@@ -221,8 +221,45 @@ struct ListWrapper {
         return std::distance(start, it);
     }
 
+    constexpr bool empty() const {
+        return this->size() > 0;
+    }
+
+    std::optional<T&> front() {
+        if (this->empty()) return std::nullopt;
+
+        return *begin();
+    }
+    std::optional<T&> back() {
+        if (this->empty()) return std::nullopt;
+
+        return *end();
+    }
+
+    std::optional<T const&> front() const {
+        if (this->empty()) return std::nullopt;
+
+        return *begin();
+    }
+    std::optional<T const&> back() const {
+        if (this->empty()) return std::nullopt;
+
+        return *end();
+    }
+
     template <typename F>
-    std::optional<T> front(F&& func) {
+    std::optional<T&> find(F&& func) {
+        auto start = this->begin();
+        auto end = this->end();
+        auto it = std::find_if(start, end, std::forward<F>(func));
+
+        if (it == end) return std::nullopt;
+
+        return find(func);
+    }
+
+    template <typename F>
+    std::optional<T const&> find(F&& func) const {
         auto start = this->begin();
         auto end = this->end();
         auto it = std::find_if(start, end, std::forward<F>(func));
@@ -233,13 +270,7 @@ struct ListWrapper {
     }
 
     template <typename F>
-    requires(std::is_default_constructible_v<T>)
-    T front_or_default(F&& func) {
-        return front(func).value_or(T{});
-    }
-
-    template <typename F>
-    std::optional<T> back(F&& func) {
+    std::optional<T&> reverse_find(F&& func) {
         auto start = this->begin();
         auto end = this->end();
 
@@ -252,11 +283,19 @@ struct ListWrapper {
 
         return *it;
     }
-
     template <typename F>
-    requires(std::is_default_constructible_v<T>)
-    T back_or_default(F&& func) {
-        return back(func).value_or(T{});
+    std::optional<T const&> reverse_find(F&& func) const {
+        auto start = this->begin();
+        auto end = this->end();
+
+        auto rev_start = std::make_reverse_iterator(start);
+        auto rev_end = std::make_reverse_iterator(end);
+
+        auto it = std::find_if(rev_start, rev_end, std::forward<F>(func));
+
+        if (it == rev_end) return std::nullopt;
+
+        return *it;
     }
 
     /**
@@ -337,7 +376,7 @@ struct ListWrapper {
      * 
      * @return ArrayW<T> 
      */
-    ArrayW<T> to_array() {
+    ArrayW<T> to_array() const {
         ArrayW<T> newArr = ArrayW<T>(this->_size);
         std::copy(this->begin(), this->end(), newArr.begin());
 
@@ -488,7 +527,7 @@ struct ListWrapper {
     /// @brief Provides a reference span of the held data within this array. The span should NOT outlive this instance.
     /// @return The created span.
     const std::span<T> ref_to() const {
-        return std::span(begin()());
+        return std::span(begin(), end());
     }
 
    private:
