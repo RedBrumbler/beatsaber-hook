@@ -222,11 +222,13 @@ struct CountPointer {
 // TODO: Make an overall Ptr interface type, virtual destructor and *, -> operators
 // TODO: Remove all conversion operators? (Basically force people to guarantee lifetime of held instance?)
 
+// Fd UnityEngine.Object
 #ifdef HAS_CODEGEN
 namespace UnityEngine {
 class Object;
 }
 #endif
+
 template <typename T>
 struct SafePtrUnity;
 
@@ -561,6 +563,92 @@ struct SafePtrUnity : public SafePtr<T, true> {
         return static_cast<bool>(Parent::internalHandle) && (Parent::ptr()) && *reinterpret_cast<void* const*>(reinterpret_cast<uint8_t const*>(Parent::ptr()) + 0x10);
 #endif
     }
+};
+
+template <typename T>
+#ifdef HAS_CODEGEN
+    requires(std::is_assignable_v<UnityEngine::Object, T>)
+#endif
+struct UnityW {
+    UnityW(T* t) : innerPtr(t) {}
+    UnityW() = default;
+    UnityW(void* p) : innerPtr(p) {}
+
+    T const* unsafePtr() const {
+        return innerPtr;
+    }
+
+    T* unsafePtr() {
+        return innerPtr;
+    }
+
+    T* ptr() {
+        __SAFE_PTR_UNITY_NULL_HANDLE_CHECK(innerPtr);
+    }
+
+    T const* ptr() const {
+        __SAFE_PTR_UNITY_NULL_HANDLE_CHECK(innerPtr);
+    }
+
+    constexpr void* convert() {
+        return ptr();
+    }
+
+    /// @brief Explicitly cast this instance to a T*.
+    /// Note, however, that the lifetime of this returned T* is not longer than the lifetime of this instance.
+    /// Consider passing a SafePtrUnity reference or copy instead.
+    explicit operator T* const() const {
+        return const_cast<T*>(ptr());
+    }
+
+    T* const operator->() {
+        return const_cast<T*>(ptr());
+    }
+
+    T* const operator->() const {
+        return ptr();
+    }
+
+    T& operator*() {
+        return *ptr();
+    }
+
+    T const& operator*() const {
+        return *ptr();
+    }
+
+    operator bool() const {
+        return isAlive();
+    }
+
+    template <typename U = T>
+    requires(std::is_assignable_v<T, U> || std::is_same_v<T, U>)
+    bool operator==(UnityW<U> const& other) const {
+        return other.isAlive() == isAlive() && other.innerPtr == innerPtr;
+    }
+
+    template <typename U = T>
+    bool operator==(U const* other) const {
+        return isAlive(other) == isAlive() && other == innerPtr;
+    }
+
+    [[nodiscard]] inline bool isAlive() const {
+        return isAlive(innerPtr);
+    }
+
+    [[nodiscard]] static inline bool isAlive(T* ptr) {
+#ifdef HAS_CODEGEN
+        return ptr && ptr->___m_CachedPtr;
+#else
+        // offset yay
+        // the offset as specified in the codegen header of [m_CachedPtr] is 0x10
+        // which is also the first field of the instance UnityEngine.Object
+        return ptr && *reinterpret_cast<void* const*>(reinterpret_cast<uint8_t const*>(ptr) + sizeof(Il2CppObject*));
+#endif
+    }
+
+   private:
+    T* innerPtr;
 };
 
 /// @brief Represents a pointer that may be GC'd, but will notify you when it has.
