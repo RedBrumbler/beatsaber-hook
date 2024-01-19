@@ -713,8 +713,7 @@ namespace il2cpp_utils {
                 auto logger = getLogger().WithContext("internal_thread_" + current_thread_id());
 
                 // attach thread to jvm
-                auto jvm = get_modloader_jvm();
-                jvm->AttachCurrentThread(&env, nullptr);
+                modloader_jvm->AttachCurrentThread(&env, nullptr);
 
                 il2cpp_functions::Init();
 
@@ -752,7 +751,7 @@ namespace il2cpp_utils {
                 il2cpp_functions::thread_detach(thread);
 
                 // detach thread from jvm
-                jvm->DetachCurrentThread();
+                modloader_jvm->DetachCurrentThread();
                 env = nullptr;
             }
 
