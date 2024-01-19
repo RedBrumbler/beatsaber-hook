@@ -1,6 +1,7 @@
 #ifndef IL2CPP_UTILS_METHODS
 #define IL2CPP_UTILS_METHODS
 
+#include <type_traits>
 #pragma pack(push)
 
 #include "il2cpp-functions.hpp"
@@ -761,11 +762,11 @@ namespace il2cpp_utils {
             obj = createManualThrow(klass);
         }
         // Only need to extract based off of types, since we are asusming our TOut is classof-able already
-        static auto ctorMethod = FindMethod(klass, ".ctor", std::array<Il2CppType const*, sizeof...(TArgs)>{ExtractIndependentType<TArgs>()...});
+        static auto ctorMethod = FindMethod(klass, ".ctor", std::array<Il2CppType const*, sizeof...(TArgs)>{ExtractIndependentType<std::remove_reference_t<TArgs>>()...});
         if (!ctorMethod) {
             throw exceptions::StackTraceException(string_format("Failed to find a matching .ctor method during construction of type: %s", ClassStandardName(klass).c_str()));
         }
-        RunMethodRethrow<void, false>(obj, ctorMethod, args...);
+        ::il2cpp_utils::RunMethodRethrow<void, false>(obj, ctorMethod, args...);
         if constexpr (std::is_pointer_v<TOut>) {
             return reinterpret_cast<TOut>(obj);
         } else if constexpr (has_il2cpp_conversion<TOut>) {
