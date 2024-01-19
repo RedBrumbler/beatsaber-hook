@@ -49,7 +49,7 @@ void test_thread() {
     IL2CPP_THREAD_TEST([](int v){}, 10);
 
     // pass rvalue into lvalue
-    // IL2CPP_THREAD_TEST([]( int& v){}, 10); // should not work
+    // IL2CPP_THREAD_TEST([](int& v){}, 10); // should not work
     // pass rvalue into rvalue
     IL2CPP_THREAD_TEST([](int&& v){}, 10); // should work
     // pass lvalue into lvalue
@@ -73,6 +73,14 @@ void test_thread() {
 
     ThreadTest tt;
     tt.test_thread();
+
+    il2cpp_utils::il2cpp_aware_thread([]{
+        // getting current jni env since we are attached
+        auto env = il2cpp_utils::il2cpp_aware_thread::get_current_env();
+
+        // getting current thread id as a test
+        auto id = il2cpp_utils::il2cpp_aware_thread::current_thread_id();
+    }).join();
 }
 
 void ThreadTest::test_thread() {

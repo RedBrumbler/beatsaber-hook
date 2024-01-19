@@ -17,6 +17,10 @@ static void constDoThing(const ArrayW<int>& wrap) {
 
 ArrayW<float> initThing;
 
+static bool search(int&) {
+    return false;
+}
+
 static void doThing() {
     ArrayW<int> arr(5);
     ArrayW<int> arr2(arr);
@@ -35,7 +39,7 @@ static void doThing() {
         assert(itr == i);
         std::cout << itr << std::endl;
     }
-    std::cout << arr.Length() << std::endl;
+    std::cout << arr.size() << std::endl;
     std::cout << static_cast<Array<int*>*>(arr3) << std::endl;
     // Should be allowed to cast back
     std::cout << static_cast<Array<int>*>(arr) << std::endl;
@@ -44,16 +48,27 @@ static void doThing() {
     std::cout << static_cast<Array<float>*>(initThing) << std::endl;
 
     /// get first element that fulfills the predicate
-    arr.FirstOrDefault();
-    arr3.First();
-    arr.FirstOrDefault([](auto x){ return x == 0; });
-    arr3.First([](auto x){ return x == 0; });
+    arr.front_or_default();
+    arr3.front();
+    arr.front_or_default([](auto x){ return x == 0; });
+    arr3.front([](auto x){ return x == 0; });
+    arr.find(5);
+    arr3.find_if([](auto x){ return x == 0; });
+
+    auto search_fun = [](int&){ return false; };
+    // test passing in saved lambda
+    arr.find_if(search_fun);
+    // test passing in function ptr
+    arr.find_if(search);
 
     /// get first reverse iter element that fulfills the predicate
-    arr.FirstOrDefault();
-    arr3.First();
-    arr.LastOrDefault([](auto x){ return x == 0; });
-    arr3.Last([](auto x){ return x == 0; });
+    arr.back_or_default();
+    arr3.back();
+    arr.back_or_default([](auto x){ return x == 0; });
+    arr3.back([](auto x){ return x == 0; });
+    int v;
+    arr3.rfind(&v);
+    arr3.rfind_if([](auto x){ return x == 0; });
 }
 
 #include "../../shared/utils/il2cpp-utils.hpp"

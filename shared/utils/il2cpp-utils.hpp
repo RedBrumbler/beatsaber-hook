@@ -8,6 +8,8 @@
 #include <dlfcn.h>
 #include <optional>
 #include <vector>
+#include <unordered_map>
+#include <jni.h>
 
 #include "gc-alloc.hpp"
 
@@ -706,7 +708,15 @@ namespace il2cpp_utils {
     }
 
     struct il2cpp_aware_thread : public std::thread {
+        private:
+            static inline thread_local JNIEnv* env;
         public:
+            static std::string current_thread_id() {
+                std::stringstream id; id << std::this_thread::get_id();
+                return id.str();
+            }
+
+            static inline JNIEnv* get_current_env() noexcept { return env; }
 
             /// @brief method executed by the thread created in il2cpp_aware_thread
             /// @param pred the predicate to use in the thread
@@ -714,9 +724,12 @@ namespace il2cpp_utils {
             template<typename Predicate, typename... TArgs>
             requires(std::is_invocable_v<Predicate, std::decay_t<TArgs>...>)
             static void internal_thread(Predicate&& pred, TArgs&&... args) {
+                auto logger = getLogger().WithContext("internal_thread_" + current_thread_id());
+
+                // attach thread to jvm
+                modloader_jvm->AttachCurrentThread(&env, nullptr);
+
                 il2cpp_functions::Init();
-                std::stringstream loggerContext; loggerContext << "internal_thread_" << std::this_thread::get_id();
-                auto logger = getLogger().WithContext(loggerContext.str()); // logger is per thread id, can't be static
 
                 logger.info("Attaching thread");
                 auto domain = il2cpp_functions::domain_get();
@@ -747,7 +760,13 @@ namespace il2cpp_utils {
                 }
 
                 logger.info("Detaching thread");
+
+                // detach il2cpp thread
                 il2cpp_functions::thread_detach(thread);
+
+                // detach thread from jvm
+                modloader_jvm->DetachCurrentThread();
+                env = nullptr;
             }
 
             /// @brief creates a thread that automatically will register with il2cpp and deregister once it exits, ensure your args live longer than the thread if they're by reference!

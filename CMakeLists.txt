@@ -48,6 +48,7 @@ function(setup_target target add_test)
             TEST_STRING
             TEST_HOOK
             TEST_THREAD
+            TEST_UNITYW
         )
     endif()
 
