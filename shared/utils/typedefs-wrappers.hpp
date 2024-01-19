@@ -567,12 +567,14 @@ struct SafePtrUnity : public SafePtr<T, true> {
 
 template <typename T>
 #ifdef HAS_CODEGEN
-    requires(std::is_assignable_v<UnityEngine::Object, T>)
+    requires(std::is_convertible_v<T, UnityEngine::Object>)
+#elif !defined(NO_CODEGEN_USE)
+    requires(std::is_convertible_v<T, Il2CppObject>)
 #endif
 struct UnityW {
-    UnityW(T* t) : innerPtr(t) {}
     UnityW() = default;
-    UnityW(void* p) : innerPtr(p) {}
+    UnityW(T* t) : innerPtr(t) {}
+    UnityW(void* p) : innerPtr(reinterpret_cast<T*>(p)) {}
 
     constexpr T const* unsafePtr() const noexcept {
         return innerPtr;
@@ -609,7 +611,8 @@ struct UnityW {
         return ptr();
     }
 
-    constexpr T& operator*() {
+    constexpr T& operator*()
+    {
         return *ptr();
     }
 
@@ -649,6 +652,28 @@ struct UnityW {
 
    private:
     T* innerPtr;
+};
+
+MARK_GEN_REF_T(UnityW);
+
+static_assert(il2cpp_utils::has_il2cpp_conversion<UnityW<Il2CppObject>>);
+template <class T>
+struct BS_HOOKS_HIDDEN ::il2cpp_utils::il2cpp_type_check::need_box<UnityW<T>> {
+    constexpr static bool value = false;
+};
+template <class T>
+struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<UnityW<T>> {
+    static inline Il2CppClass* get() {
+        // don't double cache here, just inline
+        return ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<T*>::get();
+    }
+};
+template <class T>
+struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_type<UnityW<T>> {
+    static inline Il2CppClass* get() {
+        // don't double cache here, just inline
+        return ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_type<T*>::get();
+    }
 };
 
 /// @brief Represents a pointer that may be GC'd, but will notify you when it has.
