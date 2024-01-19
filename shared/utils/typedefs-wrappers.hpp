@@ -567,13 +567,18 @@ struct SafePtrUnity : public SafePtr<T, true> {
 
 template <typename T>
 #ifdef HAS_CODEGEN
-    requires(std::is_convertible_v<T, UnityEngine::Object>)
+    requires(std::is_convertible_v<T*, UnityEngine::Object*>)
 #elif !defined(NO_CODEGEN_USE)
-    requires(std::is_convertible_v<T, Il2CppObject>)
+    requires(std::is_convertible_v<T*, Il2CppObject*>)
 #endif
 struct UnityW {
     UnityW() = default;
     UnityW(T* t) : innerPtr(t) {}
+
+    template <typename U>
+    requires(std::is_convertible_v<U*, T*>)
+    UnityW(UnityW<U> u) : innerPtr(u.innerPtr) {}
+    
     UnityW(void* p) : innerPtr(reinterpret_cast<T*>(p)) {}
 
     constexpr T const* unsafePtr() const noexcept {
