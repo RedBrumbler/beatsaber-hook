@@ -528,23 +528,39 @@ struct ArrayW {
         return const_value(this, i);
     }
 
+    iterator find(T&& item) {
+        return std::find_if(begin(), end(), [&item](auto& x){ return x == item; });
+    }
+
+    const_iterator find(T&& item) const {
+        return std::find_if(begin(), end(), [&item](auto& x){ return x == item; });
+    }
+
+    auto rfind(T&& item) {
+        return std::find_if(rbegin(), rend(), [&item](auto& x){ return x == item; });
+    }
+
+    auto rfind(T&& item) const {
+        return std::find_if(rbegin(), rend(), [&item](auto& x){ return x == item; });
+    }
+
     template<typename Predicate>
-    iterator find(Predicate&& pred) {
+    iterator find_if(Predicate&& pred) {
         return std::find_if(begin(), end(), pred);
     }
 
     template<typename Predicate>
-    const_iterator find(Predicate&& pred) const {
+    const_iterator find_if(Predicate&& pred) const {
         return std::find_if(begin(), end(), pred);
     }
 
     template<typename Predicate>
-    auto rfind(Predicate&& pred) {
+    auto rfind_if(Predicate&& pred) {
         return std::find_if(rbegin(), rend(), pred);
     }
 
     template<typename Predicate>
-    auto rfind(Predicate&& pred) const {
+    auto rfind_if(Predicate&& pred) const {
         return std::find_if(rbegin(), rend(), pred);
     }
 

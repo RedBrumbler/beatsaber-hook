@@ -17,6 +17,10 @@ static void constDoThing(const ArrayW<int>& wrap) {
 
 ArrayW<float> initThing;
 
+static bool search(int&) {
+    return false;
+}
+
 static void doThing() {
     ArrayW<int> arr(5);
     ArrayW<int> arr2(arr);
@@ -48,14 +52,23 @@ static void doThing() {
     arr3.front();
     arr.front_or_default([](auto x){ return x == 0; });
     arr3.front([](auto x){ return x == 0; });
-    arr3.find([](auto x){ return x == 0; });
+    arr.find(5);
+    arr3.find_if([](auto x){ return x == 0; });
+
+    auto search_fun = [](int&){ return false; };
+    // test passing in saved lambda
+    arr.find_if(search_fun);
+    // test passing in function ptr
+    arr.find_if(search);
 
     /// get first reverse iter element that fulfills the predicate
     arr.back_or_default();
     arr3.back();
     arr.back_or_default([](auto x){ return x == 0; });
     arr3.back([](auto x){ return x == 0; });
-    arr3.rfind([](auto x){ return x == 0; });
+    int v;
+    arr3.rfind(&v);
+    arr3.rfind_if([](auto x){ return x == 0; });
 }
 
 #include "../../shared/utils/il2cpp-utils.hpp"
