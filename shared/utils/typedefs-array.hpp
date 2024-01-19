@@ -539,12 +539,12 @@ struct ArrayW {
     }
 
     template<typename Predicate>
-    iterator rfind(Predicate&& pred) {
+    auto rfind(Predicate&& pred) {
         return std::find_if(rbegin(), rend(), pred);
     }
 
     template<typename Predicate>
-    const_iterator rfind(Predicate&& pred) const {
+    auto rfind(Predicate&& pred) const {
         return std::find_if(rbegin(), rend(), pred);
     }
 
