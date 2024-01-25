@@ -330,3 +330,9 @@ static_assert(sizeof(StringW) == sizeof(void*));
 static_assert(il2cpp_utils::has_il2cpp_conversion<StringW>);
 DEFINE_IL2CPP_DEFAULT_TYPE(StringW, string);
 NEED_NO_BOX(StringW);
+
+template <typename Ptr>
+auto format_as(StringWrapper<Ptr> s) {
+    if (!s) return std::string("StringW(null)");
+    return static_cast<std::string>(s);
+}
