@@ -24,7 +24,7 @@ namespace il2cpp_utils {
         nameFieldLock.unlock();
         auto field = il2cpp_functions::class_get_field_from_name(klass, fieldName.data());
         if (!field) {
-            logger.error("could not find field %s in class '%s'!", fieldName.data(), ClassStandardName(klass).c_str());
+            logger.error("could not find field {} in class '{}'!", fieldName.data(), ClassStandardName(klass).c_str());
             LogFields(logger, klass);
             if (klass->parent != klass) field = FindField(klass->parent, fieldName);
         }
@@ -52,7 +52,7 @@ namespace il2cpp_utils {
         name = name ? name : "__noname__";
         auto offset = il2cpp_functions::field_get_offset(field);
 
-        logger.debug("%s%s %s; // 0x%lx, flags: 0x%.4X", flagStr, typeStr, name, offset, flags);
+        logger.debug("{}{} {}; // 0x{:X}, flags: 0x{:04X}", flagStr, typeStr, name, offset, flags);
     }
 
     void LogFields(Paper::LoggerContext const& logger, Il2CppClass* klass, bool logParents) {
@@ -62,9 +62,9 @@ namespace il2cpp_utils {
         void* myIter = nullptr;
         FieldInfo* field;
         if (klass->name) il2cpp_functions::Class_Init(klass);
-        if (logParents) logger.info("class name: %s", ClassStandardName(klass).c_str());
+        if (logParents) logger.info("class name: {}", ClassStandardName(klass).c_str());
 
-        logger.debug("field_count: %i", klass->field_count);
+        logger.debug("field_count: {}", klass->field_count);
         while ((field = il2cpp_functions::class_get_fields(klass, &myIter))) {
             LogField(logger, field);
         }

@@ -138,7 +138,7 @@ auto&& unwrap_optionals(T&& arg) {
 #define THROW_OR_RET_NULL(contextLogger, ...) ({ \
     auto&& __temp__ = (__VA_ARGS__); \
     if (!__temp__) { \
-        contextLogger.error("%s (in %s at %s:%i) returned false!", #__VA_ARGS__, __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+        contextLogger.error("{} (in {} at {}:{}) returned false!", #__VA_ARGS__, __PRETTY_FUNCTION__, __FILE__, __LINE__); \
         return nullptr; \
     } \
     unwrap_optionals(__temp__); })

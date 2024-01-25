@@ -109,7 +109,7 @@ uintptr_t getLibil2cppSize() {
         if (!stat(modloader_get_libil2cpp_path(), &st)) {
             soSize = st.st_size;
         }
-        contextLogger.debug("libil2cpp.so size: 0x%lx", soSize);
+        contextLogger.debug("libil2cpp.so size: 0x{:X}", soSize);
     }
     return soSize;
 }
@@ -237,7 +237,7 @@ uintptr_t findPattern(uintptr_t dwAddress, const char* pattern, uintptr_t dwSear
 uintptr_t findUniquePattern(bool& multiple, uintptr_t dwAddress, const char* pattern, const char* label, uintptr_t dwSearchRangeLen) {
     uintptr_t firstMatchAddr = 0, newMatchAddr, start = dwAddress, dwEnd = dwAddress + dwSearchRangeLen;
     int matches = 0;
-    il2cpp_utils::Logger.debug("Sigscan for pattern: %s", pattern);
+    il2cpp_utils::Logger.debug("Sigscan for pattern: {}", pattern);
     while (start > 0 && start < dwEnd && (newMatchAddr = findPattern(start, pattern, dwEnd - start))) {
         if (!firstMatchAddr) firstMatchAddr = newMatchAddr;
         matches++;

@@ -99,7 +99,7 @@ namespace il2cpp_utils {
         void* params[] = {reinterpret_cast<void*>(gt), reinterpret_cast<void*>(types)};
         auto genericType = il2cpp_functions::runtime_invoke(makeGenericMethod, nullptr, params, &exp);
         if (exp) {
-            logger.error("il2cpp_utils: MakeGenericType: Failed with exception: %s", ExceptionToString(exp).c_str());
+            logger.error("il2cpp_utils: MakeGenericType: Failed with exception: {}", ExceptionToString(exp).c_str());
             return nullptr;
         }
         return reinterpret_cast<Il2CppReflectionType*>(genericType);

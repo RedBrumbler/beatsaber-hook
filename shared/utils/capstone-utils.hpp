@@ -276,12 +276,12 @@ template<uint32_t nToRetOn, uint32_t nImmOff, size_t szBytes = 4096>
 requires ((nToRetOn >= 1 && nImmOff >= 1 && (szBytes % 4) == 0))
 std::optional<std::tuple<uint32_t*, arm64_reg, uint32_t*>> getpcaddr(const uint32_t* addr) {
     auto pcrel = findNthPcRel<nToRetOn, -1, szBytes>(addr);
-    // SAFE_ABORT_MSG("Could not find: %u pcrel at: %p within: %i rets, within size: %zu!", nToRetOn, addr, -1, szBytes);
+    // SAFE_ABORT_MSG("Could not find: {} pcrel at: {p within: {} rets, within size: {}!", nToRetOn, addr, -1, szBytes);
     if (!pcrel) return std::nullopt;
     // addr is in first slot of tuple, reg in second, dst imm in third
     // TODO: decrease size correctly
     auto reginst = findNthReg<nImmOff, -1, szBytes>(std::get<0>(*pcrel), std::get<1>(*pcrel));
-    // SAFE_ABORT_MSG("Could not find: %u reg with reg: %u at: %p within: %i rets, within size: %zu!", nImmOff, std::get<1>(*pcrel), std::get<0>(*pcrel), -1, szBytes);
+    // SAFE_ABORT_MSG("Could not find: {} reg with reg: {} at: {p within: {} rets, within size: {}!", nImmOff, std::get<1>(*pcrel), std::get<0>(*pcrel), -1, szBytes);
     if (!reginst) return std::nullopt;
     return std::make_tuple(std::get<0>(*reginst), std::get<1>(*reginst), reinterpret_cast<uint32_t*>(reinterpret_cast<uint64_t>(std::get<2>(*pcrel)) + std::get<2>(*reginst)));
 }
@@ -291,7 +291,7 @@ requires ((nToRetOn >= 1 && nImmOff >= 1 && (szBytes % 4) == 0))
 std::optional<uint32_t*> evalswitch(const uint32_t* addr) {
     // Get matching adr/adrp + offset on register
     auto res = getpcaddr<nToRetOn, nImmOff, szBytes>(addr);
-    // SAFE_ABORT_MSG("Could not find: %u pcrel at: %p within: %i rets, within size: %zu!", nToRetOn, addr, -1, szBytes);
+    // SAFE_ABORT_MSG("Could not find: {} pcrel at: {p within: {} rets, within size: {}!", nToRetOn, addr, -1, szBytes);
     if (!res) return std::nullopt;
     // Convert destination to the switch table address
     auto switchTable = reinterpret_cast<int32_t*>(std::get<2>(*res));

@@ -151,11 +151,11 @@ namespace il2cpp_utils {
             if (slot >= declaringClass->method_count) { // we tried looking for a slot that is outside the bounds of the interface vtable
                 // dump some info so the user can know which method was attempted to be resolved
                 logger.error("Declaring class has a vtable that's too small, dumping resolve info:");
-                logger.error("Instance class:                   %s::%s", klass->namespaze, klass->name);
-                logger.error("Instance class vtable slots:      %u", klass->vtable_count);
-                logger.error("Declaring class:                  %s::%s", declaringClass->namespaze, declaringClass->name);
-                logger.error("Declaring class vtable slots:     %u", declaringClass->vtable_count);
-                logger.error("Attempted slot:                   %u", slot);
+                logger.error("Instance class:                   {}::{}", klass->namespaze, klass->name);
+                logger.error("Instance class vtable slots:      {}", klass->vtable_count);
+                logger.error("Declaring class:                  {}::{}", declaringClass->namespaze, declaringClass->name);
+                logger.error("Declaring class vtable slots:     {}", declaringClass->vtable_count);
+                logger.error("Attempted slot:                   {}", slot);
                 return {};
             }
 
@@ -222,7 +222,7 @@ namespace il2cpp_utils {
         // Recurses through klass's parents
         auto methodInfo = il2cpp_functions::class_get_method_from_name(klass, methodName.data(), argsCount);
         if (!methodInfo) {
-            logger.error("could not find method %s with %i parameters in class '%s'!", methodName.data(), argsCount, ClassStandardName(klass).c_str());
+            logger.error("could not find method {} with {} parameters in class '{}'!", methodName.data(), argsCount, ClassStandardName(klass).c_str());
             LogMethods(logger, const_cast<Il2CppClass*>(klass), true);
             RET_DEFAULT_UNLESS(logger, methodInfo);
         }
@@ -407,14 +407,14 @@ namespace il2cpp_utils {
             auto const methodsSpan = std::span(targetKlass->methods, targetKlass->method_count);
             for (auto const& current : methodsSpan) {
                 if (info.name != current->name) {
-                    logger.debug("[FindMethod] Method name does not match for method %s", current->name);
+                    logger.debug("[FindMethod] Method name does not match for method {}", current->name);
                     continue;
                 }
 
                 // strict equal
                 bool isPerfect;
                 if (!ParameterMatch(current, std::span(info.genTypes), std::span(info.argTypes), &isPerfect)) {
-                    logger.debug("[FindMethod] Parameters do not match for method %s", current->name);
+                    logger.debug("[FindMethod] Parameters do not match for method {}", current->name);
                     continue;
                 }
 
@@ -473,9 +473,9 @@ namespace il2cpp_utils {
 
                 // if no perfect match, look for lowest weighted
                 if (!target) {
-                    logger.warn("[FindMethod] Found multiple methods that match for %s.%s", ClassStandardName(klass).c_str(), info.name.data());
+                    logger.warn("[FindMethod] Found multiple methods that match for {}.{}", ClassStandardName(klass).c_str(), info.name.data());
                     for (auto const& [method, weight] : weightMap) {
-                        logger.warn("[FindMethod] Weight %lu Method %s", weight, method->name);
+                        logger.warn("[FindMethod] Weight {} Method {}", weight, method->name);
                         Paper::LoggerContext c = Paper::ConstLoggerContext("");
                         LogMethod(logger, method);
                     }
@@ -519,7 +519,7 @@ namespace il2cpp_utils {
                 ss << TypeGetSimpleName(t);
             }
             ss << ") in class '" << ClassStandardName(klass) << "'!";
-            logger.error("%s", ss.str().c_str());
+            logger.error("{}", ss.str().c_str());
             LogMethods(logger, klass);
         }
 
@@ -534,15 +534,15 @@ namespace il2cpp_utils {
             il2cpp_functions::Class_Init(klass);
         }
         if (klass->method_count && !(klass->methods)) {
-            logger.warn("Class is valid and claims to have methods but ->methods is null! class name: %s", ClassStandardName(klass).c_str());
+            logger.warn("Class is valid and claims to have methods but ->methods is null! class name: {}", ClassStandardName(klass).c_str());
             return;
         }
         if (logParents) logger.info("class name: {}", ClassStandardName(klass));
 
-        logger.debug("method_count: %i", klass->method_count);
+        logger.debug("method_count: {}", klass->method_count);
         for (int i = 0; i < klass->method_count; i++) {
             if (klass->methods[i]) {
-                logger.debug("Method %i:", i);
+                logger.debug("Method {}:", i);
                 LogMethod(logger, klass->methods[i]);
             } else {
                 logger.warn("Method: {} Does not exist!", i);
@@ -583,7 +583,7 @@ namespace il2cpp_utils {
         const auto& paramStrRef = paramStream.str();
         const char* paramStr = paramStrRef.c_str();
         // TODO: add <T> after methodName
-        logger.debug("%s%s %s(%s);", flagStr, retTypeStr, methodName, paramStr);
+        logger.debug("{}{} {}({});", flagStr, retTypeStr, methodName, paramStr);
     }
 
     bool IsConvertibleFrom(const Il2CppType* to, const Il2CppType* from, bool asArgs) {

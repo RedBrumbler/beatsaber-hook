@@ -51,7 +51,7 @@ namespace il2cpp_utils {
             }
         }
 
-        logger.debug("%i ======================CLASS INFO FOR CLASS: %s======================", indent, ClassStandardName(klass).c_str());
+        logger.debug("{} ======================CLASS INFO FOR CLASS: {}======================", indent, ClassStandardName(klass).c_str());
         void* myIter = nullptr;
         if (!methodInit) {
             // log results of Class::Init
@@ -151,7 +151,7 @@ namespace il2cpp_utils {
         auto* parent = il2cpp_functions::class_get_parent(klass);
         logger.debug("parent: {} ({})", fmt::ptr(parent), parent ? ClassStandardName(parent).c_str() : "");
         if (parent && logParents) LogClass(logger, parent, logParents);
-        logger.debug("%i, ==================================================================================", indent);
+        logger.debug("{}, ==================================================================================", indent);
         indent--;
     }
 

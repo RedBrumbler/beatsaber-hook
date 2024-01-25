@@ -60,7 +60,7 @@ namespace il2cpp_utils {
         // Check that the TOut requested by the user matches the field.
         auto* outType = ExtractIndependentType<TOut>();
         if (outType && !IsConvertibleFrom(outType, field->type, false)) {
-            il2cpp_utils::Logger.warn("User requested TOut %s does not match the field's type, %s!", TypeGetSimpleName(outType), TypeGetSimpleName(field->type));
+            il2cpp_utils::Logger.warn("User requested TOut {} does not match the field's type, {}!", TypeGetSimpleName(outType), TypeGetSimpleName(field->type));
         }
 
         TOut out;

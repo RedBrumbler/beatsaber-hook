@@ -212,7 +212,7 @@ namespace il2cpp_utils {
         auto* delegate = RET_DEFAULT_UNLESS(logger, il2cpp_utils::New<T>(delegateClass, obj, &method));
         auto* asDelegate = reinterpret_cast<Il2CppDelegate*>(delegate);
         if ((void*)asDelegate->method_ptr != (void*)callback) {
-            logger.error("Created Delegate's method_ptr (%p) is incorrect (should be %p)!", (void*)asDelegate->method_ptr, callback);
+            logger.error("Created Delegate's method_ptr ({p) is incorrect (should be {})!", fmt::ptr((void*)asDelegate->method_ptr), callback);
             return nullptr;
         }
         return delegate;
@@ -712,18 +712,18 @@ namespace il2cpp_utils {
                 try {
                     std::invoke(std::forward<Predicate>(pred), std::forward<std::decay_t<TArgs>>(args)...);
                 } catch(RunMethodException const& e) {
-                    logger.error("Caught in mod id: " _CATCH_HANDLER_ID ": Uncaught RunMethodException! what(): %s", e.what());
+                    logger.error("Caught in mod id: " _CATCH_HANDLER_ID ": Uncaught RunMethodException! what(): {}", e.what());
                     e.log_backtrace();
                     if (e.ex) e.rethrow();
                     il2cpp_functions::thread_detach(thread);
                     SAFE_ABORT();
                 } catch(exceptions::StackTraceException const& e) {
-                    logger.error("Caught in mod id: " _CATCH_HANDLER_ID ": Uncaught StackTraceException! what(): %s", e.what());
+                    logger.error("Caught in mod id: " _CATCH_HANDLER_ID ": Uncaught StackTraceException! what(): {}", e.what());
                     e.log_backtrace();
                     il2cpp_functions::thread_detach(thread);
                     SAFE_ABORT();
                 } catch(std::exception& e) {
-                    logger.error("Caught in mod id: " _CATCH_HANDLER_ID ": Uncaught C++ exception! type name: %s, what(): %s", typeid(e).name(), e.what());
+                    logger.error("Caught in mod id: " _CATCH_HANDLER_ID ": Uncaught C++ exception! type name: {}, what(): {}", typeid(e).name(), e.what());
                     il2cpp_functions::thread_detach(thread);
                     SAFE_ABORT();
                 } catch(...) {

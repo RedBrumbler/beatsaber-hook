@@ -32,7 +32,7 @@ namespace il2cpp_utils {
     static std::mutex nameHashLock;
 
     Il2CppClass* FindNested(Il2CppClass* declaring, std::string_view typeName) {
-        // logger.info("trying to find: %s ", typeName.data());
+        // logger.info("trying to find: {} ", typeName.data());
 
         if (!declaring) return nullptr;
         auto token = typeName.find("/");
@@ -78,7 +78,7 @@ namespace il2cpp_utils {
             auto assemb = allAssemb[i];
             auto img = il2cpp_functions::assembly_get_image(assemb);
             if (!img) {
-                logger.error("Assembly with name: %s has a null image!", assemb->aname.name);
+                logger.error("Assembly with name: {} has a null image!", assemb->aname.name);
                 continue;
             }
             auto klass = il2cpp_functions::class_from_name(img, name_space.data(), type_name.data());
@@ -109,7 +109,7 @@ namespace il2cpp_utils {
             }
         }
 
-        logger.error("Could not find class with namepace: %s and name: %s",
+        logger.error("Could not find class with namepace: {} and name: {}",
             name_space.data(), type_name.data());
         return nullptr;
     }

@@ -300,7 +300,7 @@ bool ParameterMatch(const MethodInfo* method, std::span<const Il2CppClass* const
     auto const& logger = il2cpp_utils::Logger;
     il2cpp_functions::Init();
     if (method->parameters_count != argTypes.size()) {
-        logger.warn("Potential method match had wrong number of parameters %i (expected %lu)", method->parameters_count, argTypes.size());
+        logger.warn("Potential method match had wrong number of parameters {} (expected {})", method->parameters_count, argTypes.size());
         return false;
     }
 
@@ -313,8 +313,8 @@ bool ParameterMatch(const MethodInfo* method, std::span<const Il2CppClass* const
     }
 
     if ((size_t)genCount != genTypes.size()) {
-        logger.warn("Potential method match had wrong number of generics %i (expected %lu)", genCount, genTypes.size());
-        logger.warn("is generic %i is inflated %i", method->is_generic, method->is_inflated);
+        logger.warn("Potential method match had wrong number of generics {} (expected {})", genCount, genTypes.size());
+        logger.warn("is generic {} is inflated {}", method->is_generic, method->is_inflated);
         return false;
     }
     bool isIdentical = true;
@@ -324,18 +324,18 @@ bool ParameterMatch(const MethodInfo* method, std::span<const Il2CppClass* const
         auto* paramType = method->parameters[i];
         if (paramType->type == IL2CPP_TYPE_MVAR) {
             if (genCount == 0) {
-                logger.warn("No generic args to extract paramIdx %i", i);
+                logger.warn("No generic args to extract paramIdx {}", i);
                 continue;
             }
             auto genIdx = il2cpp_functions::MetadataCache_GetGenericParameterIndexFromParameter(paramType->data.genericParameterHandle) - genContainer->genericParameterStart;
             if (genIdx < 0) {
-                logger.warn("Extracted invalid genIdx %i from parameter %i", genIdx, i);
+                logger.warn("Extracted invalid genIdx {} from parameter {}", genIdx, i);
                 continue;
             }
             if (genIdx >= genCount) {
                 logger.warn(
-                    "ParameterMatch was not supplied enough genTypes to determine type of parameter %i "
-                    "(had %i, needed %i)!",
+                    "ParameterMatch was not supplied enough genTypes to determine type of parameter {} "
+                    "(had {}, needed {})!",
                     i, genCount, genIdx);
                 continue;
             }
@@ -405,7 +405,7 @@ TOut RunMethodFnPtr(T* instance, const MethodInfo* method, Il2CppMethodPointer m
         auto* outType = ExtractIndependentType<TOut>();
         if (outType) {
             if (!IsConvertibleFrom(outType, method->return_type, false)) {
-                logger.warn("User requested TOut %s does not match the method's return object of type %s!", TypeGetSimpleName(outType), TypeGetSimpleName(method->return_type));
+                logger.warn("User requested TOut {} does not match the method's return object of type {}!", TypeGetSimpleName(outType), TypeGetSimpleName(method->return_type));
                 throw RunMethodException("Return type of method is not convertible!", method);
             }
         }
@@ -500,7 +500,7 @@ TOut RunMethodFnPtr(T* instance, const MethodInfo* method, Il2CppMethodPointer m
             }
         }
     } catch (Il2CppExceptionWrapper& wrapper) {
-        logger.error("%s: Failed with exception: %s", il2cpp_functions::method_get_name(method), il2cpp_utils::ExceptionToString(wrapper.ex).c_str());
+        logger.error("{}: Failed with exception: {}", il2cpp_functions::method_get_name(method), il2cpp_utils::ExceptionToString(wrapper.ex).c_str());
         throw RunMethodException(wrapper.ex, method);
     }
 }
@@ -659,7 +659,7 @@ MethodResult<TOut> Il2CppInvoker(Il2CppObject* obj, const MethodInfo* method, TA
         //     auto constexpr must_box = ::il2cpp_utils::il2cpp_type_check::need_box<TOut>::value;
         //     auto is_boxed = il2cpp_functions::class_is_valuetype(ret->klass);
         //     if (is_boxed != must_box) {
-        //         throw RunMethodException(string_format("Klass %s requires boxing: %i Klass %s is boxed %i",
+        //         throw RunMethodException(string_format("Klass {} requires boxing: {} Klass {} is boxed {}",
         //                                                ::il2cpp_utils::ClassStandardName(classof(TOut)), must_box,
         //                                                ::il2cpp_utils::ClassStandardName(ret->klass), is_boxed));
         //     }
@@ -698,7 +698,7 @@ MethodResult<TOut> RunMethod(T&& wrappedInstance, const MethodInfo* method, TArg
     if constexpr (checkTypes) {
         // only check args if TArgs is > 0
         if (method->parameters_count != sizeof...(TArgs)) {
-            logger.warn("MethodInfo parameter count %i does not match actual parameter count %lu", method->parameters_count, sizeof...(TArgs));
+            logger.warn("MethodInfo parameter count {} does not match actual parameter count {}", method->parameters_count, sizeof...(TArgs));
         }
 
         if constexpr (sizeof...(TArgs) > 0) {
@@ -751,7 +751,7 @@ MethodResult<TOut> RunMethod(T&& wrappedInstance, const MethodInfo* method, TArg
             if (outType) {
                 auto* retType = ExtractType(ret);
                 if (!IsConvertibleFrom(outType, retType, false)) {
-                    logger.warn("User requested TOut %s does not match the method's return object of type %s!", TypeGetSimpleName(outType), TypeGetSimpleName(retType));
+                    logger.warn("User requested TOut {} does not match the method's return object of type {}!", TypeGetSimpleName(outType), TypeGetSimpleName(retType));
                 }
             }
         }
@@ -765,7 +765,7 @@ MethodResult<TOut> RunMethod(T&& wrappedInstance, const MethodInfo* method, TArg
         //     auto constexpr must_box = ::il2cpp_utils::il2cpp_type_check::need_box<TOut>::value;
         //     auto is_boxed = il2cpp_functions::class_is_valuetype(ret->klass);
         //     if (is_boxed != must_box) {
-        //         throw RunMethodException(string_format("Klass %s requires boxing: %i Klass %s is boxed %i",
+        //         throw RunMethodException(string_format("Klass {} requires boxing: {} Klass {} is boxed {}",
         //                                                ::il2cpp_utils::ClassStandardName(classof(TOut)), must_box,
         //                                                ::il2cpp_utils::ClassStandardName(ret->klass), is_boxed));
         //     }
@@ -845,7 +845,7 @@ inline std::optional<TypeOrMonostate<TOut>> RunMethodOpt(TArgs&&... params) noex
 
     if (auto const exception = result.as_optional_exception()) {
         auto const& logger = il2cpp_utils::Logger;
-        logger.error("%s: Failed with exception: %s", il2cpp_functions::method_get_name(exception.value()->info), il2cpp_utils::ExceptionToString(exception.value()->ex).c_str());
+        logger.error("{}: Failed with exception: {}", il2cpp_functions::method_get_name(exception.value()->info), il2cpp_utils::ExceptionToString(exception.value()->ex).c_str());
         return std::nullopt;
     }
 

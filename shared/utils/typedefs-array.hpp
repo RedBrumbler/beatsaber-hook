@@ -172,7 +172,7 @@ struct Array : public Il2CppArray
 
     inline void AssertBounds(size_t i) {
         if (i < 0 || i >= get_Length()) {
-            throw ArrayException(this, string_format("%zu is out of bounds for array of length: %zu", i, get_Length()));
+            throw ArrayException(this, string_format("{} is out of bounds for array of length: {}", i, get_Length()));
         }
     }
 

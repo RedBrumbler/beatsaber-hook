@@ -25,7 +25,7 @@ namespace il2cpp_utils {
         classPropertiesLock.unlock();
         auto prop = il2cpp_functions::class_get_property_from_name(klass, propName.data());
         if (!prop) {
-            logger.error("could not find property %s in class '%s'!", propName.data(), ClassStandardName(klass).c_str());
+            logger.error("could not find property {} in class '{}'!", propName.data(), ClassStandardName(klass).c_str());
             LogProperties(logger, klass);
             if (klass->parent != klass) prop = FindProperty(klass->parent, propName);
         }

@@ -183,11 +183,11 @@ namespace il2cpp_utils {
                 std::string typeName(T::NESTED_NAME);
                 #endif
 
-                // log(INFO, "type_name: %s", typeName.c_str());
+                // log(INFO, "type_name: {}", typeName.c_str());
                 void* myIter = nullptr;
                 Il2CppClass* found = nullptr;
                 while (Il2CppClass* nested = il2cpp_functions::class_get_nested_types(classWithNested, &myIter)) {
-                    // log(INFO, "nested->name: %s", nested->name);
+                    // log(INFO, "nested->name: {}", nested->name);
                     if (typeName == nested->name) {
                         found = nested;
                         break;
@@ -228,11 +228,11 @@ namespace il2cpp_utils {
                 std::string typeName(T::NESTED_NAME);
                 #endif
 
-                // log(INFO, "type_name: %s", typeName.c_str());
+                // log(INFO, "type_name: {}", typeName.c_str());
                 void* myIter = nullptr;
                 Il2CppClass* found = nullptr;
                 while (Il2CppClass* nested = il2cpp_functions::class_get_nested_types(classWithNested, &myIter)) {
-                    // log(INFO, "nested->name: %s", nested->name);
+                    // log(INFO, "nested->name: {}", nested->name);
                     if (typeName == nested->name) {
                         found = nested;
                         break;
