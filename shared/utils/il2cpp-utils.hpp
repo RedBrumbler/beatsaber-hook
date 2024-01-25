@@ -179,7 +179,7 @@ namespace il2cpp_utils {
     T MakeDelegate(const Il2CppClass* delegateClass, TObj obj, function_ptr_t<R, TArgs...> callback) {
         static_assert(sizeof(TObj) == sizeof(void*), "TObj must have the same size as a pointer!");
         static_assert(sizeof(T) == sizeof(void*), "T must have the same size as a pointer!");
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto callbackPtr = reinterpret_cast<Il2CppMethodPointer>(callback);
         /*
         * TODO: call PlatformInvoke::MarshalFunctionPointerToDelegate directly instead of copying code from it,
@@ -284,7 +284,7 @@ namespace il2cpp_utils {
     template<typename T = MulticastDelegate*, typename T1, typename T2>
     T MakeDelegate(const MethodInfo* method, int paramIdx, T1&& arg1, T2&& arg2) {
         il2cpp_functions::Init();
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* delegateType = RET_0_UNLESS(logger, il2cpp_functions::method_get_param(method, paramIdx));
         return MakeDelegate<T>(delegateType, arg1, arg2);
     }
@@ -300,7 +300,7 @@ namespace il2cpp_utils {
     template<typename T = MulticastDelegate*, typename T1, typename T2>
     T MakeDelegate(FieldInfo* field, T1&& arg1, T2&& arg2) {
         il2cpp_functions::Init();
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* delegateType = RET_0_UNLESS(logger, il2cpp_functions::field_get_type(field));
         return MakeDelegate<T>(delegateType, arg1, arg2);
     }
@@ -457,7 +457,7 @@ namespace il2cpp_utils {
     // Intializes an object (using the given args) fit to be passed to the given method at the given parameter index.
     template<typename... TArgs>
     Il2CppObject* CreateParam(const MethodInfo* method, int paramIdx, TArgs&& ...args) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* klass = RET_0_UNLESS(logger, GetParamClass(method, paramIdx));
         return il2cpp_utils::New(klass, args...);
     }
@@ -469,7 +469,7 @@ namespace il2cpp_utils {
     template<typename T>
     Array<T>* vectorToArray(::std::vector<T>& vec) {
         il2cpp_functions::Init();
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         Array<T>* arr = reinterpret_cast<Array<T>*>(RET_0_UNLESS(logger, il2cpp_functions::array_new(il2cpp_type_check::il2cpp_no_arg_class<T>::get(), vec.size())));
         for (size_t i = 0; i < vec.size(); i++) {
             arr->values[i] = vec[i];
@@ -518,7 +518,7 @@ namespace il2cpp_utils {
     T MakeFunc(function_ptr_t<Ret, TArgs...> lambda) {
         static_assert(sizeof...(TArgs) + 1 <= 16, "Cannot create a Func`<T1, T2, ..., TN> where N is > 16!");
         static_assert(!std::is_same_v<Ret, void>, "Function used in ::il2cpp_utils::MakeFunc must have a non-void return!");
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         // Get generic class with matching number of args
         static auto* genericClass = il2cpp_utils::GetClassFromName("System", "Func`" + ::std::to_string(sizeof...(TArgs) + 1));
         // Extract all parameter types and return types
@@ -536,7 +536,7 @@ namespace il2cpp_utils {
     template<typename T = MulticastDelegate*, typename... TArgs>
     T MakeAction(function_ptr_t<void, TArgs...> lambda) {
         static_assert(sizeof...(TArgs) <= 16, "Cannot create an Action`<T1, T2, ..., TN> where N is > 16!");
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         if constexpr (sizeof...(TArgs) != 0) {
             // Get generic class with matching number of args
             static auto* genericClass = il2cpp_utils::GetClassFromName("System", "Action`" + ::std::to_string(sizeof...(TArgs)));
@@ -578,7 +578,7 @@ namespace il2cpp_utils {
         /// @return True if the MethodInfo* is a valid match, false otherwise.
         static bool valid(const MethodInfo* info) noexcept {
             if (!info) {
-                getLogger().warning("Null MethodInfo* provided to: MethodTypeCheck::valid!");
+                il2cpp_utils::Logger.warn("Null MethodInfo* provided to: MethodTypeCheck::valid!");
                 return false;
             }
             if ((info->flags & METHOD_ATTRIBUTE_STATIC) == 0) {
@@ -630,7 +630,7 @@ namespace il2cpp_utils {
         /// @return True if the MethodInfo* is a valid match, false otherwise.
         static bool valid(const MethodInfo* info) noexcept {
             if (!info) {
-                getLogger().warning("Null MethodInfo* provided to: MethodTypeCheck::valid!");
+                il2cpp_utils::Logger.warn("Null MethodInfo* provided to: MethodTypeCheck::valid!");
                 return false;
             }
             if ((info->flags & METHOD_ATTRIBUTE_STATIC) != 0) {
@@ -675,7 +675,7 @@ namespace il2cpp_utils {
         il2cpp_functions::Init();
         auto out = reinterpret_cast<function_ptr_t<R, TArgs...>>(il2cpp_functions::resolve_icall(icallName.data()));
         if (!out) {
-            throw il2cpp_utils::RunMethodException(string_format("Failed to resolve_icall for icall: %s!", icallName.data()), nullptr);
+            throw il2cpp_utils::RunMethodException(fmt::format("Failed to resolve_icall for icall: {}!", icallName.data()), nullptr);
         }
         return out;
     }
@@ -697,7 +697,7 @@ namespace il2cpp_utils {
             template<typename Predicate, typename... TArgs>
             requires(std::is_invocable_v<Predicate, std::decay_t<TArgs>...>)
             static void internal_thread(Predicate&& pred, TArgs&&... args) {
-                auto logger = getLogger().WithContext("internal_thread_" + current_thread_id());
+                auto logger = il2cpp_utils::Logger;
 
                 // attach thread to jvm
                 modloader_jvm->AttachCurrentThread(&env, nullptr);

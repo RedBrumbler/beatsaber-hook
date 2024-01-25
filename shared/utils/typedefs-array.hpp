@@ -323,7 +323,7 @@ struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<Array<TArg>*> {
             il2cpp_functions::CheckS_GlobalMetadata();
             klass = il2cpp_functions::array_class_get(il2cpp_functions::defaults->object_class, 1);
         } else {
-            auto& logger = getLogger();
+            auto const& logger = il2cpp_utils::Logger;
             Il2CppClass* eClass = RET_0_UNLESS(logger, il2cpp_no_arg_class<TArg>::get());
             klass = il2cpp_functions::array_class_get(eClass, 1);
         }
@@ -495,7 +495,7 @@ struct ArrayW {
     /// @brief assert sizes
     inline void assert_bounds(size_t i) {
         if (i < 0 || i >= size()) {
-            throw ArrayException(this, string_format("%zu is out of bounds for array of length: %zu", i, size()));
+            throw ArrayException(this, fmt::format("{} is out of bounds for array of length: {}", i, size()));
         }
     }
 

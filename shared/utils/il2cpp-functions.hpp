@@ -452,7 +452,7 @@ class il2cpp_functions {
     // must be done on-demand because the pointers aren't necessarily correct at the time of il2cpp_functions::Init
     static void CheckS_GlobalMetadata() {
         if (!s_GlobalMetadataHeader) {
-            static auto& logger = getFuncLogger();
+            auto const& logger = il2cpp_utils::Logger;
             s_GlobalMetadata = *CRASH_UNLESS(il2cpp_functions::s_GlobalMetadataPtr);
             s_GlobalMetadataHeader = *CRASH_UNLESS(il2cpp_functions::s_GlobalMetadataHeaderPtr);
             s_Il2CppMetadataRegistration = *CRASH_UNLESS(il2cpp_functions::s_Il2CppMetadataRegistrationPtr);
@@ -483,8 +483,6 @@ class il2cpp_functions {
     static bool initialized;
     // Initializes all of the IL2CPP functions via dlopen and dlsym for use.
     static void Init();
-
-    static LoggerContextObject& getFuncLogger();
 };
 
 #undef API_FUNC

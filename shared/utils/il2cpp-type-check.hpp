@@ -88,9 +88,6 @@ namespace il2cpp_utils {
         return types;
     }
 
-    // Returns the il2cpp_utils logger context singleton.
-    LoggerContextObject& getLogger();
-
     // Returns the first matching class from the given namespace and typeName by searching through all assemblies that are loaded.
     Il2CppClass* GetClassFromName(std::string_view name_space, std::string_view type_name);
 
@@ -147,7 +144,7 @@ namespace il2cpp_utils {
         #endif
             static inline Il2CppClass* get() {
                 il2cpp_functions::Init();
-                static auto& logger = getLogger();
+                auto const& logger = il2cpp_utils::Logger;
                 auto* klass = RET_0_UNLESS(logger, il2cpp_no_arg_class<T>::get());
                 RET_0_UNLESS(logger, il2cpp_functions::class_is_valuetype(klass));
                 return il2cpp_functions::Class_GetPtrClass(klass);
@@ -316,7 +313,7 @@ namespace il2cpp_utils {
         template <>
         struct BS_HOOKS_HIDDEN il2cpp_arg_class<Il2CppType*> {
             static inline Il2CppClass* get(Il2CppType* arg) {
-                static auto& logger = getLogger();
+                auto const& logger = il2cpp_utils::Logger;
                 RET_0_UNLESS(logger, arg);
                 il2cpp_functions::Init();
                 return il2cpp_functions::class_from_il2cpp_type(arg);

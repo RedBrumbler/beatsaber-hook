@@ -27,33 +27,36 @@ struct AddrSearchPair {
 
 auto find_through_hooks(void const* hook, uint32_t initialSearchSize, auto&& func) {
     // First, check to see if we are hooked.
-    Logger::get().debug("Finding through potential hook: %p and size: %u", hook, initialSearchSize);
+    auto const& logger = il2cpp_utils::Logger;
+    logger.debug("Finding through potential hook: {} and size: {}", fmt::ptr(hook), initialSearchSize);
     auto hooks = HookTracker::GetHooks(hook);
     if (!hooks.empty()) {
         uint32_t const* addr = hooks.front().original_data.data();
         uint32_t size = hooks.front().original_data.size() * sizeof(uint32_t);
-        Logger::get().debug("Hook found (%s)! Original data: %p with size: %u", hooks.front().name.c_str(), addr, size);
+        logger.debug("Hook found ({})! Original data: {} with size: {}", hooks.front().name, fmt::ptr(addr), size);
         return func(cs::AddrSearchPair(addr, size), cs::AddrSearchPair(reinterpret_cast<uint32_t const*>(hook), initialSearchSize));
     }
-    Logger::get().debug("No hook found! Searching: %p, %u", hook, initialSearchSize);
+    logger.debug("No hook found! Searching: {}, {}", fmt::ptr(hook), initialSearchSize);
     return func(cs::AddrSearchPair(reinterpret_cast<uint32_t const*>(hook), initialSearchSize));
 }
 
 template<std::size_t sz, class F1, class F2>
 decltype(auto) findNth(std::array<AddrSearchPair, sz>& addrs, uint32_t nToRetOn, int retCount, F1&& match, F2&& skip) {
+    auto const& logger = il2cpp_utils::Logger;
+
     cs_insn* insn = cs_malloc(getHandle());
     for (std::size_t searchIdx = 0; searchIdx < addrs.size(); searchIdx++) {
         while (addrs[searchIdx].remSearchSize > 0) {
             auto ptr = reinterpret_cast<uint64_t>(addrs[searchIdx].addr);
             bool res = cs_disasm_iter(getHandle(), reinterpret_cast<const uint8_t**>(&addrs[searchIdx].addr), &addrs[searchIdx].remSearchSize, &ptr, insn);
-            Logger::get().debug("%p diassemb: %s (rCount: %i, nToRetOn: %u, sz: %zu)", (void*)ptr, insn->mnemonic, retCount, nToRetOn, addrs[searchIdx].remSearchSize);
+            logger.debug("{} diassemb: {} (rCount: {}, nToRetOn: {}, sz: {})", fmt::ptr((void*)ptr), insn->mnemonic, retCount, nToRetOn, addrs[searchIdx].remSearchSize);
             if (res) {
                 // Valid decode, so lets check to see if it is a match or we need to break.
                 if (insn->id == ARM64_INS_RET) {
                     if (retCount == 0) {
                         // Early termination!
                         cs_free(insn, 1);
-                        Logger::get().warning("Could not find: %u call at: %p within: %i rets! Found all of the rets first!", nToRetOn, addrs[searchIdx].addr, retCount);
+                        logger.warn("Could not find: {} call at: {} within: {} rets! Found all of the rets first!", nToRetOn, fmt::ptr(addrs[searchIdx].addr), retCount);
                         return (decltype(match(insn)))std::nullopt;
                     }
                     retCount--;
@@ -70,7 +73,7 @@ decltype(auto) findNth(std::array<AddrSearchPair, sz>& addrs, uint32_t nToRetOn,
                         if (nToRetOn == 1) {
                             std::string name(insn->mnemonic);
                             cs_free(insn, 1);
-                            Logger::get().warning("Found: %u match, at: %p within: %i rets, but the result was a %s! Cannot compute destination address!", nToRetOn, addrs[searchIdx].addr, retCount, name.c_str());
+                            logger.warn("Found: {} match, at: {} within: {} rets, but the result was a {}! Cannot compute destination address!", nToRetOn, fmt::ptr(addrs[searchIdx].addr), retCount, name);
                             return (decltype(match(insn)))std::nullopt;
                         } else {
                             nToRetOn--;
@@ -87,7 +90,7 @@ decltype(auto) findNth(std::array<AddrSearchPair, sz>& addrs, uint32_t nToRetOn,
             }
         }
         // We didn't find it. Let's instead look at the next address/size pair for a match.
-        Logger::get().debug("Could not find: %u call at: %p within: %i rets at idx: %zu!", nToRetOn, addrs[searchIdx].addr, retCount, searchIdx);
+        logger.debug("Could not find: {} call at: {} within: {} rets at idx: {}!", nToRetOn, fmt::ptr(addrs[searchIdx].addr), retCount, searchIdx);
     }
     // If we run out of bytes to parse, we fail
     cs_free(insn, 1);
@@ -101,19 +104,21 @@ auto findNth(const uint32_t* addr, F1&& match, F2&& skip) {
     auto ptr = reinterpret_cast<uint64_t>(addr);
     auto instructions = reinterpret_cast<const uint8_t*>(addr);
 
+    auto const& logger = il2cpp_utils::Logger;
+
     int rCount = retCount;
     uint32_t nCalls = nToRetOn;
     size_t sz = szBytes;
     while (sz > 0) {
         bool res = cs_disasm_iter(getHandle(), &instructions, &sz, &ptr, insn);
-        Logger::get().debug("%p diassemb: %s (rCount: %i, nCalls: %u, sz: %zu)", (void*)ptr, insn->mnemonic, rCount, nCalls, sz);
+        logger.debug("{} diassemb: {} (rCount: {}, nCalls: {}, sz: {})", fmt::ptr((void*)ptr), insn->mnemonic, rCount, nCalls, sz);
         if (res) {
             // Valid decode, so lets check to see if it is a match or we need to break.
             if (insn->id == ARM64_INS_RET) {
                 if (rCount == 0) {
                     // Early termination!
                     cs_free(insn, 1);
-                    Logger::get().warning("Could not find: %u call at: %p within: %i rets! Found all of the rets first!", nToRetOn, (void*)ptr, retCount);
+                    logger.warn("Could not find: {} call at: {} within: {} rets! Found all of the rets first!", nToRetOn, fmt::ptr((void*)ptr), retCount);
                     return (decltype(match(insn)))std::nullopt;
                 }
                 rCount--;
@@ -130,7 +135,7 @@ auto findNth(const uint32_t* addr, F1&& match, F2&& skip) {
                     if (nCalls == 1) {
                         std::string name(insn->mnemonic);
                         cs_free(insn, 1);
-                        Logger::get().warning("Found: %u match, at: %p within: %i rets, but the result was a %s! Cannot compute destination address!", nToRetOn, (void*)ptr, retCount, name.c_str());
+                        logger.warn("Found: {} match, at: {} within: {} rets, but the result was a {}! Cannot compute destination address!", nToRetOn, fmt::ptr((void*)ptr), retCount, name);
                         return (decltype(match(insn)))std::nullopt;
                     } else {
                         nCalls--;
@@ -149,7 +154,7 @@ auto findNth(const uint32_t* addr, F1&& match, F2&& skip) {
     }
     // If we run out of bytes to parse, we fail
     cs_free(insn, 1);
-    Logger::get().warning("Could not find: %u call at: %p within: %i rets, within size: %zu!", nToRetOn, addr, retCount, szBytes);
+    logger.warn("Could not find: {} call at: {} within: {} rets, within size: {}!", nToRetOn, fmt::ptr(addr), retCount, szBytes);
     return (decltype(match(insn)))std::nullopt;
 }
 
@@ -160,19 +165,21 @@ auto findNth(const uint32_t* addr) {
     auto ptr = reinterpret_cast<uint64_t>(addr);
     auto instructions = reinterpret_cast<const uint8_t*>(addr);
 
+    auto const& logger = il2cpp_utils::Logger;
+
     int rCount = retCount;
     uint32_t nCalls = nToRetOn;
     size_t sz = szBytes;
     while (sz > 0) {
         bool res = cs_disasm_iter(getHandle(), &instructions, &sz, &ptr, insn);
-        Logger::get().debug("%p diassemb: %s (rCount: %i, nCalls: %u, sz: %zu)", (void*)ptr, insn->mnemonic, rCount, nCalls, sz);
+        logger.debug("{} diassemb: {} (rCount: {}, nCalls: {}, sz: {})", fmt::ptr((void*)ptr), insn->mnemonic, rCount, nCalls, sz);
         if (res) {
             // Valid decode, so lets check to see if it is a match or we need to break.
             if (insn->id == ARM64_INS_RET) {
                 if (rCount == 0) {
                     // Early termination!
                     cs_free(insn, 1);
-                    Logger::get().warning("Could not find: %u call at: %p within: %i rets! Found all of the rets first!", nToRetOn, (void*)ptr, retCount);
+                    logger.warn("Could not find: {} call at: {} within: {} rets! Found all of the rets first!", nToRetOn, fmt::ptr((void*)ptr), retCount);
                     return (decltype(match(insn)))std::nullopt;
                 }
                 rCount--;
@@ -189,7 +196,7 @@ auto findNth(const uint32_t* addr) {
                     if (nCalls == 1) {
                         std::string name(insn->mnemonic);
                         cs_free(insn, 1);
-                        Logger::get().warning("Found: %u match, at: %p within: %i rets, but the result was a %s! Cannot compute destination address!", nToRetOn, (void*)ptr, retCount, name.c_str());
+                        logger.warn("Found: {} match, at: {} within: {} rets, but the result was a {}! Cannot compute destination address!", nToRetOn, fmt::ptr((void*)ptr), retCount, name);
                         return (decltype(match(insn)))std::nullopt;
                     } else {
                         nCalls--;
@@ -201,7 +208,7 @@ auto findNth(const uint32_t* addr) {
         else {
             // Invalid instructions are ignored silently.
             // In order to skip these properly, we must increment our instructions, ptr, and size accordingly.
-            Logger::get().warning("FAILED PARSE: %p diassemb: 0x%x", (void*)ptr, *(uint32_t*)ptr);
+            logger.warn("FAILED PARSE: {} diassemb: 0x{:x}", fmt::ptr((void*)ptr), *(uint32_t*)ptr);
             sz -= 4;
             ptr += 4;
             instructions += 4;

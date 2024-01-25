@@ -122,7 +122,7 @@ Il2CppObject* ToIl2CppObject(T&& arg) {
     if constexpr (::std::is_same_v<Dt, Il2CppType*> || ::std::is_same_v<Dt, Il2CppClass*>) {
         return nullptr;
     }
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
     auto* klass = RET_0_UNLESS(logger, ::il2cpp_utils::ExtractClass(arg));
     return il2cpp_functions::value_box(klass, &arg);
 }
@@ -297,10 +297,10 @@ inline const Il2CppGenericContainer* GetGenericContainer(MethodInfo const* metho
 template <size_t genSz, size_t argSz>
 bool ParameterMatch(const MethodInfo* method, std::span<const Il2CppClass* const, genSz> const genTypes, std::span<const Il2CppType* const, argSz> const argTypes,
                     std::optional<bool*> isIdenticalOut) {
-    static auto logger = getLogger().WithContext("ParameterMatch");
+    auto const& logger = il2cpp_utils::Logger;
     il2cpp_functions::Init();
     if (method->parameters_count != argTypes.size()) {
-        logger.warning("Potential method match had wrong number of parameters %i (expected %lu)", method->parameters_count, argTypes.size());
+        logger.warn("Potential method match had wrong number of parameters %i (expected %lu)", method->parameters_count, argTypes.size());
         return false;
     }
 
@@ -313,8 +313,8 @@ bool ParameterMatch(const MethodInfo* method, std::span<const Il2CppClass* const
     }
 
     if ((size_t)genCount != genTypes.size()) {
-        logger.warning("Potential method match had wrong number of generics %i (expected %lu)", genCount, genTypes.size());
-        logger.warning("is generic %i is inflated %i", method->is_generic, method->is_inflated);
+        logger.warn("Potential method match had wrong number of generics %i (expected %lu)", genCount, genTypes.size());
+        logger.warn("is generic %i is inflated %i", method->is_generic, method->is_inflated);
         return false;
     }
     bool isIdentical = true;
@@ -324,16 +324,16 @@ bool ParameterMatch(const MethodInfo* method, std::span<const Il2CppClass* const
         auto* paramType = method->parameters[i];
         if (paramType->type == IL2CPP_TYPE_MVAR) {
             if (genCount == 0) {
-                logger.warning("No generic args to extract paramIdx %i", i);
+                logger.warn("No generic args to extract paramIdx %i", i);
                 continue;
             }
             auto genIdx = il2cpp_functions::MetadataCache_GetGenericParameterIndexFromParameter(paramType->data.genericParameterHandle) - genContainer->genericParameterStart;
             if (genIdx < 0) {
-                logger.warning("Extracted invalid genIdx %i from parameter %i", genIdx, i);
+                logger.warn("Extracted invalid genIdx %i from parameter %i", genIdx, i);
                 continue;
             }
             if (genIdx >= genCount) {
-                logger.warning(
+                logger.warn(
                     "ParameterMatch was not supplied enough genTypes to determine type of parameter %i "
                     "(had %i, needed %i)!",
                     i, genCount, genIdx);
@@ -389,7 +389,7 @@ bool ParameterMatch(const MethodInfo* method, std::array<const Il2CppType*, sz> 
 /// @param params The arguments to pass into the function.
 template <class TOut = void, bool checkTypes = true, class T, class... TArgs>
 TOut RunMethodFnPtr(T* instance, const MethodInfo* method, Il2CppMethodPointer mPtr, TArgs&&... params) {
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
     if (!method) {
         throw RunMethodException("Method cannot be null!", nullptr);
     }
@@ -405,7 +405,7 @@ TOut RunMethodFnPtr(T* instance, const MethodInfo* method, Il2CppMethodPointer m
         auto* outType = ExtractIndependentType<TOut>();
         if (outType) {
             if (!IsConvertibleFrom(outType, method->return_type, false)) {
-                logger.warning("User requested TOut %s does not match the method's return object of type %s!", TypeGetSimpleName(outType), TypeGetSimpleName(method->return_type));
+                logger.warn("User requested TOut %s does not match the method's return object of type %s!", TypeGetSimpleName(outType), TypeGetSimpleName(method->return_type));
                 throw RunMethodException("Return type of method is not convertible!", method);
             }
         }
@@ -549,11 +549,11 @@ bool ParameterMatch(const MethodInfo* method, ::std::span<Il2CppClass const*> ge
 
 // Function made by zoller27osu, modified by Sc2ad
 // Logs information about the given MethodInfo* as log(DEBUG)
-void LogMethod(LoggerContextObject& logger, const MethodInfo* method);
+void LogMethod(Paper::LoggerContext const& logger, const MethodInfo* method);
 
 // Created by zoller27osu
 // Calls LogMethod on all methods in the given class
-void LogMethods(LoggerContextObject& logger, Il2CppClass* klass, bool logParents = false);
+void LogMethods(Paper::LoggerContext const& logger, Il2CppClass* klass, bool logParents = false);
 
 template <typename TOut>
 using MethodResult = ::il2cpp_utils::Result<TOut, RunMethodException>;
@@ -689,7 +689,7 @@ template <class TOut = Il2CppObject*, bool checkTypes = true, class T, class... 
 // Runs a MethodInfo with the specified parameters and instance, with return type TOut.
 // Assumes a static method if instance == nullptr. May fail due to exception or wrong name, hence the ::std::optional.
 MethodResult<TOut> RunMethod(T&& wrappedInstance, const MethodInfo* method, TArgs&&... params) noexcept {
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
 
     if (!method) {
         return RunMethodException("MethodInfo cannot be null!", nullptr);
@@ -698,7 +698,7 @@ MethodResult<TOut> RunMethod(T&& wrappedInstance, const MethodInfo* method, TArg
     if constexpr (checkTypes) {
         // only check args if TArgs is > 0
         if (method->parameters_count != sizeof...(TArgs)) {
-            logger.warning("MethodInfo parameter count %i does not match actual parameter count %lu", method->parameters_count, sizeof...(TArgs));
+            logger.warn("MethodInfo parameter count %i does not match actual parameter count %lu", method->parameters_count, sizeof...(TArgs));
         }
 
         if constexpr (sizeof...(TArgs) > 0) {
@@ -712,8 +712,8 @@ MethodResult<TOut> RunMethod(T&& wrappedInstance, const MethodInfo* method, TArg
             auto* outType = ExtractIndependentType<TOut>();
             if (outType) {
                 if (!IsConvertibleFrom(outType, method->return_type, false)) {
-                    logger.warning("User requested TOut %s does not match the method's return object of type %s!", TypeGetSimpleName(outType), TypeGetSimpleName(method->return_type));
-                    return RunMethodException(string_format("Return type of method is not convertible to: %s!", TypeGetSimpleName(outType)), method);
+                    logger.warn("User requested TOut {} does not match the method's return object of type {}!", TypeGetSimpleName(outType), TypeGetSimpleName(method->return_type));
+                    return RunMethodException(fmt::format("Return type of method is not convertible to: {}!", TypeGetSimpleName(outType)), method);
                 }
             }
         }
@@ -751,7 +751,7 @@ MethodResult<TOut> RunMethod(T&& wrappedInstance, const MethodInfo* method, TArg
             if (outType) {
                 auto* retType = ExtractType(ret);
                 if (!IsConvertibleFrom(outType, retType, false)) {
-                    logger.warning("User requested TOut %s does not match the method's return object of type %s!", TypeGetSimpleName(outType), TypeGetSimpleName(retType));
+                    logger.warn("User requested TOut %s does not match the method's return object of type %s!", TypeGetSimpleName(outType), TypeGetSimpleName(retType));
                 }
             }
         }
@@ -790,7 +790,7 @@ template <class TOut = Il2CppObject*, bool checkTypes = true, class T, class... 
 // Runs a (static) method with the specified method name, with return type TOut.
 // Checks the types of the parameters against the candidate methods.
 MethodResult<TOut> RunMethod(T&& classOrInstance, ::std::string_view methodName, TArgs&&... params) {
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
 
     std::array<const Il2CppType*, sizeof...(TArgs)> const types{ ::il2cpp_utils::ExtractType(params)... };
     auto* method = RET_NULLOPT_UNLESS(logger, FindMethod(classOrInstance, methodName, types));
@@ -802,7 +802,7 @@ template <class TOut = Il2CppObject*, bool checkTypes = true, class... TArgs>
 // Runs a static method with the specified method name and arguments, on the class with the specified namespace and class name.
 // The method also has return type TOut.
 MethodResult<TOut> RunMethod(::std::string_view nameSpace, ::std::string_view klassName, ::std::string_view methodName, TArgs&&... params) {
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
     auto* klass = RET_NULLOPT_UNLESS(logger, GetClassFromName(nameSpace, klassName));
     return RunMethod<TOut, checkTypes>(klass, methodName, params...);
 }
@@ -844,7 +844,7 @@ inline std::optional<TypeOrMonostate<TOut>> RunMethodOpt(TArgs&&... params) noex
     auto result = ::il2cpp_utils::RunMethod<TOut, checkTypes>(std::forward<TArgs>(params)...);
 
     if (auto const exception = result.as_optional_exception()) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         logger.error("%s: Failed with exception: %s", il2cpp_functions::method_get_name(exception.value()->info), il2cpp_utils::ExceptionToString(exception.value()->ex).c_str());
         return std::nullopt;
     }
@@ -864,14 +864,14 @@ inline std::optional<TypeOrMonostate<TOut>> RunMethodOpt(TArgs&&... params) noex
 /// @param params Parameters to RunMethod
 template <class TOut = Il2CppObject*, class T, class... TArgs>
 ::std::variant<TOut, RunMethodException> RunGenericMethod(T&& instance, const MethodInfo* info, ::std::span<const Il2CppClass* const> genTypes, TArgs&&... params) noexcept {
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
     auto* createdMethod = RET_NULLOPT_UNLESS(logger, MakeGenericMethod(info, genTypes));
     return RunMethod<TOut, false>(instance, createdMethod, params...);
 }
 
 template <class TOut = Il2CppObject*, class T, class... TArgs>
 ::std::variant<TOut, RunMethodException> RunGenericMethod(T&& classOrInstance, ::std::string_view methodName, ::std::span<const Il2CppClass* const> genTypes, TArgs&&... params) noexcept {
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
     std::array<const Il2CppType*, sizeof...(TArgs)> types{ ::il2cpp_utils::ExtractType(params)... };
 
     auto* info = RET_NULLOPT_UNLESS(logger, FindMethod(classOrInstance, NoArgClass<TOut>(), methodName, genTypes, types));
@@ -882,7 +882,7 @@ template <class TOut = Il2CppObject*, class... TArgs>
 // The method also has return type TOut.
 ::std::variant<TOut, RunMethodException> RunGenericMethod(::std::string_view nameSpace, ::std::string_view klassName, ::std::string_view methodName, ::std::span<const Il2CppClass* const> genTypes,
                                                           TArgs&&... params) noexcept {
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
     auto* klass = RET_NULLOPT_UNLESS(logger, GetClassFromName(nameSpace, klassName));
     return RunGenericMethod<TOut>(klass, methodName, genTypes, params...);
 }
@@ -891,7 +891,7 @@ template <typename TOut = Il2CppObject*, CreationType creationType = CreationTyp
 // Creates a new object of the given class using the given constructor parameters
 // Will only run a .ctor whose parameter types match the given arguments.
 ::std::optional<TOut> New(Il2CppClass* klass, TArgs&&... args) {
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
     il2cpp_functions::Init();
 
     Il2CppObject* obj;
@@ -933,7 +933,7 @@ TOut NewSpecific(TArgs&&... args) {
     // Only need to extract based off of types, since we are asusming our TOut is classof-able already
     static auto ctorMethod = FindMethod(klass, ".ctor", std::array<Il2CppType const*, sizeof...(TArgs)>{ ExtractIndependentType<std::decay_t<TArgs>>()... });
     if (!ctorMethod) {
-        throw exceptions::StackTraceException(string_format("Failed to find a matching .ctor method during construction of type: %s", ClassStandardName(klass).c_str()));
+        throw exceptions::StackTraceException(fmt::format("Failed to find a matching .ctor method during construction of type: {}", ClassStandardName(klass).c_str()));
     }
     ::il2cpp_utils::RunMethodRethrow<void, false>(obj, ctorMethod, std::forward<TArgs>(args)...);
     if constexpr (std::is_pointer_v<TOut>) {
@@ -955,7 +955,7 @@ template <typename TOut = Il2CppObject*, CreationType creationType = CreationTyp
     requires(... && ((!::std::is_same_v<const Il2CppClass*, TArgs> || !::std::is_same_v<Il2CppClass*, TArgs>)&&!::std::is_convertible_v<TArgs, ::std::string_view>))::std::optional<TOut>
 #endif
 New(TArgs&&... args) {
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
     auto* klass = RET_NULLOPT_UNLESS(logger, (NoArgClass<TOut, true>()));
     return New<TOut, creationType>(klass, args...);
 }
@@ -964,7 +964,7 @@ template <typename TOut = Il2CppObject*, CreationType creationType = CreationTyp
 // Creates a new object of the class with the given nameSpace and className using the given constructor parameters.
 // Will only run a .ctor whose parameter types match the given arguments.
 ::std::optional<TOut> New(::std::string_view nameSpace, ::std::string_view className, TArgs&&... args) {
-    static auto& logger = getLogger();
+    auto const& logger = il2cpp_utils::Logger;
     auto* klass = RET_0_UNLESS(logger, GetClassFromName(nameSpace, className));
     return New<TOut, creationType>(klass, args...);
 }

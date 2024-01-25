@@ -17,10 +17,10 @@ typedef rapidjson::Document ConfigDocument;
 typedef rapidjson::Value ConfigValue;
 
 #ifndef PERSISTENT_DIR
-#define PERSISTENT_DIR "/sdcard/ModData/%s/Mods/"
+#define PERSISTENT_DIR "/sdcard/ModData/{}/Mods/"
 #endif
 #ifndef CONFIG_PATH_FORMAT
-#define CONFIG_PATH_FORMAT "/sdcard/ModData/%s/Configs/"
+#define CONFIG_PATH_FORMAT "/sdcard/ModData/{}/Configs/"
 #endif
 
 // You are responsible for Loading and Writing to it as necessary.

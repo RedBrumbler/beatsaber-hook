@@ -17,10 +17,10 @@ void __attribute__((constructor)) init_capstone() {
     cs_err e1 = cs_open(CS_ARCH_ARM64, CS_MODE_ARM, &handle);
     cs_option(handle, CS_OPT_DETAIL, 1);
     if (e1) {
-        __android_log_print(Logging::CRITICAL, "QuestHook[" MOD_ID "|" VERSION "] capstone", "Capstone initialization failed! %u", e1);
+        __android_log_print(ANDROID_LOG_FATAL, "QuestHook[" MOD_ID "|" VERSION "] capstone", "Capstone initialization failed! %u", e1);
         SAFE_ABORT();
     }
-    __android_log_print(Logging::INFO, "QuestHook[" MOD_ID "|" VERSION "] capstone", "Capstone initialized!");
+    __android_log_print(ANDROID_LOG_INFO, "QuestHook[" MOD_ID "|" VERSION "] capstone", "Capstone initialized!");
     valid = true;
 }
 

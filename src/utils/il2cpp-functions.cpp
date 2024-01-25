@@ -429,7 +429,6 @@ static std::optional<uint32_t*> blrFind(cs_insn* insn) {
 }
 
 bool il2cpp_functions::find_GC_free() {
-    static auto logger = il2cpp_functions::getFuncLogger().WithContext("find_GC_free");
     auto gc_free_fixed = cs::findNthB<1>(reinterpret_cast<uint32_t*>(il2cpp_functions::il2cpp_gc_free_fixed));
     if (!gc_free_fixed) SAFE_ABORT_MSG("Failed to find GarbageCollector::FreeFixed!");
 
@@ -444,7 +443,6 @@ bool il2cpp_functions::find_GC_SetWriteBarrier(const uint32_t* set_wbarrier_fiel
     if (!set_wbarrier_field) {
         return false;
     }
-    static auto logger = il2cpp_functions::getFuncLogger().WithContext("find_GC_SetWriteBarrier");
     auto tmp = cs::findNthB<1>(set_wbarrier_field);
     if (!tmp) return false;
     il2cpp_GarbageCollector_SetWriteBarrier = reinterpret_cast<decltype(il2cpp_GarbageCollector_SetWriteBarrier)>(*tmp);
@@ -459,7 +457,8 @@ void* __wrapper_gc_malloc_uncollectable(size_t sz, [[maybe_unused]] void* desc) 
 }
 
 bool il2cpp_functions::trace_GC_AllocFixed(const uint32_t* DomainGetCurrent) {
-    static auto logger = il2cpp_functions::getFuncLogger().WithContext("trace_GC_AllocFixed");
+
+
     // Domain::GetCurrent has a single bl to GarbageCollector::AllocateFixed
     // MetadataCache::InitializeGCSafe is 3rd bl after first b.ne, which is the 6th b(.lt, .ne), t(bz, nz), c(bz, nz)
     auto tmp = cs::findNthBl<1>(DomainGetCurrent);
@@ -491,10 +490,6 @@ static std::optional<uint32_t*> loadFind(cs_insn* insn) {
     return (insn->id == ARM64_INS_LDR || insn->id == ARM64_INS_LDP) ? std::optional<uint32_t*>(reinterpret_cast<uint32_t*>(insn->address)) : std::nullopt;
 }
 
-LoggerContextObject& il2cpp_functions::getFuncLogger() {
-    static auto logger = Logger::get().WithContext("il2cpp_functions");
-    return logger;
-}
 
 #define API_SYM(name)                                                \
     *(void**)(&il2cpp_##name) = dlsym(imagehandle, "il2cpp_" #name); \
@@ -505,7 +500,8 @@ void il2cpp_functions::Init() {
     if (initialized) {
         return;
     }
-    static auto logger = getFuncLogger().WithContext("Init");
+    auto const& logger = il2cpp_utils::Logger;
+
     logger.info("il2cpp_functions: Init: Initializing all IL2CPP Functions...");
     dlerror();  // clears existing errors
     void* imagehandle = modloader_libil2cpp_handle;
@@ -957,7 +953,7 @@ void il2cpp_functions::Init() {
         auto defaults_addr = cs::getpcaddr<1, 1>(*ldr);
         if (!defaults_addr) SAFE_ABORT_MSG("Failed to find pcaddr around 8th load in Runtime::Init!");
         defaults = reinterpret_cast<decltype(defaults)>(std::get<2>(*defaults_addr));
-        logger.debug("il2cpp_defaults found: %p (offset: %lX)", defaults, ((uintptr_t)defaults) - getRealOffset(0));
+        logger.debug("il2cpp_defaults found: {} (offset: {:X})", fmt::ptr(defaults), ((uintptr_t)defaults) - getRealOffset(0));
 
         // FIELDS
         // Extract locations of s_GlobalMetadataHeader, s_Il2CppMetadataRegistration, & s_GlobalMetadata
@@ -973,7 +969,7 @@ void il2cpp_functions::Init() {
         tmp = cs::getpcaddr<5, 1>(reinterpret_cast<const uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex));
         if (!tmp) SAFE_ABORT_MSG("Failed to find 5th pcaddr for s_GlobalMetadataPtr!");
         s_GlobalMetadataPtr = reinterpret_cast<decltype(s_GlobalMetadataPtr)>(std::get<2>(*tmp));
-        logger.debug("%p %p %p metadata pointers", s_GlobalMetadataHeaderPtr, s_Il2CppMetadataRegistrationPtr, s_GlobalMetadataPtr);
+        logger.debug("{} {} {} metadata pointers", fmt::ptr(s_GlobalMetadataHeaderPtr), fmt::ptr(s_Il2CppMetadataRegistrationPtr), fmt::ptr(s_GlobalMetadataPtr));
         logger.debug("All global constants found!");
     }
 

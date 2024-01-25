@@ -9,7 +9,7 @@ namespace il2cpp_utils {
     static std::mutex nameFieldLock;
 
     FieldInfo* FindField(Il2CppClass* klass, std::string_view fieldName) {
-        static auto logger = getLogger().WithContext("FindField");
+        auto const& logger = il2cpp_utils::Logger;
         il2cpp_functions::Init();
         RET_0_UNLESS(logger, klass);
 
@@ -35,12 +35,12 @@ namespace il2cpp_utils {
     }
 
     Il2CppClass* GetFieldClass(FieldInfo* field) {
-        static auto logger = getLogger().WithContext("GetFieldClass");
+        auto const& logger = il2cpp_utils::Logger;
         auto type = RET_0_UNLESS(logger, il2cpp_functions::field_get_type(field));
         return il2cpp_functions::class_from_il2cpp_type(type);
     }
 
-    void LogField(LoggerContextObject& logger, FieldInfo* field) {
+    void LogField(Paper::LoggerContext const& logger, FieldInfo* field) {
         il2cpp_functions::Init();
         RET_V_UNLESS(logger, field);
 
@@ -55,7 +55,7 @@ namespace il2cpp_utils {
         logger.debug("%s%s %s; // 0x%lx, flags: 0x%.4X", flagStr, typeStr, name, offset, flags);
     }
 
-    void LogFields(LoggerContextObject& logger, Il2CppClass* klass, bool logParents) {
+    void LogFields(Paper::LoggerContext const& logger, Il2CppClass* klass, bool logParents) {
         il2cpp_functions::Init();
         RET_V_UNLESS(logger, klass);
 

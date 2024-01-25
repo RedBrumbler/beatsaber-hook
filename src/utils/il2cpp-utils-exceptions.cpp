@@ -32,10 +32,10 @@ namespace il2cpp_utils {
     // It will be our caller's responsibility to determine what to do AFTER the backtrace is logged-- whether it be to terminate or rethrow.
     // Logs the backtrace with the Logging::ERROR level, using the global logger instance.
     static void log_backtrace_full(void* const* stacktrace_buffer, uint16_t stacktrace_size) {
-        static auto logger = Logger::get().WithContext("UNCAUGHT-EXCEPTION");
-        logger.error("Logging backtrace for RunMethodException with size: %u...", stacktrace_size);
-        logger.error("*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***");
-        logger.error("pid: %i, tid: %i", getpid(), gettid());
+        auto const& logger = il2cpp_utils::Logger;
+        logger.error("[UNCAUGHT-EXCEPTION] Logging backtrace for RunMethodException with size: {}...", stacktrace_size);
+        logger.error("[UNCAUGHT-EXCEPTION] *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***");
+        logger.error("[UNCAUGHT-EXCEPTION] pid: {}, tid: {}", getpid(), gettid());
         for (uint16_t i = 0; i < stacktrace_size; ++i) {
             Dl_info info;
             if (dladdr(stacktrace_buffer[i], &info)) {
@@ -47,12 +47,12 @@ namespace il2cpp_utils {
                     if (status) {
                         demangled = info.dli_sname;
                     }
-                    logger.error("        #%02i  pc %016lx  %s (%s)\n", i, addr, info.dli_fname, demangled);
+                    logger.error("        #{:02}  pc {:016x}  {} ({})\n", i, addr, info.dli_fname, demangled);
                     if (!status) {
                         free(const_cast<char*>(demangled));
                     }
                 } else {
-                    logger.error("        #%02i  pc %016lx  %s\n", i, addr, info.dli_fname);
+                    logger.error("        #{:02}  pc {:016x} {}\n", i, addr, info.dli_fname);
                 }
             }
         }

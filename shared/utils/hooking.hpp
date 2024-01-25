@@ -600,7 +600,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 template<typename T, typename L, bool track = true>
 inline void __InstallHook(L& logger, void* addr) {
     #ifndef SUPPRESS_MACRO_LOGS
-    logger.info("Installing hook: %s to offset: %p", T::name(), addr);
+    logger.info("Installing hook: {} to offset: {}", T::name(), fmt::ptr(addr));
     #endif
     #ifdef __aarch64__
     if constexpr (track) {
@@ -631,7 +631,7 @@ void InstallHook(L& logger) {
     auto info = T::getInfo();
     if (!info) {
         #ifndef SUPPRESS_MACRO_LOGS
-        logger.critical("Attempting to install hook: %s, but method could not be found!", T::name());
+        logger.critical("Attempting to install hook: {}, but method could not be found!", T::name());
         #endif
         SAFE_ABORT();
     }
@@ -645,7 +645,7 @@ void InstallOrigHook(L& logger) {
     auto info = T::getInfo();
     if (!info) {
         #ifndef SUPPRESS_MACRO_LOGS
-        logger.critical("Attempting to install hook: %s, but method could not be found!", T::name());
+        logger.critical("Attempting to install hook: {}, but method could not be found!", T::name());
         #endif
         SAFE_ABORT();
     }
@@ -666,7 +666,7 @@ void InstallHookDirect(L& logger, void* dst) {
     // Install T into the specified address. Null checks dst.
     if (!dst) {
         #ifndef SUPPRESS_MACRO_LOGS
-        logger.critical("Attempting to install direct hook: %s, but was installing to an invalid destination!", T::name());
+        logger.critical("Attempting to install direct hook: {}, but was installing to an invalid destination!", T::name());
         #endif
         SAFE_ABORT();
     }
