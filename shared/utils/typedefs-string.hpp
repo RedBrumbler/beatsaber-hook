@@ -322,25 +322,14 @@ namespace System {
 using StringW = StringWrapper<System::String*>;
 // include actual type
 #include "System/String.hpp"
-
-DEFINE_IL2CPP_DEFAULT_TYPE(StringWrapper<System::String*>, string);
-static_assert(sizeof(StringWrapper<System::String*>) == sizeof(void*));
-static_assert(il2cpp_utils::has_il2cpp_conversion<StringWrapper<System::String*>>);
-
-DEFINE_IL2CPP_DEFAULT_TYPE(StringWrapper<System::String*>, string);
-NEED_NO_BOX(StringWrapper<System::String*>);
-MARK_REF_T(StringWrapper<System::String*>);
-
 #else
 using StringW = StringWrapper<Il2CppString*>;
 #endif
 
-static_assert(sizeof(StringWrapper<Il2CppString*>) == sizeof(void*));
-static_assert(il2cpp_utils::has_il2cpp_conversion<StringWrapper<Il2CppString*>>);
-
-DEFINE_IL2CPP_DEFAULT_TYPE(StringWrapper < Il2CppString*>, string);
-NEED_NO_BOX(StringWrapper<Il2CppString*>);
-MARK_REF_T(StringWrapper<Il2CppString*>);
+static_assert(sizeof(StringW) == sizeof(void*));
+static_assert(il2cpp_utils::has_il2cpp_conversion<StringW>);
+DEFINE_IL2CPP_DEFAULT_TYPE(StringW, string);
+NEED_NO_BOX(StringW);
 
 template <typename Ptr>
 auto format_as(StringWrapper<Ptr> s) {

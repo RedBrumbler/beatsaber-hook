@@ -8,6 +8,7 @@
     "version": "5.0.3",
     "url": "https://github.com/QuestPackageManager/beatsaber-hook",
     "additionalData": {
+      "cmake": true,
       "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/libbeatsaber-hook.so",
       "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/debug_libbeatsaber-hook.so",
       "branchName": "master"
