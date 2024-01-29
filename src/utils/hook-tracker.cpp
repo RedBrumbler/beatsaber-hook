@@ -70,7 +70,7 @@ const void* HookTracker::GetOrigInternal(const void* const location) noexcept {
 #include <dirent.h>
 
 void HookTracker::CombineHooks() noexcept {
-    static auto logger = Logger::get().WithContext("HookTracker");
+    auto const& logger = il2cpp_utils::Logger;
     auto libsFolder = modloader::get_modloader_root_load_path()/"libs";
     auto const& tmpPath = modloader::get_files_dir() / "libs";
     DIR* dir = opendir(libsFolder.c_str());
