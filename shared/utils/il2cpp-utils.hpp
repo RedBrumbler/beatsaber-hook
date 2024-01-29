@@ -472,7 +472,7 @@ namespace il2cpp_utils {
         auto const& logger = il2cpp_utils::Logger;
         Array<T>* arr = reinterpret_cast<Array<T>*>(RET_0_UNLESS(logger, il2cpp_functions::array_new(il2cpp_type_check::il2cpp_no_arg_class<T>::get(), vec.size())));
         for (size_t i = 0; i < vec.size(); i++) {
-            arr->values[i] = vec[i];
+            arr->_values[i] = vec[i];
         }
         return arr;
     }
@@ -716,19 +716,27 @@ namespace il2cpp_utils {
                     e.log_backtrace();
                     if (e.ex) e.rethrow();
                     il2cpp_functions::thread_detach(thread);
+                    modloader_jvm->DetachCurrentThread();
+                    env = nullptr;
                     SAFE_ABORT();
                 } catch(exceptions::StackTraceException const& e) {
                     logger.error("Caught in mod id: " _CATCH_HANDLER_ID ": Uncaught StackTraceException! what(): {}", e.what());
                     e.log_backtrace();
                     il2cpp_functions::thread_detach(thread);
+                    modloader_jvm->DetachCurrentThread();
+                    env = nullptr;
                     SAFE_ABORT();
                 } catch(std::exception& e) {
                     logger.error("Caught in mod id: " _CATCH_HANDLER_ID ": Uncaught C++ exception! type name: {}, what(): {}", typeid(e).name(), e.what());
                     il2cpp_functions::thread_detach(thread);
+                    modloader_jvm->DetachCurrentThread();
+                    env = nullptr;
                     SAFE_ABORT();
                 } catch(...) {
                     logger.error("Caught in mod id: " _CATCH_HANDLER_ID ": Uncaught, unknown C++ exception (not std::exception) with no known what() method!");
                     il2cpp_functions::thread_detach(thread);
+                    modloader_jvm->DetachCurrentThread();
+                    env = nullptr;
                     SAFE_ABORT();
                 }
 

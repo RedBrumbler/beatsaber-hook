@@ -99,7 +99,7 @@ namespace il2cpp_utils {
                 logger.error("Failed to get type object from class: {}", il2cpp_functions::class_get_name_const(klass));
                 THROW_OR_RET_NULL(logger, typeObj);
             }
-            arr->values[i] = typeObj;
+            arr->_values[i] = typeObj;
             i++;
         }
         // Call instance function on infoObj to MakeGeneric
@@ -407,14 +407,14 @@ namespace il2cpp_utils {
             auto const methodsSpan = std::span(targetKlass->methods, targetKlass->method_count);
             for (auto const& current : methodsSpan) {
                 if (info.name != current->name) {
-                    logger.debug("[FindMethod] Method name does not match for method {}", current->name);
+                    // logger.debug("Method name does not match for method %s", current->name);
                     continue;
                 }
 
                 // strict equal
                 bool isPerfect;
                 if (!ParameterMatch(current, std::span(info.genTypes), std::span(info.argTypes), &isPerfect)) {
-                    logger.debug("[FindMethod] Parameters do not match for method {}", current->name);
+                    // logger.debug("Parameters do not match for method %s", current->name);
                     continue;
                 }
 

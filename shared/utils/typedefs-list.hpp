@@ -74,9 +74,12 @@ struct ListWrapper {
     static_assert(sizeof(Ptr) == sizeof(void*), "Size of Ptr type must be the same as a void*!");
     using WrappedType = Ptr;
 
+    constexpr ListWrapper(ListWrapper&&) noexcept = default;
+    constexpr ListWrapper(ListWrapper const&) noexcept = default;
+
     constexpr ListWrapper() noexcept : ptr(nullptr) {}
 
-    // TODO: Consider requirementally constexpr-ifying this call
+
     // TODO: Apply these il2cpp conversion changes to ArrayW as well, to permit
     // ArrayW to hold wrapper types and not pure pointers
     constexpr ListWrapper(Ptr const& p) noexcept : ptr(p) {}
@@ -108,10 +111,10 @@ struct ListWrapper {
         return this->ptr;
     }
     T& operator[](size_t i) {
-        return get_items()->values[i];
+        return get_items()->_values[i];
     }
     const T& operator[](size_t i) const {
-        return get_items()->values[i];
+        return get_items()->_values[i];
     }
 
     /// @brief Get a given index, performs bound checking and throws
@@ -120,7 +123,7 @@ struct ListWrapper {
     /// @return The reference to the item.
     T& get(size_t i) {
         THROW_UNLESS(i < size() && i >= 0);
-        return get_items()->values[i];
+        return get_items()->_values[i];
     }
     /// @brief Get a given index, performs bound checking and throws
     /// std::runtime_error on failure.
@@ -128,7 +131,7 @@ struct ListWrapper {
     /// @return The const reference to the item.
     const T& get(size_t i) const {
         THROW_UNLESS(i < size() && i >= 0);
-        return get_items()->values[i];
+        return get_items()->_values[i];
     }
     /// @brief Tries to get a given index, performs bound checking and returns a
     /// std::nullopt on failure.
@@ -138,7 +141,7 @@ struct ListWrapper {
         if (i >= size() || i < 0) {
             return std::nullopt;
         }
-        return WrapperRef(get_items()->values[i]);
+        return WrapperRef(get_items()->_values[i]);
     }
     /// @brief Tries to get a given index, performs bound checking and returns a
     /// std::nullopt on failure.
@@ -149,20 +152,20 @@ struct ListWrapper {
         if (i >= size() || i < 0) {
             return std::nullopt;
         }
-        return WrapperRef(get_items()->values[i]);
+        return WrapperRef(get_items()->_values[i]);
     }
 
     iterator begin() {
-        return get_items()->values;
+        return get_items()->_values;
     }
     iterator end() {
-        return &get_items()->values[size()];
+        return &get_items()->_values[size()];
     }
     const_iterator begin() const {
-        return get_items()->values;
+        return get_items()->_values;
     }
     const_iterator end() const {
-        return &get_items()->values[size()];
+        return &get_items()->_values[size()];
     }
 
     operator std::span<T const> const() const {
@@ -193,11 +196,29 @@ struct ListWrapper {
         return ptr;
     }
 
+    constexpr ListWrapper& operator=(ListWrapper&&) = default;
+    constexpr ListWrapper& operator=(ListWrapper const&) = default;
+
     constexpr ListWrapper& operator=(Ptr const& ptr) {
         this->ptr = ptr;
+        return *this;
     }
     constexpr ListWrapper& operator=(Ptr&& ptr) {
         this->ptr = ptr;
+        return *this;
+    }
+
+    template <typename U>
+    requires(std::is_convertible_v<U, T>)
+    constexpr ListWrapper& operator=(ListWrapper<U> const& ptr) {
+        this->ptr = ptr.ptr;
+        return *this;
+    }
+    template <typename U>
+    requires(std::is_convertible_v<U, T>)
+    constexpr ListWrapper& operator=(ListWrapper<U>&& ptr) {
+        this->ptr = ptr.ptr;
+        return *this;
     }
 
     // method to create a new list easily
@@ -211,7 +232,7 @@ struct ListWrapper {
     }
 
     // method to create a new list easily
-    template <typename U, il2cpp_utils::CreationType creationType = il2cpp_utils::CreationType::Temporary>
+    template <typename U = T, il2cpp_utils::CreationType creationType = il2cpp_utils::CreationType::Temporary>
     requires(std::is_convertible_v<U, T>)
     static ListWrapper<T, Ptr> New(std::initializer_list<U> values) {
         il2cpp_functions::Init();
@@ -221,6 +242,19 @@ struct ListWrapper {
         ListWrapper<T, Ptr> lsWrap = { *ls };
 
         lsWrap.insert_range(values);
+
+        return lsWrap;
+    }
+    template <typename U = T, il2cpp_utils::CreationType creationType = il2cpp_utils::CreationType::Temporary>
+    requires(std::is_convertible_v<U, T>)
+    static ListWrapper<T, Ptr> New(std::span<U const> const values) {
+        il2cpp_functions::Init();
+        auto ls = il2cpp_utils::New<Ptr, creationType>();
+        if (!ls) throw ListException(nullptr, "Could not create list!");
+
+        ListWrapper<T, Ptr> lsWrap = { *ls };
+
+        lsWrap.insert_span(values);
 
         return lsWrap;
     }
@@ -500,7 +534,7 @@ struct ListWrapper {
      */
     template <typename It>
     void insert_range(It begin, It end) {
-        insert_span(std::span<T>(begin, end));
+        insert_span(std::span<T const>(begin, end));
     }
 
     /**
@@ -515,7 +549,7 @@ struct ListWrapper {
      */
     template <typename It>
     void insert_range(It begin, int count) {
-        insert_span(std::span<T>(begin, count));
+        insert_span(std::span<T const>(begin, count));
     }
 
     /**
@@ -529,7 +563,7 @@ struct ListWrapper {
      */
     template <typename C>
     void insert_range(C container) {
-        insert_span(std::span<T>(container.begin(), container.end()));
+        insert_span(std::span<T const>(container.begin(), container.end()));
     }
 
     /**
@@ -540,7 +574,7 @@ struct ListWrapper {
      *
      * @param span
      */
-    void insert_span(std::span<T> span) {
+    void insert_span(std::span<T const> span) {
         if (span.empty()) return;
 
         this->EnsureCapacity(span.size() + this->size());

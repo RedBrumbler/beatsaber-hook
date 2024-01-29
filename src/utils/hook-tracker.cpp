@@ -67,17 +67,12 @@ const void* HookTracker::GetOrigInternal(const void* const location) noexcept {
     return location;
 }
 
-#ifndef LIBS_FILE_PATH
-#define LIBS_FILE_PATH "/sdcard/Android/data/{}/files/libs"
-#endif
-
 #include <dirent.h>
 
 void HookTracker::CombineHooks() noexcept {
-    auto const& logger = il2cpp_utils::Logger;
-
-    auto libsFolder = fmt::format(LIBS_FILE_PATH, modloader_get_application_id());
-    auto const& tmpPath = modloader::get_modloader_root_load_path();
+    static auto logger = Logger::get().WithContext("HookTracker");
+    auto libsFolder = modloader::get_modloader_root_load_path()/"libs";
+    auto const& tmpPath = modloader::get_files_dir() / "libs";
     DIR* dir = opendir(libsFolder.c_str());
     if (dir == nullptr) {
         logger.warn("Failed to open libs folder! At path: {}", libsFolder.c_str());

@@ -205,7 +205,7 @@ namespace il2cpp_utils {
             throw il2cpp_utils::exceptions::NullException("cannot cast null klass!");
         }
         if (!il2cpp_functions::class_is_assignable_from(k1, k2)) {
-            throw ::il2cpp_utils::exceptions::BadCastException(k2, k1, inst);
+            throw ::il2cpp_utils::exceptions::BadCastException(k2, k1, reinterpret_cast<Il2CppObject*>(inst));
         }
 
         return reinterpret_cast<U*>(inst);

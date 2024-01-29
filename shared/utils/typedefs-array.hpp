@@ -145,19 +145,19 @@ template<class T>
 struct Array : public Il2CppArray
 {
     static_assert(is_value_type_v<T>, "T must be a C# value type! (primitive, pointer or Struct)");
-    ALIGN_TYPE(8) T values[IL2CPP_ZERO_LEN_ARRAY];
+    ALIGN_TYPE(8) T _values[IL2CPP_ZERO_LEN_ARRAY];
 
-    auto begin() noexcept { return values; }
-    auto begin() const noexcept { return values; }
+    auto begin() noexcept { return _values; }
+    auto begin() const noexcept { return _values; }
 
-    auto rbegin() noexcept { return std::reverse_iterator(values + get_Length()); }
-    auto rbegin() const noexcept { return std::reverse_iterator(values + get_Length()); }
+    auto rbegin() noexcept { return std::reverse_iterator(_values + get_Length()); }
+    auto rbegin() const noexcept { return std::reverse_iterator(_values + get_Length()); }
 
-    auto end() noexcept { return values + get_Length(); }
-    auto end() const noexcept { return values + get_Length(); }
+    auto end() noexcept { return _values + get_Length(); }
+    auto end() const noexcept { return _values + get_Length(); }
 
-    auto rend() noexcept { return std::reverse_iterator(values); }
-    auto rend() const noexcept { return std::reverse_iterator(values); }
+    auto rend() noexcept { return std::reverse_iterator(_values); }
+    auto rend() const noexcept { return std::reverse_iterator(_values); }
 
     inline il2cpp_array_size_t get_Rank() const noexcept {
         return bounds ? bounds->length : 0;
@@ -183,7 +183,7 @@ struct Array : public Il2CppArray
         if (!arr) {
             throw ArrayException(nullptr, "Could not create Array!");
         }
-        memcpy(arr->values, vals.begin(), sizeof(T)*vals.size());
+        memcpy(arr->_values, vals.begin(), sizeof(T)*vals.size());
         return arr;
     }
 
@@ -217,28 +217,28 @@ struct Array : public Il2CppArray
 
     T First() {
         if (get_Length() > 0)
-            return values[0];
+            return _values[0];
         else
             throw ArrayException(this, "First called on empty array!");
     }
 
     T FirstOrDefault() requires(std::is_default_constructible_v<T>) {
         if (get_Length() > 0)
-            return values[0];
+            return _values[0];
         else
             return {};
     }
 
     T Last() {
         if (get_Length() > 0)
-            return values[get_Length() - 1];
+            return _values[get_Length() - 1];
         else
             throw ArrayException(this, "Last called on empty array!");
     }
 
     T LastOrDefault() requires(std::is_default_constructible_v<T>) {
         if (get_Length() > 0)
-            return values[get_Length() - 1];
+            return _values[get_Length() - 1];
         else
             return {};
     }
@@ -367,30 +367,30 @@ struct ArrayW {
     using const_iterator = const_pointer;
 
     /// @brief forward begin
-    iterator begin() { return iterator(val->values + 0); }
+    iterator begin() { return iterator(val->_values + 0); }
     /// @brief forward end
-    iterator end() { return iterator(val->values + size()); }
+    iterator end() { return iterator(val->_values + size()); }
     /// @brief reverse begin
-    auto rbegin() { return std::reverse_iterator(iterator(val->values + size())); }
+    auto rbegin() { return std::reverse_iterator(iterator(val->_values + size())); }
     /// @brief reverse end
-    auto rend() { return std::reverse_iterator(iterator(val->values + 0)); }
+    auto rend() { return std::reverse_iterator(iterator(val->_values + 0)); }
 
     /// @brief forward const begin
-    const_iterator begin() const { return const_iterator(val->values + 0); }
+    const_iterator begin() const { return const_iterator(val->_values + 0); }
     /// @brief forward const end
-    const_iterator end() const { return const_iterator(val->values + size()); }
+    const_iterator end() const { return const_iterator(val->_values + size()); }
     /// @brief reverse const begin
-    auto rbegin() const { return std::reverse_iterator(const_iterator(val->values + size())); }
+    auto rbegin() const { return std::reverse_iterator(const_iterator(val->_values + size())); }
     /// @brief reverse const end
-    auto rend() const { return std::reverse_iterator(const_iterator(val->values + 0)); }
+    auto rend() const { return std::reverse_iterator(const_iterator(val->_values + 0)); }
 
     /// @brief index into array
     reference operator[](size_t i) noexcept {
-        return val->values[i];
+        return val->_values[i];
     }
     /// @brief const index into array
     const_reference operator[](size_t i) const noexcept {
-        return val->values[i];
+        return val->_values[i];
     }
 
     /// @brief assert sizes
@@ -405,14 +405,14 @@ struct ArrayW {
     /// @return The reference to the item.
     reference get(size_t i) {
         assert_bounds(i);
-        return val->values[i];
+        return val->_values[i];
     }
     /// @brief Get a given index, performs bound checking and throws std::runtime_error on failure.
     /// @param i The index to get.
     /// @return The const reference to the item.
     const_reference get(size_t i) const {
         assert_bounds(i);
-        return val->values[i];
+        return val->_values[i];
     }
     /// @brief Tries to get a given index, performs bound checking and returns a std::nullopt on failure.
     /// @param i The index to get.
@@ -421,7 +421,7 @@ struct ArrayW {
         if (i >= size() || i < 0) {
             return std::nullopt;
         }
-        return WrapperRef<value>(val->values[i]);
+        return WrapperRef<value>(val->_values[i]);
     }
     /// @brief Tries to get a given index, performs bound checking and returns a std::nullopt on failure.
     /// @param i The index to get.
@@ -430,7 +430,7 @@ struct ArrayW {
         if (i >= size() || i < 0) {
             return std::nullopt;
         }
-        return const_value(val->values + i);
+        return const_value(val->_values + i);
     }
 
     iterator find(T&& item) {
@@ -544,12 +544,12 @@ struct ArrayW {
     /// @brief Provides a reference span of the held data within this array. The span should NOT outlive this instance.
     /// @return The created span.
     std::span<T> ref_to() {
-        return std::span(val->values, size());
+        return std::span(val->_values, size());
     }
     /// @brief Provides a reference span of the held data within this array. The span should NOT outlive this instance.
     /// @return The created span.
     std::span<const T> ref_to() const {
-        return std::span(const_cast<T*>(val->values), size());
+        return std::span(const_cast<T*>(val->_values), size());
     }
 
     operator bool() const noexcept { return val != nullptr; }
