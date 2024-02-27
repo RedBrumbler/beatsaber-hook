@@ -53,6 +53,14 @@ enum struct CreationType {
     Manual
 };
 
+// Function made by zoller27osu, modified by Sc2ad
+// Logs information about the given MethodInfo* as log(DEBUG)
+void LogMethod(Paper::LoggerContext const& logger, const MethodInfo* method);
+
+// Created by zoller27osu
+// Calls LogMethod on all methods in the given class
+void LogMethods(Paper::LoggerContext const& logger, Il2CppClass const* klass, bool logParents = false);
+
 /// @brief Manually creates an instance of the provided Il2CppClass*.
 /// The created instance's type initializer will NOT execute on another thread! Be warned!
 /// Must be freed using gc_free_specific!
@@ -293,14 +301,6 @@ inline const Il2CppGenericContainer* GetGenericContainer(MethodInfo const* metho
     }
 }
 
-// Function made by zoller27osu, modified by Sc2ad
-// Logs information about the given MethodInfo* as log(DEBUG)
-void LogMethod(LoggerContextObject& logger, const MethodInfo* method);
-
-// Created by zoller27osu
-// Calls LogMethod on all methods in the given class
-void LogMethods(LoggerContextObject& logger, Il2CppClass* klass, bool logParents = false);
-
 /// Returns if a given MethodInfo's parameters match the Il2CppType vector
 /// \param isIdenticalOut is true if every parameter type matches identically. Can be null
 template <size_t genSz, size_t argSz>
@@ -332,7 +332,7 @@ bool ParameterMatch(const MethodInfo* method, std::span<const Il2CppClass* const
     for (decltype(method->parameters_count) i = 0; i < method->parameters_count; i++) {
         auto* paramType = method->parameters[i];
         if (argTypes[i] == nullptr) {
-            logger.warning("Arg type %i is null. Method: %p", i, method);
+            logger.warn("Arg type {} is null. Method: {}", i, fmt::ptr(method));
             ::il2cpp_utils::LogMethod(logger, method);
             continue;
         }
@@ -560,14 +560,6 @@ bool ParameterMatch(const MethodInfo* method, ::std::span<const Il2CppType*> arg
 // Returns if a given MethodInfo's parameters match the Il2CppType vector and generic types vector
 bool ParameterMatch(const MethodInfo* method, ::std::span<Il2CppClass const*> genTypes, ::std::span<const Il2CppType*> argTypes, std::optional<bool*> perfectMatch);
 #endif
-
-// Function made by zoller27osu, modified by Sc2ad
-// Logs information about the given MethodInfo* as log(DEBUG)
-void LogMethod(Paper::LoggerContext const& logger, const MethodInfo* method);
-
-// Created by zoller27osu
-// Calls LogMethod on all methods in the given class
-void LogMethods(Paper::LoggerContext const& logger, Il2CppClass* klass, bool logParents = false);
 
 template <typename TOut>
 using MethodResult = ::il2cpp_utils::Result<TOut, RunMethodException>;

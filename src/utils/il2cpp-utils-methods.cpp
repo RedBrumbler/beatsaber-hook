@@ -526,12 +526,12 @@ namespace il2cpp_utils {
         return target;
     }
 
-    void LogMethods(Paper::LoggerContext const& logger, Il2CppClass* klass, bool logParents) {
+    void LogMethods(Paper::LoggerContext const& logger, Il2CppClass const* klass, bool logParents) {
         RET_V_UNLESS(logger, klass);
 
         if (klass->name) {
             il2cpp_functions::Init();
-            il2cpp_functions::Class_Init(klass);
+            il2cpp_functions::Class_Init(const_cast<Il2CppClass*>(klass));
         }
         if (klass->method_count && !(klass->methods)) {
             logger.warn("Class is valid and claims to have methods but ->methods is null! class name: {}", ClassStandardName(klass).c_str());
