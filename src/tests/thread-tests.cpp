@@ -25,8 +25,8 @@ struct ThreadTest {
 
 // test both il2cpp aware thread and std::thread for equivalence
 #define IL2CPP_THREAD_TEST(...) \
-    il2cpp_utils::il2cpp_aware_thread(__VA_ARGS__).join(); \
-    std::thread(__VA_ARGS__).join()
+    std::thread(__VA_ARGS__).join(); \
+    il2cpp_utils::il2cpp_aware_thread(__VA_ARGS__).join()
 
 void test_thread() {
     // can we make a 0 arg lambda thread?
@@ -76,10 +76,10 @@ void test_thread() {
 
     il2cpp_utils::il2cpp_aware_thread([]{
         // getting current jni env since we are attached
-        auto env = il2cpp_utils::il2cpp_aware_thread::get_current_env();
+        auto env = il2cpp_utils::threading::get_current_env();
 
         // getting current thread id as a test
-        auto id = il2cpp_utils::il2cpp_aware_thread::current_thread_id();
+        auto id = il2cpp_utils::threading::current_thread_id();
     }).join();
 }
 
@@ -112,6 +112,35 @@ void ThreadTest::test_thread() {
     IL2CPP_THREAD_TEST(&ThreadTest::method_rvalue, this, 10);
 }
 
+
+// #define IL2CPP_ASYNC_TEST(...) \
+//     il2cpp_utils::il2cpp_async(__VA_ARGS__).wait(); \
+//     std::async(__VA_ARGS__).wait()
+
+#define IL2CPP_ASYNC_TEST(...) \
+    il2cpp_utils::il2cpp_async(__VA_ARGS__).wait(); \
+    std::async(__VA_ARGS__).wait()
+
+static void func() {}
+static bool func2(int v) { return v; }
+static int* func3(int& v) { return &v; }
+static float func4(int&& v) { return v; }
+
+void test_async() {
+    IL2CPP_ASYNC_TEST([]{ return 1; });
+    IL2CPP_ASYNC_TEST([]{ return 1; });
+    float v = 0;
+    // not allowed on std::async
+    // IL2CPP_ASYNC_TEST([](float& v){ return v + 1; }, v);
+    IL2CPP_ASYNC_TEST(&func);
+    IL2CPP_ASYNC_TEST(&func2, 2);
+    int a = 2;
+    // not allowed on std::async
+    // IL2CPP_ASYNC_TEST(&func3, a);
+    IL2CPP_ASYNC_TEST(&func4, std::move(a));
+    IL2CPP_ASYNC_TEST(&func4, 1);
+    IL2CPP_ASYNC_TEST([&v](int b){ return v = b; }, 1);
+}
 #pragma clang diagnostic pop
 
 #endif

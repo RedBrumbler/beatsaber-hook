@@ -136,18 +136,23 @@ namespace il2cpp_utils {
         struct il2cpp_no_arg_class { };
 
         template<typename T>
-        #ifndef BS_HOOK_USE_CONCEPTS
+#ifndef BS_HOOK_USE_CONCEPTS
         struct il2cpp_no_arg_class<T*, typename std::enable_if_t<has_get<il2cpp_no_arg_class<T>>>> {
         #else
         requires has_get<il2cpp_no_arg_class<T>>
         struct BS_HOOKS_HIDDEN il2cpp_no_arg_class<T*> {
         #endif
             static inline Il2CppClass* get() {
+                static Il2CppClass* ptrKlass = nullptr;
+                if (ptrKlass) return ptrKlass;
+                
                 il2cpp_functions::Init();
                 auto const& logger = il2cpp_utils::Logger;
                 auto* klass = RET_0_UNLESS(logger, il2cpp_no_arg_class<T>::get());
                 RET_0_UNLESS(logger, il2cpp_functions::class_is_valuetype(klass));
-                return il2cpp_functions::Class_GetPtrClass(klass);
+                ptrKlass = il2cpp_functions::Class_GetPtrClass(klass);
+
+                return ptrKlass;
             }
         };
 
@@ -505,7 +510,7 @@ namespace il2cpp_utils {
         template <typename T>
         struct BS_HOOKS_HIDDEN il2cpp_no_arg_type {
             static inline const Il2CppType* get() {
-                static auto klass = il2cpp_no_arg_class<T>::get();
+                auto klass = il2cpp_no_arg_class<T>::get();
                 if (klass) {
                     return &klass->byval_arg;
                 }
@@ -516,7 +521,7 @@ namespace il2cpp_utils {
         template <typename T>
         struct BS_HOOKS_HIDDEN il2cpp_no_arg_type<T*> {
             static inline const Il2CppType* get() {
-                static auto klass = il2cpp_no_arg_class<T*>::get();
+                auto klass = il2cpp_no_arg_class<T*>::get();
                 if (klass) {
                     return &klass->byval_arg;
                 }
@@ -527,7 +532,7 @@ namespace il2cpp_utils {
         template <typename T>
         struct BS_HOOKS_HIDDEN il2cpp_no_arg_type<T&&> {
             static inline const Il2CppType* get() {
-                static auto klass = il2cpp_no_arg_class<T>::get();
+                auto klass = il2cpp_no_arg_class<T>::get();
                 if (klass) {
                     return &klass->byval_arg;
                 }
@@ -538,7 +543,7 @@ namespace il2cpp_utils {
         template <typename T>
         struct BS_HOOKS_HIDDEN il2cpp_no_arg_type<T&> {
             static inline const Il2CppType* get() {
-                static auto klass = il2cpp_no_arg_class<T>::get();
+                auto klass = il2cpp_no_arg_class<T>::get();
                 if (klass) {
                     return &klass->this_arg;
                 }
@@ -626,14 +631,14 @@ namespace il2cpp_utils {
         template<auto val>
         concept is_valid_il2cpp_method = requires (decltype(val) v) {
             typename MethodDecomposer<decltype(val)>::mPtr;
-            { il2cpp_utils::il2cpp_type_check::MetadataGetter<val>::get() } -> std::same_as<const MethodInfo *>;
+            { il2cpp_utils::il2cpp_type_check::MetadataGetter<val>::methodInfo() } -> std::same_as<const MethodInfo *>;
         };
 
         template <auto val>
             requires(is_valid_il2cpp_method<val>)
         struct BS_HOOKS_HIDDEN FPtrWrapper {
             static auto get() {
-                return reinterpret_cast<typename MethodDecomposer<decltype(val)>::mPtr>(il2cpp_utils::il2cpp_type_check::MetadataGetter<val>::get()->methodPointer);
+                return reinterpret_cast<typename MethodDecomposer<decltype(val)>::mPtr>(il2cpp_utils::il2cpp_type_check::MetadataGetter<val>::methodInfo()->methodPointer);
             }
         };
     }

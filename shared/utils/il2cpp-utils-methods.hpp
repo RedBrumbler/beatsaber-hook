@@ -3,6 +3,7 @@
 
 #include <initializer_list>
 #include <type_traits>
+#include <utility>
 #include <variant>
 #pragma pack(push)
 
@@ -87,10 +88,10 @@ struct FindMethodInfo {
         if (this->klass != o.klass) return false;
         if (this->name != o.name) return false;
 
-        auto argTypesContentEquality = std::equal(this->argTypes.begin(), this->argTypes.end(), o.argTypes.begin(), o.argTypes.end());
+        auto argTypesContentEquality = this->argTypes.size() == o.argTypes.size() && std::equal(this->argTypes.begin(), this->argTypes.end(), o.argTypes.begin(), o.argTypes.end());
         if (!argTypesContentEquality) return false;
 
-        auto genTypesContentEquality = std::equal(this->genTypes.begin(), this->genTypes.end(), o.genTypes.begin(), o.genTypes.end());
+        auto genTypesContentEquality = this->genTypes.size() == o.genTypes.size() && std::equal(this->genTypes.begin(), this->genTypes.end(), o.genTypes.begin(), o.genTypes.end());
         if (!genTypesContentEquality) return false;
 
         return true;
@@ -292,6 +293,14 @@ inline const Il2CppGenericContainer* GetGenericContainer(MethodInfo const* metho
     }
 }
 
+// Function made by zoller27osu, modified by Sc2ad
+// Logs information about the given MethodInfo* as log(DEBUG)
+void LogMethod(LoggerContextObject& logger, const MethodInfo* method);
+
+// Created by zoller27osu
+// Calls LogMethod on all methods in the given class
+void LogMethods(LoggerContextObject& logger, Il2CppClass* klass, bool logParents = false);
+
 /// Returns if a given MethodInfo's parameters match the Il2CppType vector
 /// \param isIdenticalOut is true if every parameter type matches identically. Can be null
 template <size_t genSz, size_t argSz>
@@ -322,6 +331,11 @@ bool ParameterMatch(const MethodInfo* method, std::span<const Il2CppClass* const
     // TODO: supply boolStrictMatch and use type_equals instead of IsConvertibleFrom if supplied?
     for (decltype(method->parameters_count) i = 0; i < method->parameters_count; i++) {
         auto* paramType = method->parameters[i];
+        if (argTypes[i] == nullptr) {
+            logger.warning("Arg type %i is null. Method: %p", i, method);
+            ::il2cpp_utils::LogMethod(logger, method);
+            continue;
+        }
         if (paramType->type == IL2CPP_TYPE_MVAR) {
             if (genCount == 0) {
                 logger.warn("No generic args to extract paramIdx {}", i);
@@ -795,6 +809,10 @@ MethodResult<TOut> RunMethod(T&& classOrInstance, ::std::string_view methodName,
     std::array<const Il2CppType*, sizeof...(TArgs)> const types{ ::il2cpp_utils::ExtractType(params)... };
     auto* method = RET_NULLOPT_UNLESS(logger, FindMethod(classOrInstance, methodName, types));
 
+    // TODO: Pass checkTypes as false here since it is no longer necessary
+    // to check the parameter types
+    // because it is already looked up with the types
+    // in FindMethod?
     return RunMethod<TOut, checkTypes>(std::forward<T>(classOrInstance), method, std::forward<TArgs>(params)...);
 }
 
@@ -821,11 +839,11 @@ template <class TOut = void, bool checkTypes = true, class... TArgs>
 inline TOut RunMethodRethrow(TArgs&&... params) {
     auto result = ::il2cpp_utils::RunMethod<TOut, checkTypes>(std::forward<TArgs>(params)...);
 
-    if (auto exceptionOpt = result.as_optional_exception()) {
-        throw exceptionOpt.value();
-    }
     if constexpr (!std::is_same_v<TOut, void>) {
-        return result.get_result();
+        return result.get_or_rethrow();
+    }
+    else if constexpr (std::is_same_v<TOut, void>) {
+        result.rethrow();
     }
 }
 
@@ -908,6 +926,7 @@ template <typename TOut = Il2CppObject*, CreationType creationType = CreationTyp
     return FromIl2CppObject<TOut>(obj);
 }
 
+
 // TODO: Rename to New, rename existing New to NewObject or equivalent
 /// @brief Allocates a new instance of a particular Il2CppClass*, either allowing it to be GC'd normally or manually controlled.
 /// The Il2CppClass* is derived from the TOut template parameter.
@@ -918,7 +937,7 @@ template <typename TOut = Il2CppObject*, CreationType creationType = CreationTyp
 /// @tparam TArgs The arguments to call the constructor with.
 /// @param args The arguments to call the constructor with.
 template <class TOut, CreationType creationType = CreationType::Temporary, typename... TArgs>
-TOut NewSpecific(TArgs&&... args) {
+TOut NewSpecificUnsafe(TArgs&&... args) {
     static auto* klass = classof(TOut);
     Il2CppObject* obj;
     if constexpr (creationType == CreationType::Temporary) {
@@ -944,6 +963,25 @@ TOut NewSpecific(TArgs&&... args) {
     } else {
         static_assert(false_t<TOut>, "Cannot C# construct the provided value type that is not a wrapper type!");
     }
+}
+
+template <class T, class... TArgs>
+concept CtorArgs = requires(T t, TArgs&&... args) {
+    { T::New_ctor(std::forward<TArgs>(args)...) };
+};
+
+/// @brief Allocates a new instance of a particular Il2CppClass*, either allowing it to be GC'd normally or manually controlled.
+/// The Il2CppClass* is derived from the TOut template parameter.
+/// The found constructor method will be cached.
+/// Will throw either an il2cpp_utils::exceptions::StackTraceException or il2cpp_utils::RunMethodException if errors occur.
+/// @tparam TOut The type to create.
+/// @tparam creationType The way to create the instance.
+/// @tparam TArgs The arguments to call the constructor with.
+/// @param args The arguments to call the constructor with.
+template <class TOut, CreationType creationType = CreationType::Temporary, typename... TArgs>
+    requires(CtorArgs<std::remove_pointer_t<TOut>, TArgs...>)
+inline TOut NewSpecific(TArgs&&... args) {
+    return ::il2cpp_utils::NewSpecificUnsafe<TOut, creationType, TArgs...>(std::forward<TArgs>(args)...);
 }
 
 template <typename TOut = Il2CppObject*, CreationType creationType = CreationType::Temporary, typename... TArgs>

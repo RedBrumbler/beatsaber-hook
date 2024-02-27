@@ -77,6 +77,9 @@ bool fileexists(std::string_view filename);
 // Returns if a directory exists and can be written to / read from
 bool direxists(std::string_view dirname);
 
+// Returns a map with the buildIds from all loaded shared objects
+std::optional<std::string> getBuildId(std::string_view filename);
+
 /// @brief Get the size of the libil2cpp.so file
 /// @returns The size of the .so
 uintptr_t getLibil2cppSize();

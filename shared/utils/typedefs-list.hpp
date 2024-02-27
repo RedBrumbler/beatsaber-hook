@@ -263,7 +263,8 @@ struct ListWrapper {
     template <il2cpp_utils::CreationType creationType = il2cpp_utils::CreationType::Temporary>
     static ListWrapper<T, Ptr> New(il2cpp_array_size_t size) {
         il2cpp_functions::Init();
-        auto ls = il2cpp_utils::New<Ptr, creationType>(size);
+        // type checking requires int, cannot convert ulong -> int
+        auto ls = il2cpp_utils::New<Ptr, creationType>(static_cast<int>(size));
         if (!ls) throw ListException(nullptr, "Could not create list!");
 
         ListWrapper<T, Ptr> lsWrap = { *ls };
@@ -289,7 +290,7 @@ struct ListWrapper {
     }
 
     constexpr bool empty() const {
-        return this->size() > 0;
+        return this->size() == 0;
     }
 
     std::optional<std::reference_wrapper<T>> front() {

@@ -596,7 +596,7 @@ struct ::il2cpp_utils::il2cpp_type_check::need_box<ArrayW<T, Ptr>> {
 template<class T, class Ptr>
 struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<ArrayW<T, Ptr>> {
     static inline Il2CppClass* get() {
-        static auto klass = ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<Array<T>*>::get();
+        auto klass = ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<Array<T>*>::get();
         return klass;
     }
 };

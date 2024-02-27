@@ -168,7 +168,7 @@ DEFINE_IL2CPP_ARG_TYPE(long double, "System", "Decimal");
 template<class T>
 struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<ListW<T>> {
     static inline Il2CppClass* get() {
-        static auto klass = ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<typename ListW<T>::WrappedType>::get();
+        auto klass = ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<typename ListW<T>::WrappedType>::get();
         return klass;
     }
 };

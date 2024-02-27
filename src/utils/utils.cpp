@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <unordered_set>
+#include <link.h>
 #include "il2cpp-object-internals.h"
 #include "shared/utils/gc-alloc.hpp"
 #include "utils/logging.hpp"
@@ -124,47 +125,25 @@ void analyzeBytes(const void* ptr) {
     analyzeBytes(ss, ptr, 0);
 }
 
-uintptr_t baseAddr(const char* soname)  // credits to https://github.com/ikoz/AndroidSubstrate_hookingC_examples/blob/master/nativeHook3/jni/nativeHook3.cy.cpp
-{
-    void* imagehandle = dlopen(soname, RTLD_LOCAL | RTLD_LAZY);
+uintptr_t baseAddr(const char* soname) {
     if (soname == NULL) return (uintptr_t)NULL;
-    if (imagehandle == NULL) return (uintptr_t)NULL;
-
-    FILE* f = NULL;
-    char line[200] = { 0 };
-    char* state = NULL;
-    char* tok = NULL;
-    char* baseAddr = NULL;
-    if ((f = fopen("/proc/self/maps", "r")) == NULL) return (uintptr_t)NULL;
-    while (fgets(line, 199, f) != NULL) {
-        tok = strtok_r(line, "-", &state);
-        baseAddr = tok;
-        strtok_r(NULL, "\t ", &state);
-        strtok_r(NULL, "\t ", &state);        // "r-xp" field
-        strtok_r(NULL, "\t ", &state);        // "0000000" field
-        strtok_r(NULL, "\t ", &state);        // "01:02" field
-        strtok_r(NULL, "\t ", &state);        // "133224" field
-        tok = strtok_r(NULL, "\t ", &state);  // path field
-
-        if (tok != NULL) {
-            int i;
-            for (i = (int)strlen(tok) - 1; i >= 0; --i) {
-                if (!(tok[i] == ' ' || tok[i] == '\r' || tok[i] == '\n' || tok[i] == '\t')) break;
-                tok[i] = 0;
-            }
-            {
-                size_t toklen = strlen(tok);
-                size_t solen = strlen(soname);
-                if (toklen > 0) {
-                    if (toklen >= solen && strcmp(tok + (toklen - solen), soname) == 0) {
-                        fclose(f);
-                        return (uintptr_t)strtoll(baseAddr, NULL, 16);
-                    }
-                }
-            }
+    struct bdata {
+      uintptr_t base;
+      const char* soname;
+    };
+    bdata dat;
+    dat.soname = soname;
+    int status = dl_iterate_phdr([] (dl_phdr_info* info, size_t, void* data) {
+        bdata* dat = reinterpret_cast<bdata*>(data);
+        if (std::string(info->dlpi_name).find(dat->soname) != std::string::npos) {
+          dat->base = (uintptr_t)info->dlpi_addr;
+          return 1;
         }
-    }
-    fclose(f);
+        return 0;
+    }, &dat);
+    if(status)
+      return dat.base;
+    il2cpp_utils::Logger.error("baseAddr: Error on dl_iterate_phdr!");
     return (uintptr_t)NULL;
 }
 
@@ -353,4 +332,43 @@ bool writefile(std::string_view filename, std::string_view text) {
 bool deletefile(std::string_view filename) {
     if (fileexists(filename)) return remove(filename.data()) == 0;
     return false;
+}
+
+std::optional<std::string> getBuildId(std::string_view filename) {
+    std::ifstream infile(filename.data(), std::ios_base::binary);
+    if (!infile.is_open()) {
+        return std::nullopt;
+    }
+    infile.seekg(0);
+    ElfW(Ehdr) elf;
+    infile.read(reinterpret_cast<char*>(&elf), sizeof(ElfW(Ehdr)));
+    for(int i = 0; i < elf.e_shnum; i++) {
+        infile.seekg(elf.e_shoff + i * elf.e_shentsize);
+        ElfW(Shdr) section;
+        infile.read(reinterpret_cast<char*>(&section), sizeof(ElfW(Shdr)));
+        if(section.sh_type == SHT_NOTE && section.sh_size == 0x24) {
+            char data[0x24];
+            infile.seekg(section.sh_offset);
+            infile.read(data, 0x24);
+            ElfW(Nhdr)* note = reinterpret_cast<ElfW(Nhdr)*>(data);
+            if(note->n_namesz == 4 && note->n_descsz == 20) {
+                if(memcmp(reinterpret_cast<void*>(data + 12), "GNU", 4) == 0) {
+                    std::stringstream stream;
+                    stream << std::hex << std::setw(sizeof(uint8_t)*2);
+                    auto buildIdAddr = reinterpret_cast<uint8_t*>(data + 16);
+                    for(int i = 0; i < 5; i++) {
+                        uint32_t value;
+                        auto ptr = (reinterpret_cast<uint8_t*>(&value));
+                        ptr[0] = *(buildIdAddr + i * sizeof(uint32_t) + 3);
+                        ptr[1] = *(buildIdAddr + i * sizeof(uint32_t) + 2);
+                        ptr[2] = *(buildIdAddr + i * sizeof(uint32_t) + 1);
+                        ptr[3] = *(buildIdAddr + i * sizeof(uint32_t));
+                        stream << value;
+                    }
+                    return stream.str();
+                }
+            }
+        }
+    }
+    return std::nullopt;
 }
