@@ -272,8 +272,8 @@ struct Array : public Il2CppArray
     }
 
     void CopyTo(Array<T>* array, int arrayIndex) {
-        if (array && array->get_Rank() <= 1) throw ArrayException(array, "Only single dimensional arrays are supported for the requested action");
-        Copy(this, 0, array, arrayIndex);
+        if (array && array->get_Rank() > 1) throw ArrayException(array, "Only single dimensional arrays are supported for the requested action");
+        Copy(this, 0, array, arrayIndex, this->get_Length());
     }
 
     static void Copy(Array<T>* sourceArray, int sourceIndex, Array<T>* destinationArray, int destinationIndex, int length) {
