@@ -12,6 +12,7 @@
 #include <link.h>
 #include "il2cpp-object-internals.h"
 #include "shared/utils/gc-alloc.hpp"
+#include "utils/logging.hpp"
 
 namespace backtrace_helpers {
 _Unwind_Reason_Code unwindCallback(struct _Unwind_Context* context, void* arg) {
@@ -38,37 +39,6 @@ size_t captureBacktrace(void** buffer, uint16_t max, uint16_t skip) {
 }
 }  // namespace backtrace_helpers
 
-void safeAbort(const char* func, const char* file, int line, uint16_t frameCount) {
-    static auto logger = Logger::get().WithContext("CRASH_UNLESS");
-    // we REALLY want this to appear at least once in the log (for fastest fixing)
-    for (int i = 0; i < 2; i++) {
-        usleep(100000L);  // 0.1s
-        // TODO: Make this eventually have a passed in context
-        logger.critical("Aborting in %s at %s:%i", func, file, line);
-    }
-    logger.Backtrace(frameCount);
-    Logger::closeAll();
-    usleep(100000L);   // 0.1s
-    std::terminate();  // cleans things up and then calls abort
-}
-
-__attribute__((format(printf, 4, 5))) void safeAbortMsg(const char* func, const char* file, int line, const char* fmt, ...) {
-    static auto logger = Logger::get().WithContext("CRASH_UNLESS");
-    // we REALLY want this to appear at least once in the log (for fastest fixing)
-    for (int i = 0; i < 2; i++) {
-        usleep(100000L);  // 0.1s
-        // TODO: Make this eventually have a passed in context
-        logger.critical("Aborting in %s at %s:%i", func, file, line);
-        va_list lst;
-        va_start(lst, fmt);
-        logger.log_v(Logging::CRITICAL, fmt, lst);
-        va_end(lst);
-    }
-    logger.Backtrace(512);
-    Logger::closeAll();
-    usleep(100000L);   // 0.1s
-    std::terminate();  // cleans things up and then calls abort
-}
 
 void resetSS(std::stringstream& ss) {
     ss.str("");
@@ -81,19 +51,6 @@ void tabs(std::ostream& os, int tabs, int spacesPerTab) {
     }
 }
 
-void print(std::stringstream& ss, Logging::Level lvl) {
-    ss << std::endl;
-    Logger::get().log(lvl, "%s", ss.str().c_str());
-    resetSS(ss);
-}
-
-std::string string_vformat(const std::string_view format, va_list args) {
-    size_t size = vsnprintf(nullptr, 0, format.data(), args) + 1;  // Extra space for '\0'
-    if (size <= 0) return "";
-    std::unique_ptr<char[]> buf(new char[size]);
-    vsnprintf(buf.get(), size, format.data(), args);
-    return std::string(buf.get(), buf.get() + size - 1);
-}
 
 static std::unordered_set<const void*> analyzed;
 void analyzeBytes(std::stringstream& ss, const void* ptr, int indent) {
@@ -102,7 +59,7 @@ void analyzeBytes(std::stringstream& ss, const void* ptr, int indent) {
     tabs(ss, indent);
     if (analyzed.count(ptr)) {
         ss << "! loop at 0x" << std::hex << ptr << "!";
-        print(ss);
+        il2cpp_utils::Logger.info("{}", ss.str());
         return;
     }
     analyzed.insert(ptr);
@@ -113,7 +70,7 @@ void analyzeBytes(std::stringstream& ss, const void* ptr, int indent) {
     if (asUInts[0] >= 0x1000000000000ll && isprint(asChars[0])) {
         ss << "chars: \"" << asChars << "\"";
         ss << " (first 8 bytes in hex = 0x" << std::hex << std::setw(16) << asUInts[0] << ")";
-        print(ss);
+        il2cpp_utils::Logger.info("{}", ss.str());
         return;
     }
     for (int i = 0; i < 4; i++) {
@@ -137,7 +94,7 @@ void analyzeBytes(std::stringstream& ss, const void* ptr, int indent) {
                 ss << ")";
             }
         }
-        print(ss);
+        il2cpp_utils::Logger.info("{}", ss.str());
         if (asUInts[i] > 0x7f00000000ll) {
             analyzeBytes(ss, (void*)asUInts[i], indent + 1);
         }
@@ -147,31 +104,24 @@ void analyzeBytes(std::stringstream& ss, const void* ptr, int indent) {
 static uintptr_t soSize = 0;
 
 uintptr_t getLibil2cppSize() {
-    static auto contextLogger = Logger::get().WithContext("getSize");
+    auto const& contextLogger = il2cpp_utils::Logger;
     if (soSize == 0) {
         struct stat st;
         if (!stat(modloader_get_libil2cpp_path(), &st)) {
             soSize = st.st_size;
         }
-        contextLogger.debug("libil2cpp.so size: 0x%lx", soSize);
+        contextLogger.debug("libil2cpp.so size: 0x{:X}", soSize);
     }
     return soSize;
 }
 
-std::string string_format(const char* format, ...) {
-    va_list lst;
-    va_start(lst, format);
-    auto s = string_vformat(format, lst);
-    va_end(lst);
-    return s;
-}
 
 void analyzeBytes(const void* ptr) {
     analyzed.clear();
     std::stringstream ss;
     ss << std::setfill('0');
     ss << "ptr: " << std::hex << std::setw(16) << (uintptr_t)ptr;
-    print(ss);
+    il2cpp_utils::Logger.info("{}", ss.str());
     analyzeBytes(ss, ptr, 0);
 }
 
@@ -193,7 +143,7 @@ uintptr_t baseAddr(const char* soname) {
     }, &dat);
     if(status)
       return dat.base;
-    Logger::get().error("baseAddr: Error on dl_iterate_phdr!");
+    il2cpp_utils::Logger.error("baseAddr: Error on dl_iterate_phdr!");
     return (uintptr_t)NULL;
 }
 
@@ -266,18 +216,18 @@ uintptr_t findPattern(uintptr_t dwAddress, const char* pattern, uintptr_t dwSear
 uintptr_t findUniquePattern(bool& multiple, uintptr_t dwAddress, const char* pattern, const char* label, uintptr_t dwSearchRangeLen) {
     uintptr_t firstMatchAddr = 0, newMatchAddr, start = dwAddress, dwEnd = dwAddress + dwSearchRangeLen;
     int matches = 0;
-    Logger::get().debug("Sigscan for pattern: %s", pattern);
+    il2cpp_utils::Logger.debug("Sigscan for pattern: {}", pattern);
     while (start > 0 && start < dwEnd && (newMatchAddr = findPattern(start, pattern, dwEnd - start))) {
         if (!firstMatchAddr) firstMatchAddr = newMatchAddr;
         matches++;
-        if (label) Logger::get().debug("Sigscan found possible \"%s\": offset 0x%lX, pointer 0x%lX", label, newMatchAddr - dwAddress, newMatchAddr);
+        if (label) il2cpp_utils::Logger.debug("Sigscan found possible \"{}\": offset 0x{:x}, pointer 0x{:x}", label, newMatchAddr - dwAddress, newMatchAddr);
         start = newMatchAddr + 1;
-        Logger::get().debug("start = 0x%lX, end = 0x%lX", start, dwEnd);
+        il2cpp_utils::Logger.debug("start = 0x{:x}, end = 0x{:x}", start, dwEnd);
         usleep(1000);
     }
     if (matches > 1) {
         multiple = true;
-        Logger::get().warning("Multiple sig scan matches for \"%s\"!", label);
+        il2cpp_utils::Logger.warn("Multiple sig scan matches for \"{}\"!", label);
     }
     return firstMatchAddr;
 }
@@ -323,36 +273,14 @@ void setcsstr(Il2CppString* in, std::u16string_view str) {
     in->chars[in->length] = (Il2CppChar)'\u0000';
 }
 
-// Inspired by DaNike
-std::string to_utf8(std::u16string_view view) {
-    char* dat = static_cast<char*>(calloc(view.length() + 1, sizeof(char)));
-    std::transform(view.data(), view.data() + view.size(), dat, [](auto utf16_char) { return static_cast<char>(utf16_char); });
-    dat[view.length()] = '\0';
-    std::string out(dat);
-    free(dat);
-    return out;
-}
-
-std::u16string to_utf16(std::string_view view) {
-    char16_t* dat = static_cast<char16_t*>(calloc(view.length() + 1, sizeof(char16_t)));
-    std::transform(view.data(), view.data() + view.size(), dat, [](auto standardChar) { return static_cast<char16_t>(standardChar); });
-    dat[view.length()] = '\0';
-    std::u16string out(dat);
-    free(dat);
-    return out;
-}
-
-std::u16string_view csstrtostr(Il2CppString* in) {
-    return { in->chars, static_cast<uint32_t>(in->length) };
-}
 
 // Thanks DaNike!
 void dump(int before, int after, void* ptr) {
-    Logger::get().debug("Dumping Immediate Pointer: %p: %08x", ptr, *reinterpret_cast<int*>(ptr));
+    il2cpp_utils::Logger.debug("Dumping Immediate Pointer: {}: {:08x}", fmt::ptr(ptr), *reinterpret_cast<int*>(ptr));
     auto begin = static_cast<int*>(ptr) - before;
     auto end = static_cast<int*>(ptr) + after;
     for (auto cur = begin; cur != end; ++cur) {
-        Logger::get().debug("%p: %08x", cur, *cur);
+        il2cpp_utils::Logger.debug("{}: {:08x}", fmt::ptr(cur), *cur);
     }
 }
 

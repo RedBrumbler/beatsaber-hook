@@ -37,7 +37,7 @@ concept is_logger = requires (L& l) {
     l.info("");
     l.debug("");
     l.error("");
-    l.warning("");
+    l.warn("");
     l.critical("");
 };
 
@@ -446,12 +446,19 @@ struct Hook_##name_ { \
 }; \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
+#ifndef BS_HOOK_MATCH_UNSAFE
+#define MATCH_HOOKABLE_ASSERT(mPtr) ::il2cpp_utils::il2cpp_type_check::MetadataGetter<mPtr>::size >= 0x5 * sizeof(uint32_t) && ::il2cpp_utils::il2cpp_type_check::MetadataGetter<mPtr>::addrs != 0x0
+#else
+#define MATCH_HOOKABLE_ASSERT(mPtr) true
+#endif
+
 // Make a hook that uses the provided method pointer in a match an ensures the signature matches.
 // This should be your go-to hook macro when hooking anything that has a codegen equivalent.
 // Also includes a catch handler.
 #define MAKE_HOOK_MATCH(name_, mPtr, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
+    static_assert(MATCH_HOOKABLE_ASSERT(mPtr)); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::il2cpp_type_check::MetadataGetter<mPtr>::methodInfo(); } \
@@ -467,6 +474,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 #define MAKE_HOOK_MATCH_NO_CATCH(name_, mPtr, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
+    static_assert(MATCH_HOOKABLE_ASSERT(mPtr)); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::il2cpp_type_check::MetadataGetter<mPtr>::methodInfo(); } \
@@ -600,7 +608,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 template<typename T, typename L, bool track = true>
 inline void __InstallHook(L& logger, void* addr) {
     #ifndef SUPPRESS_MACRO_LOGS
-    logger.info("Installing hook: %s to offset: %p", T::name(), addr);
+    logger.info("Installing hook: {} to offset: {}", T::name(), fmt::ptr(addr));
     #endif
     #ifdef __aarch64__
     if constexpr (track) {
@@ -631,7 +639,7 @@ void InstallHook(L& logger) {
     auto info = T::getInfo();
     if (!info) {
         #ifndef SUPPRESS_MACRO_LOGS
-        logger.critical("Attempting to install hook: %s, but method could not be found!", T::name());
+        logger.critical("Attempting to install hook: {}, but method could not be found!", T::name());
         #endif
         SAFE_ABORT();
     }
@@ -645,7 +653,7 @@ void InstallOrigHook(L& logger) {
     auto info = T::getInfo();
     if (!info) {
         #ifndef SUPPRESS_MACRO_LOGS
-        logger.critical("Attempting to install hook: %s, but method could not be found!", T::name());
+        logger.critical("Attempting to install hook: {}, but method could not be found!", T::name());
         #endif
         SAFE_ABORT();
     }
@@ -666,7 +674,7 @@ void InstallHookDirect(L& logger, void* dst) {
     // Install T into the specified address. Null checks dst.
     if (!dst) {
         #ifndef SUPPRESS_MACRO_LOGS
-        logger.critical("Attempting to install direct hook: %s, but was installing to an invalid destination!", T::name());
+        logger.critical("Attempting to install direct hook: {}, but was installing to an invalid destination!", T::name());
         #endif
         SAFE_ABORT();
     }

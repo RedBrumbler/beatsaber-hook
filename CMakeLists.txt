@@ -83,6 +83,9 @@ function(setup_target target add_test)
     # add shared dir as include dir
     target_include_directories(${target} PUBLIC ${SHARED_DIR})
 
+    target_include_directories(${target} SYSTEM PRIVATE ${EXTERN_DIR}/includes/fmt/fmt/include/)
+    target_compile_options(${target} PRIVATE -DFMT_HEADER_ONLY)
+
     target_link_directories(${target} PRIVATE ${EXTERN_DIR}/libs)
     target_link_libraries(${target} PRIVATE -llog)
     target_link_options(${target} PRIVATE "-fuse-ld=ld")

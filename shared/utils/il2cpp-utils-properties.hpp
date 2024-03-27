@@ -10,11 +10,11 @@
 namespace il2cpp_utils {
     // Created by zoller27osu
     // Logs information about the given PropertyInfo* as log(DEBUG)
-    void LogProperty(LoggerContextObject& logger, const PropertyInfo* field);
+    void LogProperty(Paper::LoggerContext const& logger, const PropertyInfo* field);
 
     // Created by zoller27osu
     // Calls LogProperty on all properties in the given class
-    void LogProperties(LoggerContextObject& logger, Il2CppClass* klass, bool logParents = false);
+    void LogProperties(Paper::LoggerContext const& logger, Il2CppClass* klass, bool logParents = false);
 
     // Returns the PropertyInfo for the property of the given class with the given name
     // Created by zoller27osu
@@ -24,7 +24,7 @@ namespace il2cpp_utils {
     // Wrapper for FindProperty taking an instance to extract the Il2CppClass* from
     template<class T>
     const PropertyInfo* FindProperty(T&& instance, ::std::string_view propertyName) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* klass = RET_0_UNLESS(logger, ExtractClass(instance));
         return FindProperty(klass, propertyName);
     }
@@ -33,7 +33,7 @@ namespace il2cpp_utils {
     // Gets a value from the given object instance, and PropertyInfo, with return type TOut.
     // Assumes a static property if instance == nullptr
     ::std::optional<TOut> GetPropertyValue(T&& classOrInstance, const PropertyInfo* prop) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         il2cpp_functions::Init();
         RET_NULLOPT_UNLESS(logger, prop);
 
@@ -44,7 +44,7 @@ namespace il2cpp_utils {
     template<typename TOut = Il2CppObject*, bool checkTypes = true, typename T>
     // Gets the value of the property with the given name from the given class or instance, and returns it as TOut.
     ::std::optional<TOut> GetPropertyValue(T&& classOrInstance, ::std::string_view propName) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* prop = RET_NULLOPT_UNLESS(logger, FindProperty(classOrInstance, propName));
         return GetPropertyValue<TOut, checkTypes>(classOrInstance, prop);
     }
@@ -52,7 +52,7 @@ namespace il2cpp_utils {
     template<typename TOut = Il2CppObject*, bool checkTypes = true>
     // Gets the value of the static property with the given name from the class with the given nameSpace and className.
     ::std::optional<TOut> GetPropertyValue(::std::string_view nameSpace, ::std::string_view className, ::std::string_view propName) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* klass = RET_0_UNLESS(logger, GetClassFromName(nameSpace, className));
         return GetPropertyValue<TOut, checkTypes>(klass, propName);
     }
@@ -62,7 +62,7 @@ namespace il2cpp_utils {
     // Only static properties work with classOrInstance == nullptr
     template<bool checkTypes = true, class T, class TArg>
     bool SetPropertyValue(T& classOrInstance, const PropertyInfo* prop, TArg&& value) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         il2cpp_functions::Init();
         RET_0_UNLESS(logger, prop);
 
@@ -74,7 +74,7 @@ namespace il2cpp_utils {
     // Returns false if it fails
     template<bool checkTypes = true, class T, class TArg>
     bool SetPropertyValue(T& classOrInstance, ::std::string_view propName, TArg&& value) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* prop = RET_0_UNLESS(logger, FindProperty(classOrInstance, propName));
         return SetPropertyValue<checkTypes>(classOrInstance, prop, value);
     }
@@ -83,7 +83,7 @@ namespace il2cpp_utils {
     // Returns false if it fails
     template<bool checkTypes = true, class TArg>
     bool SetPropertyValue(::std::string_view nameSpace, ::std::string_view className, ::std::string_view propName, TArg&& value) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* klass = RET_0_UNLESS(logger, GetClassFromName(nameSpace, className));
         return SetPropertyValue<checkTypes>(klass, propName, value);
     }

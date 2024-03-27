@@ -9,7 +9,8 @@ namespace il2cpp_utils {
     static std::mutex classPropertiesLock;
 
     const PropertyInfo* FindProperty(Il2CppClass* klass, std::string_view propName) {
-        static auto logger = getLogger().WithContext("FindProperty");
+        auto const& logger = il2cpp_utils::Logger;
+
         il2cpp_functions::Init();
         RET_0_UNLESS(logger, klass);
 
@@ -24,7 +25,7 @@ namespace il2cpp_utils {
         classPropertiesLock.unlock();
         auto prop = il2cpp_functions::class_get_property_from_name(klass, propName.data());
         if (!prop) {
-            logger.error("could not find property %s in class '%s'!", propName.data(), ClassStandardName(klass).c_str());
+            logger.error("could not find property {} in class '{}'!", propName.data(), ClassStandardName(klass).c_str());
             LogProperties(logger, klass);
             if (klass->parent != klass) prop = FindProperty(klass->parent, propName);
         }
@@ -38,7 +39,7 @@ namespace il2cpp_utils {
         return FindProperty(GetClassFromName(nameSpace, className), propertyName);
     }
 
-    void LogProperty(LoggerContextObject& logger, const PropertyInfo* prop) {
+    void LogProperty(Paper::LoggerContext const& logger, const PropertyInfo* prop) {
         il2cpp_functions::Init();
         RET_V_UNLESS(logger, prop);
 
@@ -58,19 +59,19 @@ namespace il2cpp_utils {
         }
         auto typeStr = type ? TypeGetSimpleName(type) : "?type?";
 
-        logger.debug("%s%s %s { %s; %s; }; // flags: 0x%.4X", flagStr, typeStr, name, getterName, setterName, flags);
+        logger.debug("{}{} {} {{ {}; {}; }}; // flags: 0x{:04x}", flagStr, typeStr, name, getterName, setterName, flags);
     }
 
-    void LogProperties(LoggerContextObject& logger, Il2CppClass* klass, bool logParents) {
+    void LogProperties(Paper::LoggerContext const& logger, Il2CppClass* klass, bool logParents) {
         il2cpp_functions::Init();
         RET_V_UNLESS(logger, klass);
 
         void* myIter = nullptr;
         const PropertyInfo* prop;
         if (klass->name) il2cpp_functions::Class_Init(klass);
-        if (logParents) logger.info("class name: %s", ClassStandardName(klass).c_str());
+        if (logParents) logger.info("class name: {}", ClassStandardName(klass));
 
-        logger.debug("property_count: %i", klass->property_count);
+        logger.debug("property_count: {}", klass->property_count);
         while ((prop = il2cpp_functions::class_get_properties(klass, &myIter))) {
             LogProperty(logger, prop);
         }

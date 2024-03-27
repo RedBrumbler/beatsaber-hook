@@ -13,6 +13,7 @@
 #include "../../shared/config/config-utils.hpp"
 #include "scotland2/shared/loader.hpp"
 #include "scotland2/shared/modloader.h"
+#include "utils/logging.hpp"
 
 // CONFIG
 
@@ -23,7 +24,7 @@ using namespace rapidjson;
 
 bool Configuration::ensureObject() {
     if (!config.IsObject()) {
-        Logger::get().warning("Config data for mod was invalid! Clearing.");
+        il2cpp_utils::Logger.warn("Config data for mod was invalid! Clearing.");
         config.SetObject();
         return false;
     }
@@ -81,7 +82,7 @@ bool parsejson(ConfigDocument& doc, std::string_view js) {
 
 std::string Configuration::getConfigFilePath(const modloader::ModInfo& info) {
     if (!Configuration::configDir) {
-        Configuration::configDir = string_format(CONFIG_PATH_FORMAT, modloader_get_application_id());
+        Configuration::configDir = fmt::format(CONFIG_PATH_FORMAT, modloader_get_application_id());
         if (!direxists(Configuration::configDir->c_str())) {
             mkpath(Configuration::configDir->c_str());
         }
@@ -92,7 +93,7 @@ std::string Configuration::getConfigFilePath(const modloader::ModInfo& info) {
 static std::optional<std::string> dataDir;
 std::string getDataDir(modloader::ModInfo const& info) {
     if (!dataDir) {
-        dataDir = string_format(PERSISTENT_DIR, modloader_get_application_id());
+        dataDir = fmt::format(PERSISTENT_DIR, modloader_get_application_id());
         if (!direxists(*dataDir)) {
             mkpath(*dataDir);
         }
@@ -102,7 +103,7 @@ std::string getDataDir(modloader::ModInfo const& info) {
 
 std::string getDataDir(std::string_view id) {
     if (!dataDir) {
-        dataDir = string_format(PERSISTENT_DIR, modloader_get_application_id());
+        dataDir = fmt::format(PERSISTENT_DIR, modloader_get_application_id());
         if (!direxists(*dataDir)) {
             mkpath(*dataDir);
         }

@@ -25,12 +25,12 @@ namespace il2cpp_utils {
         return "?";
     }
 
-    void LogClass(LoggerContextObject& logger, Il2CppClass* klass, bool logParents) noexcept {
+    void LogClass(Paper::LoggerContext const& logger, Il2CppClass* klass, bool logParents) noexcept {
         il2cpp_functions::Init();
         RET_V_UNLESS(logger, klass);
 
         if (loggedClasses.count(klass)) {
-            logger.debug("Already logged %p!", klass);
+            logger.debug("Already logged {}!", fmt::ptr(klass));
             return;
         }
         loggedClasses.insert(klass);
@@ -51,52 +51,52 @@ namespace il2cpp_utils {
             }
         }
 
-        logger.debug("%i ======================CLASS INFO FOR CLASS: %s======================", indent, ClassStandardName(klass).c_str());
+        logger.debug("{} ======================CLASS INFO FOR CLASS: {}======================", indent, ClassStandardName(klass).c_str());
         void* myIter = nullptr;
         if (!methodInit) {
             // log results of Class::Init
             #ifdef UNITY_2021
-            logger.warning("klass->initialized: %i, init_pending: %i, initialized_and_no_error: %i, initializationExceptionGCHandle: %Xll",
-                    klass->initialized, klass->init_pending, klass->initialized_and_no_error, klass->initializationExceptionGCHandle);
+            logger.warn("klass->initialized: {}, init_pending: {}, initialized_and_no_error: {}, initializationExceptionGCHandle: {:X}",
+                    (bool)klass->initialized, (bool)klass->init_pending, (bool)klass->initialized_and_no_error, klass->initializationExceptionGCHandle);
             #else
-            logger.warning("klass->initialized: %i, init_pending: %i, has_initialization_error: %i, initializationExceptionGCHandle: %Xll",
-                    klass->initialized, klass->init_pending, klass->has_initialization_error, klass->initializationExceptionGCHandle);
+            logger.warning("klass->initialized: {}, init_pending: {}, has_initialization_error: {}, initializationExceptionGCHandle: {:X}",
+                    (bool)klass->initialized, (bool(klass->init_pending, (bool)klass->has_initialization_error, klass->initializationExceptionGCHandle);
             #endif
             auto* m1 = il2cpp_functions::class_get_methods(klass, &myIter);  // attempt again to initialize the method data
             if (klass->method_count && !klass->methods) {
-                logger.error("Class::Init and class_get_methods failed to initialize klass->methods! class_get_methods returned: %p",
-                    m1);
+                logger.error("Class::Init and class_get_methods failed to initialize klass->methods! class_get_methods returned: {}",
+                    fmt::ptr(m1));
                 if (m1) LogMethod(logger, m1);
             }
         }
 
-        logger.debug("Pointer: %p", klass);
-        logger.debug("Type Token: %i", il2cpp_functions::class_get_type_token(klass));
+        logger.debug("Pointer: {}", fmt::ptr(klass));
+        logger.debug("Type Token: {}", il2cpp_functions::class_get_type_token(klass));
         auto typeDefIdx = il2cpp_functions::MetadataCache_GetIndexForTypeDefinition(klass->generic_class ? klass->generic_class->cached_class : klass);
-        logger.debug("TypeDefinitionIndex: %i", typeDefIdx);
+        logger.debug("TypeDefinitionIndex: {}", typeDefIdx);
         // Repair the typeDefinition value if it was null but we found one
         #ifndef UNITY_2021
         if (!klass->typeDefinition && typeDefIdx > 0) klass->typeDefinition = il2cpp_functions::MetadataCache_GetTypeDefinitionFromIndex(typeDefIdx);
-        logger.debug("Type definition: %p", klass->typeDefinition);
+        logger.debug("Type definition: {}", fmt::ptr(klass->typeDefinition));
         #endif
 
-        logger.debug("Assembly Name: %s", il2cpp_functions::class_get_assemblyname(klass));
+        logger.debug("Assembly Name: {}", il2cpp_functions::class_get_assemblyname(klass));
 
         auto* typ = il2cpp_functions::class_get_type(klass);
         if (typ) {
-            logger.debug("Type name: %s", il2cpp_functions::type_get_name(typ));
+            logger.debug("Type name: {}", il2cpp_functions::type_get_name(typ));
             if (auto* reflName = il2cpp_functions::Type_GetName(typ, IL2CPP_TYPE_NAME_FORMAT_REFLECTION)) {
-                logger.debug("Type reflection name: %s", reflName);
+                logger.debug("Type reflection name: {}", reflName);
                 il2cpp_functions::free(reflName);
             }
-            logger.debug("Fully qualifed type name: %s", il2cpp_functions::type_get_assembly_qualified_name(typ));
+            logger.debug("Fully qualifed type name: {}", il2cpp_functions::type_get_assembly_qualified_name(typ));
         }
-        logger.debug("Rank: %i", il2cpp_functions::class_get_rank(klass));
-        logger.debug("Flags: 0x%.8X", il2cpp_functions::class_get_flags(klass));
-        logger.debug("Event Count: %i", klass->event_count);
-        logger.debug("Method Count: %i", klass->method_count);
-        logger.debug("Is Generic: %i", il2cpp_functions::class_is_generic(klass));
-        logger.debug("Is Abstract: %i", il2cpp_functions::class_is_abstract(klass));
+        logger.debug("Rank: {}", il2cpp_functions::class_get_rank(klass));
+        logger.debug("Flags: 0x{:08X}", il2cpp_functions::class_get_flags(klass));
+        logger.debug("Event Count: {}", klass->event_count);
+        logger.debug("Method Count: {}", klass->method_count);
+        logger.debug("Is Generic: {}", il2cpp_functions::class_is_generic(klass));
+        logger.debug("Is Abstract: {}", il2cpp_functions::class_is_abstract(klass));
 
         // Some methods, such as GenericClass::GetClass, may not initialize all fields in Il2CppClass, and thus not meet all implicit contracts defined by the comments in Il2CppClass's struct definition.
         // But unless we're blind, the only method that sets is_generic on non-methods is MetadataCache::FromTypeDefinition. That method also contains the only assignment of genericContainerIndex.
@@ -111,7 +111,7 @@ namespace il2cpp_utils {
 
         if (klass->is_generic || klassGenericContainerIndex > 0) {
             auto* genContainer = il2cpp_functions::MetadataCache_GetGenericContainerFromIndex(klassGenericContainerIndex);
-            logger.debug("genContainer: idx %i, ownerIndex: %i, is_method: %i", klassGenericContainerIndex, genContainer->ownerIndex, genContainer->is_method);
+            logger.debug("genContainer: idx {}, ownerIndex: {}, is_method: {}", klassGenericContainerIndex, genContainer->ownerIndex, genContainer->is_method);
             if (genContainer->ownerIndex != typeDefIdx) {
                 logger.error("genContainer ownerIndex mismatch!");
             }
@@ -119,48 +119,48 @@ namespace il2cpp_utils {
                 auto genParamIdx = genContainer->genericParameterStart + i;
                 auto* genParam = il2cpp_functions::MetadataCache_GetGenericParameterFromIndex(genParamIdx);
                 if (genParam) {
-                    logger.debug("genParam #%i, idx %i: ownerIdx %i, name %s, num %i, flags (see "
-                        "IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_X in il2cpp-tabledefs.h) 0x%.2X", i, genParamIdx, genParam->ownerIndex,
+                    logger.debug("genParam #{}, idx {}: ownerIdx {}, name {}, num {}, flags (see "
+                        "IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_X in il2cpp-tabledefs.h) 0x{:02x}", i, genParamIdx, genParam->ownerIndex,
                         il2cpp_functions::MetadataCache_GetStringFromIndex(genParam->nameIndex), genParam->num, genParam->flags);
                 } else {
-                    logger.warning("genParam %i, idx %i: null", i, genParamIdx);
+                    logger.warn("genParam {}, idx {}: null", i, genParamIdx);
                 }
             }
         } else {
-            logger.debug("genericContainerIndex: %i", klassGenericContainerIndex);
+            logger.debug("genericContainerIndex: {}", klassGenericContainerIndex);
         }
 
-        logger.debug("%i =========METHODS=========", indent);
+        logger.debug("{} =========METHODS=========", indent);
         LogMethods(logger, klass);
-        logger.debug("%i =======END METHODS=======", indent);
+        logger.debug("{} =======END METHODS=======", indent);
 
         auto* declaring = il2cpp_functions::class_get_declaring_type(klass);
-        logger.debug("declaring type: %p (%s)", declaring, declaring ? ClassStandardName(declaring).c_str() : "");
+        logger.debug("declaring type: {} ({})", fmt::ptr(declaring), declaring ? ClassStandardName(declaring).c_str() : "");
         if (declaring && logParents) LogClass(logger, declaring, logParents);
         auto* element = il2cpp_functions::class_get_element_class(klass);
-        logger.debug("element class: %p ('%s', self = %p)", element, element ? ClassStandardName(element).c_str() : "", klass);
+        logger.debug("element class: {} ('{}', self = {})", fmt::ptr(element), element ? ClassStandardName(element).c_str() : "", fmt::ptr(klass));
         if (element && element != klass && logParents) LogClass(logger, element, logParents);
 
-        logger.debug("%i =======PROPERTIES=======", indent);
+        logger.debug("{} =======PROPERTIES=======", indent);
         LogProperties(logger, klass);
-        logger.debug("%i =====END PROPERTIES=====", indent);
-        logger.debug("%i =========FIELDS=========", indent);
+        logger.debug("{} =====END PROPERTIES=====", indent);
+        logger.debug("{} =========FIELDS=========", indent);
         LogFields(logger, klass);
-        logger.debug("%i =======END FIELDS=======", indent);
+        logger.debug("{} =======END FIELDS=======", indent);
 
         auto* parent = il2cpp_functions::class_get_parent(klass);
-        logger.debug("parent: %p (%s)", parent, parent ? ClassStandardName(parent).c_str() : "");
+        logger.debug("parent: {} ({})", fmt::ptr(parent), parent ? ClassStandardName(parent).c_str() : "");
         if (parent && logParents) LogClass(logger, parent, logParents);
-        logger.debug("%i, ==================================================================================", indent);
+        logger.debug("{}, ==================================================================================", indent);
         indent--;
     }
 
     static std::unordered_map<Il2CppClass*, std::map<std::string, Il2CppGenericClass*, doj::alphanum_less<std::string>>> classToGenericClassMap;
     void BuildGenericsMap() {
-        static auto logger = getLogger().WithContext("BuildGenericsMap");
+        auto const& logger = il2cpp_utils::Logger;
         il2cpp_functions::Init();
         auto* metadataReg = RET_V_UNLESS(logger, il2cpp_functions::s_Il2CppMetadataRegistration);
-        logger.debug("metadataReg: %p, offset = %lX", metadataReg, ((uintptr_t)metadataReg) - getRealOffset(0));
+        logger.debug("metadataReg: {}, offset = {:X}", fmt::ptr(metadataReg), ((uintptr_t)metadataReg) - getRealOffset(0));
 
         int uncached_class_count = 0;
         for (int i=0; i < metadataReg->genericClassesCount; i++) {
@@ -176,10 +176,10 @@ namespace il2cpp_utils {
 
             classToGenericClassMap[typeDefClass][genClassName.c_str()] = genClass;
         }
-        logger.debug("uncached_class_count: %i (%f proportion of total)", uncached_class_count, uncached_class_count * 1.0 / metadataReg->genericClassesCount);
+        logger.debug("uncached_class_count: {} ({} proportion of total)", uncached_class_count, uncached_class_count * 1.0 / metadataReg->genericClassesCount);
     }
 
-    void LogClasses(LoggerContextObject& logger, std::string_view classPrefix, bool logParents) noexcept {
+    void LogClasses(Paper::LoggerContext const& logger, std::string_view classPrefix, bool logParents) noexcept {
         il2cpp_functions::Init();
         BuildGenericsMap();
 
@@ -194,13 +194,13 @@ namespace il2cpp_utils {
         for (size_t i = 0; i < size; ++i) {
             // Get image for each assembly
             if (!assembs[i]) {
-                logger.warning("Assembly %zu was null! Skipping.", i);
+                logger.warn("Assembly {} was null! Skipping.", i);
                 continue;
             }
-            logger.debug("Scanning assembly \"%s\"", assembs[i]->aname.name);
+            logger.debug("Scanning assembly \"{}\"", assembs[i]->aname.name);
             auto* img = il2cpp_functions::assembly_get_image(assembs[i]);
             if (!img) {
-                logger.warning("Assembly's image was null! Skipping.");
+                logger.warn("Assembly's image was null! Skipping.");
                 continue;
             }
 
@@ -240,12 +240,12 @@ namespace il2cpp_utils {
             LogClass(logger, pair.second, logParents);
             indent = -1;
             for ( const auto &genPair : classToGenericClassMap[pair.second] ) {
-                logger.debug("%s", genPair.first.c_str());
+                logger.debug("{}", genPair.first.c_str());
             }
             usleep(1000);  // 0.001s
         }
-        logger.debug("LogClasses(\"%s\") is complete.", classPrefix.data());
-        logger.debug("maxIndent: %i", maxIndent);
+        logger.debug("LogClasses(\"{}\") is complete.", classPrefix.data());
+        logger.debug("maxIndent: {}", maxIndent);
     }
 
     void AddTypeToNametoClassHashTable(const Il2CppImage* img, TypeDefinitionIndex index) {

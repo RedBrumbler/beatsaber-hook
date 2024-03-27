@@ -1,6 +1,7 @@
 #ifndef UTILS_H_INCLUDED
 #define UTILS_H_INCLUDED
 
+#include <dlfcn.h>
 #pragma pack(push)
 
 #include <cxxabi.h>
@@ -102,7 +103,7 @@ auto&& unwrap_optionals(T&& arg) {
 #define RET_UNLESS(retval, loggerContext, ...) ({ \
     auto&& __temp__ = (__VA_ARGS__); \
     if (!__temp__) { \
-        loggerContext.error("%s (in %s at %s:%i) returned false!", #__VA_ARGS__, __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+        loggerContext.error("{} (in {} at {}:{}) returned false!", #__VA_ARGS__, __PRETTY_FUNCTION__, __FILE__, __LINE__); \
         return retval; \
     } \
     unwrap_optionals(__temp__); })
@@ -120,15 +121,15 @@ auto&& unwrap_optionals(T&& arg) {
 #define THROW_OR_RET_NULL(contextLogger, ...) ({ \
     auto&& __temp__ = (__VA_ARGS__); \
     if (!__temp__) { \
-        contextLogger.error("%s (in %s at %s:%i) returned false!", #__VA_ARGS__, __PRETTY_FUNCTION__, __FILE__, __LINE__); \
-        throw ::il2cpp_utils::Il2CppUtilsException(contextLogger.context, #__VA_ARGS__ " is false!", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+        contextLogger.error("{} (in {} at {}:{}) returned false!", #__VA_ARGS__, __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+        throw ::il2cpp_utils::Il2CppUtilsException(contextLogger.tag, #__VA_ARGS__ " is false!", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
     } \
     unwrap_optionals(__temp__); })
 #else
 #define THROW_OR_RET_NULL(contextLogger, ...) ({ \
     auto&& __temp__ = (__VA_ARGS__); \
     if (!__temp__) { \
-        throw ::il2cpp_utils::Il2CppUtilsException(contextLogger.context, #__VA_ARGS__ " is false!"); \
+        throw ::il2cpp_utils::Il2CppUtilsException(contextLogger.tag, #__VA_ARGS__ " is false!"); \
     } \
     unwrap_optionals(__temp__); })
 #endif
@@ -137,7 +138,7 @@ auto&& unwrap_optionals(T&& arg) {
 #define THROW_OR_RET_NULL(contextLogger, ...) ({ \
     auto&& __temp__ = (__VA_ARGS__); \
     if (!__temp__) { \
-        contextLogger.error("%s (in %s at %s:%i) returned false!", #__VA_ARGS__, __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+        contextLogger.error("{} (in {} at {}:{}) returned false!", #__VA_ARGS__, __PRETTY_FUNCTION__, __FILE__, __LINE__); \
         return nullptr; \
     } \
     unwrap_optionals(__temp__); })
@@ -200,6 +201,7 @@ template <class...> constexpr std::false_type false_t{};
 
 #include "utils-functions.h"
 #include "logging.hpp"
+#include "il2cpp-utils-exceptions.hpp"
 
 #ifdef __cplusplus
 
@@ -231,7 +233,7 @@ template<class T>
 uintptr_t getBase(T pc) {
     static_assert(sizeof(T) >= sizeof(void*));
     Dl_info info;
-    static auto& logger = Logger::get();
+    auto logger = il2cpp_utils::Logger;
     RET_0_UNLESS(logger, dladdr((void*)pc, &info));
     return (uintptr_t)info.dli_fbase;
 }
@@ -250,7 +252,7 @@ using function_ptr_t = TRet(*)(TArgs...);
 #if __has_feature(cxx_exceptions)
 template<class T>
 auto throwUnless(T&& arg, const char* func, const char* file, int line) {
-    if (!arg) throw std::runtime_error(string_format("Throwing in %s at %s:%i", func, file, line));
+    if (!arg) throw il2cpp_utils::exceptions::StackTraceException(fmt::format("Throwing in {} at {}:{}", func, file, line));
     return unwrap_optionals(arg);
 }
 #ifndef SUPPRESS_MACRO_LOGS
@@ -268,8 +270,6 @@ int mkpath(std::string_view file_path);
 void resetSS(std::stringstream& ss);
 // Prints the given number of "tabs" as spaces to the given output stream.
 void tabs(std::ostream& os, int tabs, int spacesPerTab = 2);
-// Logs the given stringstream and clears it.
-void print(std::stringstream& ss, Logging::Level lvl = Logging::INFO);
 
 extern "C" {
 #endif /* __cplusplus */

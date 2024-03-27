@@ -1,16 +1,24 @@
 {
+  "version": "0.1.0",
   "sharedDir": "shared",
   "dependenciesDir": "extern",
   "info": {
     "name": "beatsaber-hook",
     "id": "beatsaber-hook",
-    "version": "5.0.0",
+    "version": "5.0.3",
     "url": "https://github.com/QuestPackageManager/beatsaber-hook",
     "additionalData": {
       "cmake": true,
       "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/libbeatsaber-hook.so",
       "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/debug_libbeatsaber-hook.so",
       "branchName": "master"
+    }
+  },
+  "workspace": {
+    "scripts": {
+      "build": [
+        "pwsh ./build.ps1"
+      ]
     }
   },
   "dependencies": [
@@ -30,13 +38,11 @@
       "additionalData": {
         "private": true
       }
+    },
+    {
+      "id": "paper",
+      "versionRange": "^3.3.1",
+      "additionalData": {}
     }
-  ],
-  "workspace": {
-    "scripts": {
-      "build": [
-        "pwsh ./build.ps1"
-      ]
-    }
-  }
+  ]
 }

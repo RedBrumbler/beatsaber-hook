@@ -50,8 +50,8 @@ namespace il2cpp_utils {
             Il2CppObject* inst;
 
             BadCastException(::Il2CppClass const* klass, ::Il2CppClass const* targetKlass, Il2CppObject* inst)
-                : il2cpp_utils::exceptions::StackTraceException(string_format("Failed to cast %s to %s", ClassStandardName(klass, true).c_str(),
-                                                                              ClassStandardName(targetKlass, true).c_str())),
+                : il2cpp_utils::exceptions::StackTraceException(fmt::format("Failed to cast {} to {}", ClassStandardName(klass, true),
+                                                                              ClassStandardName(targetKlass, true))),
                   klass(klass),
                   targetKlass(targetKlass),
                   inst(inst) {}
@@ -138,29 +138,29 @@ namespace il2cpp_utils {
 #define IL2CPP_CATCH_HANDLER(...) try { \
     __VA_ARGS__ \
 } catch (::il2cpp_utils::RunMethodException const& exc) { \
-    ::Logger::get().error("Caught in mod ID: " _CATCH_HANDLER_ID ": Uncaught RunMethodException! what(): %s", exc.what()); \
+    ::il2cpp_utils::Logger.error("Caught in mod ID: " _CATCH_HANDLER_ID ": Uncaught RunMethodException! what(): {}", exc.what()); \
     exc.log_backtrace(); \
-    ::Logger::get().error("Catch handler backtrace..."); \
-    ::Logger::get().Backtrace(100); \
+    ::il2cpp_utils::Logger.error("Catch handler backtrace..."); \
+    ::il2cpp_utils::Logger.Backtrace(100); \
     if (exc.ex) { \
         exc.rethrow(); \
     } \
     SAFE_ABORT(); \
 } catch (::il2cpp_utils::exceptions::StackTraceException const& exc) { \
-    ::Logger::get().error("Caught in mod ID: " _CATCH_HANDLER_ID ": Uncaught StackTraceException! what(): %s", exc.what()); \
+    ::il2cpp_utils::Logger.error("Caught in mod ID: " _CATCH_HANDLER_ID ": Uncaught StackTraceException! what(): {}", exc.what()); \
     exc.log_backtrace(); \
-    ::Logger::get().error("Catch handler backtrace..."); \
-    ::Logger::get().Backtrace(100); \
+    ::il2cpp_utils::Logger.error("Catch handler backtrace..."); \
+    ::il2cpp_utils::Logger.Backtrace(100); \
     SAFE_ABORT(); \
 } catch (::std::exception const& exc) { \
-    ::Logger::get().error("Caught in mod ID: " _CATCH_HANDLER_ID ": Uncaught C++ exception! type name: %s, what(): %s", typeid(exc).name(), exc.what()); \
-    ::Logger::get().error("Catch handler backtrace..."); \
-    ::Logger::get().Backtrace(100); \
+    ::il2cpp_utils::Logger.error("Caught in mod ID: " _CATCH_HANDLER_ID ": Uncaught C++ exception! type name: {}, what(): {}", typeid(exc).name(), exc.what()); \
+    ::il2cpp_utils::Logger.error("Catch handler backtrace..."); \
+    ::il2cpp_utils::Logger.Backtrace(100); \
     ::il2cpp_utils::raise(exc); \
 } catch (...) { \
-    ::Logger::get().error("Caught in mod ID: " _CATCH_HANDLER_ID ": Uncaught, unknown C++ exception (not std::exception) with no known what() method!"); \
-    ::Logger::get().error("Catch handler backtrace..."); \
-    ::Logger::get().Backtrace(100); \
+    ::il2cpp_utils::Logger.error("Caught in mod ID: " _CATCH_HANDLER_ID ": Uncaught, unknown C++ exception (not std::exception) with no known what() method!"); \
+    ::il2cpp_utils::Logger.error("Catch handler backtrace..."); \
+    ::il2cpp_utils::Logger.Backtrace(100); \
     SAFE_ABORT(); \
 }
 

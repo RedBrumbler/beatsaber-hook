@@ -452,16 +452,16 @@ class il2cpp_functions {
     // must be done on-demand because the pointers aren't necessarily correct at the time of il2cpp_functions::Init
     static void CheckS_GlobalMetadata() {
         if (!s_GlobalMetadataHeader) {
-            static auto& logger = getFuncLogger();
+            auto const& logger = il2cpp_utils::Logger;
             s_GlobalMetadata = *CRASH_UNLESS(il2cpp_functions::s_GlobalMetadataPtr);
             s_GlobalMetadataHeader = *CRASH_UNLESS(il2cpp_functions::s_GlobalMetadataHeaderPtr);
             s_Il2CppMetadataRegistration = *CRASH_UNLESS(il2cpp_functions::s_Il2CppMetadataRegistrationPtr);
-            logger.debug("sanity: %X (should be 0xFAB11BAF)", s_GlobalMetadataHeader->sanity);
-            logger.debug("version: %i", s_GlobalMetadataHeader->version);
+            logger.debug("sanity: {:X} (should be 0xFAB11BAF)", s_GlobalMetadataHeader->sanity);
+            logger.debug("version: {}", s_GlobalMetadataHeader->version);
             CRASH_UNLESS((uint32_t)s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-            logger.debug("typeDefinitionsOffset: %i", s_GlobalMetadataHeader->typeDefinitionsOffset);
-            logger.debug("exportedTypeDefinitionsOffset: %i", s_GlobalMetadataHeader->exportedTypeDefinitionsOffset);
-            logger.debug("nestedTypesOffset: %i", s_GlobalMetadataHeader->nestedTypesOffset);
+            logger.debug("typeDefinitionsOffset: {}", s_GlobalMetadataHeader->typeDefinitionsOffset);
+            logger.debug("exportedTypeDefinitionsOffset: {}", s_GlobalMetadataHeader->exportedTypeDefinitionsOffset);
+            logger.debug("nestedTypesOffset: {}", s_GlobalMetadataHeader->nestedTypesOffset);
             // TODO: use il2cpp_functions::defaults to define the il2cpp_defaults variable mentioned in il2cpp-class-internals.h
         }
     }
@@ -483,8 +483,6 @@ class il2cpp_functions {
     static bool initialized;
     // Initializes all of the IL2CPP functions via dlopen and dlsym for use.
     static void Init();
-
-    static LoggerContextObject& getFuncLogger();
 };
 
 #undef API_FUNC

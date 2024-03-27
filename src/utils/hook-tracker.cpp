@@ -70,12 +70,12 @@ const void* HookTracker::GetOrigInternal(const void* const location) noexcept {
 #include <dirent.h>
 
 void HookTracker::CombineHooks() noexcept {
-    static auto logger = Logger::get().WithContext("HookTracker");
+    auto const& logger = il2cpp_utils::Logger;
     auto libsFolder = modloader::get_modloader_root_load_path()/"libs";
     auto const& tmpPath = modloader::get_files_dir() / "libs";
     DIR* dir = opendir(libsFolder.c_str());
     if (dir == nullptr) {
-        logger.warning("Failed to open libs folder! At path: %s", libsFolder.c_str());
+        logger.warn("Failed to open libs folder! At path: {}", libsFolder.c_str());
         return;
     }
     struct dirent* dp;
@@ -86,18 +86,18 @@ void HookTracker::CombineHooks() noexcept {
             auto* image = dlopen(path.c_str(), RTLD_LAZY | RTLD_LOCAL);
             auto* err = dlerror();
             if (image == nullptr || err != nullptr) {
-                logger.warning("Failed to dlopen: %s! %s", path.c_str(), err);
+                logger.warn("Failed to dlopen: {}! {}", path.c_str(), err);
                 continue;
             }
             // Open the library, look for a function called: __HOOKTRACKER_GET_HOOKS
             auto* getter = dlsym(image, "__HOOKTRACKER_GET_HOOKS");
             if (getter == nullptr) {
-                logger.warning("Failed to find symbol: %s", "__HOOKTRACKER_GET_HOOKS");
+                logger.warn("Failed to find symbol: {}", "__HOOKTRACKER_GET_HOOKS");
                 continue;
             }
             // Of course, if the function returns something that is of a different HookInfo type, for example, this may cause all sorts of pain.
             auto otherHooks = *reinterpret_cast<const std::unordered_map<const void*, std::list<HookInfo>>* (*)()>(getter)();
-            Logger::get().debug("Found other hooks: %zu for module: %s", otherHooks.size(), path.c_str());
+            logger.debug("Found other hooks: {} for module: {}", otherHooks.size(), path.c_str());
             for (auto itr : otherHooks) {
                 // For each void*, find our match
                 auto match = hooks.find(itr.first);

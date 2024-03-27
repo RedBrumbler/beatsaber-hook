@@ -3,6 +3,8 @@
 #include "shared/utils/logging.hpp"
 #include "shared/utils/utils.h"
 
+#include <android/log.h>
+
 [[nodiscard]] void* gc_alloc_specific(size_t sz) {
     // This function assumes il2cpp_functions will be called at a reasonable time, instead will warn you on allocating unsafe memory.
     if (il2cpp_functions::hasGCFuncs) {
@@ -12,7 +14,7 @@
     } else {
         auto* ptr = calloc(1, sz);
         // We cannot use our logger because we allocate it using this function.
-        __android_log_print(Logging::WARNING, "QuestHook[GC_Alloc]", "Allocation at: %p for size: %lu fallback to calloc!", ptr, sz);
+        __android_log_print(ANDROID_LOG_WARN, "QuestHook[GC_Alloc]", "Allocation at: %p for size: %lu fallback to calloc!", ptr, sz);
         return ptr;
     }
 }

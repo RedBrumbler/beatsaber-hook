@@ -4,11 +4,6 @@
 #include <unordered_map>
 
 namespace il2cpp_utils {
-    LoggerContextObject& getLogger() {
-        static auto logger = Logger::get().WithContext("il2cpp_utils");
-        return logger;
-    }
-
     std::vector<Il2CppClass*> ClassesFrom(std::span<std::string_view> const strings) {
         std::vector<Il2CppClass*> classes;
         classes.reserve((strings.size() - 1) / 2);
@@ -37,8 +32,7 @@ namespace il2cpp_utils {
     static std::mutex nameHashLock;
 
     Il2CppClass* FindNested(Il2CppClass* declaring, std::string_view typeName) {
-        static auto logger = getLogger().WithContext("FindNested");
-        // logger.info("trying to find: %s ", typeName.data());
+        // logger.info("trying to find: {} ", typeName.data());
 
         if (!declaring) return nullptr;
         auto token = typeName.find("/");
@@ -64,7 +58,7 @@ namespace il2cpp_utils {
 
     Il2CppClass* GetClassFromName(std::string_view name_space, std::string_view type_name) {
         il2cpp_functions::Init();
-        static auto logger = getLogger().WithContext("GetClassFromName");
+        auto const& logger = il2cpp_utils::Logger;
 
         // TODO: avoid creating std::string at any point except new pair insertion via P0919
         // Check cache
@@ -84,7 +78,7 @@ namespace il2cpp_utils {
             auto assemb = allAssemb[i];
             auto img = il2cpp_functions::assembly_get_image(assemb);
             if (!img) {
-                logger.error("Assembly with name: %s has a null image!", assemb->aname.name);
+                logger.error("Assembly with name: {} has a null image!", assemb->aname.name);
                 continue;
             }
             auto klass = il2cpp_functions::class_from_name(img, name_space.data(), type_name.data());
@@ -115,14 +109,14 @@ namespace il2cpp_utils {
             }
         }
 
-        logger.error("Could not find class with namepace: %s and name: %s",
+        logger.error("Could not find class with namepace: {} and name: {}",
             name_space.data(), type_name.data());
         return nullptr;
     }
 
     Il2CppClass* MakeGeneric(const Il2CppClass* klass, std::span<const Il2CppClass* const> const args) {
         il2cpp_functions::Init();
-        static auto logger = getLogger().WithContext("MakeGeneric");
+        auto const& logger = il2cpp_utils::Logger;
 
         static auto typ = RET_0_UNLESS(logger, il2cpp_functions::defaults->systemtype_class);
         auto klassType = RET_0_UNLESS(logger, GetSystemType(klass));
@@ -130,7 +124,7 @@ namespace il2cpp_utils {
         // Call Type.MakeGenericType on it
         auto arr = il2cpp_functions::array_new_specific(typ, args.size());
         if (!arr) {
-            logger.error("Failed to make new array with length: %zu", args.size());
+            logger.error("[MakeGeneric] Failed to make new array with length: {}", args.size());
             return nullptr;
         }
 
@@ -138,7 +132,7 @@ namespace il2cpp_utils {
         for (auto arg : args) {
             auto* o = GetSystemType(arg);
             if (!o) {
-                logger.error("Failed to get type for %s", il2cpp_functions::class_get_name_const(arg));
+                logger.error("[MakeGeneric] Failed to get type for {}", il2cpp_functions::class_get_name_const(arg));
                 return nullptr;
             }
             il2cpp_array_set(arr, void*, i, reinterpret_cast<void*>(o));
@@ -152,7 +146,7 @@ namespace il2cpp_utils {
 
     Il2CppClass* MakeGeneric(const Il2CppClass* klass, const Il2CppType** types, uint32_t numTypes) {
         il2cpp_functions::Init();
-        static auto logger = getLogger().WithContext("GetClassFromName");
+        auto const& logger = il2cpp_utils::Logger;
 
         static auto typ = RET_0_UNLESS(logger, il2cpp_functions::defaults->systemtype_class);
         auto klassType = RET_0_UNLESS(logger, GetSystemType(klass));
@@ -160,7 +154,7 @@ namespace il2cpp_utils {
         // Call Type.MakeGenericType on it
         auto arr = il2cpp_functions::array_new_specific(typ, numTypes);
         if (!arr) {
-            logger.error("Failed to make new array with length: %u", numTypes);
+            logger.error("Failed to make new array with length: {}", numTypes);
             return nullptr;
         }
 
@@ -168,7 +162,7 @@ namespace il2cpp_utils {
             const Il2CppType* arg = types[i];
             auto* o = GetSystemType(arg);
             if (!o) {
-                logger.error("Failed to get system type for %s", il2cpp_functions::type_get_name(arg));
+                logger.error("Failed to get system type for {}", il2cpp_functions::type_get_name(arg));
                 return nullptr;
             }
             il2cpp_array_set(arr, void*, i, reinterpret_cast<void*>(o));

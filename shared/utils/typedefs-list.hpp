@@ -10,6 +10,9 @@
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
+
+#include <fmt/ranges.h>
+
 #include "il2cpp-utils-methods.hpp"
 #include "type-concepts.hpp"
 
@@ -678,3 +681,9 @@ using ListW = ListWrapper<T, Ptr>;
 #endif
 
 static_assert(il2cpp_utils::has_il2cpp_conversion<ListW<int>>);
+
+template <typename T, typename Ptr>
+auto format_as(ListWrapper<T, Ptr> list) {
+    if (!list) return std::string("null");
+    return fmt::join(list.begin(), list.end(), ", ");
+}

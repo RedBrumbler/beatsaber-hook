@@ -18,11 +18,11 @@
 namespace il2cpp_utils {
     // Created by zoller27osu
     // Logs information about the given FieldInfo* as log(DEBUG)
-    void LogField(LoggerContextObject& logger, FieldInfo* field);
+    void LogField(Paper::LoggerContext const& logger, FieldInfo* field);
 
     // Created by zoller27osu
     // Calls LogField on all fields in the given class
-    void LogFields(LoggerContextObject& logger, Il2CppClass* klass, bool logParents = false);
+    void LogFields(Paper::LoggerContext const& logger, Il2CppClass* klass, bool logParents = false);
     Il2CppClass* GetFieldClass(FieldInfo* field);
 
     // Returns the FieldInfo for the field of the given class with the given name
@@ -42,7 +42,7 @@ namespace il2cpp_utils {
     requires (!std::is_convertible_v<T, Il2CppClass*> && !std::is_convertible_v<T, ::std::string_view>) FieldInfo*
     #endif
     FindField(T&& instance, TArgs&&... params) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         il2cpp_functions::Init();
 
         auto* klass = RET_0_UNLESS(logger, ExtractClass(instance));
@@ -53,15 +53,14 @@ namespace il2cpp_utils {
     // Assumes a static field if instance == nullptr
     // Created by darknight1050, modified by Sc2ad and zoller27osu
     ::std::optional<TOut> GetFieldValue(Il2CppObject* instance, FieldInfo* field) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         il2cpp_functions::Init();
         RET_NULLOPT_UNLESS(logger, field);
 
         // Check that the TOut requested by the user matches the field.
         auto* outType = ExtractIndependentType<TOut>();
         if (outType && !IsConvertibleFrom(outType, field->type, false)) {
-            Logger::get().warning("User requested TOut %s does not match the field's type, %s!",
-                TypeGetSimpleName(outType), TypeGetSimpleName(field->type));
+            il2cpp_utils::Logger.warn("User requested TOut {} does not match the field's type, {}!", TypeGetSimpleName(outType), TypeGetSimpleName(field->type));
         }
 
         TOut out;
@@ -77,7 +76,7 @@ namespace il2cpp_utils {
     // Gets the value of the field with type TOut and the given name from the given class
     // Adapted by zoller27osu
     ::std::optional<TOut> GetFieldValue(T&& classOrInstance, ::std::string_view fieldName) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* field = RET_NULLOPT_UNLESS(logger, FindField(classOrInstance, fieldName));
         Il2CppObject* obj = ToIl2CppObject(classOrInstance);  // null is allowed (for T = Il2CppType* or Il2CppClass*)
         return GetFieldValue<TOut>(obj, field);
@@ -86,7 +85,7 @@ namespace il2cpp_utils {
     template<typename TOut = Il2CppObject*>
     // Gets the value of the static field with the given name from the class with the given nameSpace and className.
     ::std::optional<TOut> GetFieldValue(::std::string_view nameSpace, ::std::string_view className, ::std::string_view fieldName) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* klass = RET_NULLOPT_UNLESS(logger, GetClassFromName(nameSpace, className));
         return GetFieldValue<TOut>(klass, fieldName);
     }
@@ -96,7 +95,7 @@ namespace il2cpp_utils {
     // Assumes static field if instance == nullptr
     template<class TArg>
     bool SetFieldValue(Il2CppObject* instance, FieldInfo* field, TArg&& value) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         il2cpp_functions::Init();
         RET_0_UNLESS(logger, field);
 
@@ -117,7 +116,7 @@ namespace il2cpp_utils {
     // Returns false if it fails
     template<class T, class TArg>
     bool SetFieldValue(T& classOrInstance, ::std::string_view fieldName, TArg&& value) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* field = RET_0_UNLESS(logger, FindField(classOrInstance, fieldName));
         Il2CppObject* obj = ToIl2CppObject(classOrInstance);  // null is allowed (for T = Il2CppType* or Il2CppClass*)
         RET_0_UNLESS(logger, SetFieldValue(obj, field, value));
@@ -129,7 +128,7 @@ namespace il2cpp_utils {
     // Returns false if it fails
     template<class TArg>
     bool SetFieldValue(::std::string_view nameSpace, ::std::string_view className, ::std::string_view fieldName, TArg&& value) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* klass = RET_0_UNLESS(logger, GetClassFromName(nameSpace, className));
         return SetFieldValue(klass, fieldName, value);
     }
@@ -137,7 +136,7 @@ namespace il2cpp_utils {
     // Intializes an object (using the given args) fit to be assigned to the given field.
     template<typename... TArgs>
     Il2CppObject* CreateFieldValue(FieldInfo* field, TArgs&& ...args) {
-        static auto& logger = getLogger();
+        auto const& logger = il2cpp_utils::Logger;
         auto* klass = RET_0_UNLESS(logger, GetFieldClass(field));
         return il2cpp_utils::New(klass, args...);
     }
