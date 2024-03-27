@@ -59,7 +59,8 @@ bool direxists(std::string_view dirname);
 // TODO: This should be removed once std::format exists
 __attribute__((format(printf, 1, 2))) std::string string_format(const char* format, ...);
 
-// Returns a map with the buildIds from all loaded shared objects
+/// @brief Get the buildId from a file
+/// @returns The buildId if found
 std::optional<std::string> getBuildId(std::string_view filename);
 
 /// @brief Get the size of the libil2cpp.so file
