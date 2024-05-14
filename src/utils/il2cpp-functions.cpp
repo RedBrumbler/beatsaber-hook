@@ -161,9 +161,9 @@ API_INIT(void*, unity_liveness_calculation_begin,
 API_INIT(void, unity_liveness_calculation_end, (void* state));
 #endif
 #ifdef UNITY_2021
-API_INIT(void*, il2cpp_unity_liveness_allocate_struct, (Il2CppClass * filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_liveness_reallocate_callback reallocate));
-API_INIT(void, il2cpp_unity_liveness_finalize, (void* state));
-API_INIT(void, il2cpp_unity_liveness_free_struct, (void* state));
+API_INIT(void*, unity_liveness_allocate_struct, (Il2CppClass * filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_liveness_reallocate_callback reallocate));
+API_INIT(void, unity_liveness_finalize, (void* state));
+API_INIT(void, unity_liveness_free_struct, (void* state));
 #endif
 API_INIT(void, unity_liveness_calculation_from_root, (Il2CppObject * root, void* state));
 API_INIT(void, unity_liveness_calculation_from_statics, (void* state));
