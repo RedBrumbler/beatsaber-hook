@@ -555,7 +555,7 @@ struct SafePtrUnity : public SafePtr<T, true> {
 
     inline bool isAlive() const {
 #ifdef HAS_CODEGEN
-        return static_cast<bool>(Parent::internalHandle) && (Parent::ptr()) && Parent::ptr()->m_CachedPtr;
+        return static_cast<bool>(Parent::internalHandle) && (Parent::ptr()) && Parent::ptr()->m_CachedPtr.m_value.convert();
 #else
         // offset yay
         // the offset as specified in the codegen header of [m_CachedPtr] is 0x10
