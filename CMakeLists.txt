@@ -31,13 +31,13 @@ add_compile_definitions(UNITY_2021)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 function(setup_target target add_test)
-    message(STATUS "Setting up target ${target}")
+message(STATUS "Setting up target ${target}")
 
-    add_library(
-        ${target}
-        SHARED
+add_library(
+    ${target}
+    SHARED
     )
-
+    
     if (add_test)
         target_compile_definitions(
             ${target}
@@ -82,6 +82,9 @@ function(setup_target target add_test)
     target_include_directories(${target} PRIVATE ${INCLUDE_DIR})
     # add shared dir as include dir
     target_include_directories(${target} PUBLIC ${SHARED_DIR})
+
+    target_include_directories(${target} SYSTEM PRIVATE ${EXTERN_DIR}/includes/libil2cpp/il2cpp/external/baselib/Include)
+    target_include_directories(${target} SYSTEM PRIVATE ${EXTERN_DIR}/includes/libil2cpp/il2cpp/external/baselib/Platforms/Android/Include)
 
     target_include_directories(${target} SYSTEM PRIVATE ${EXTERN_DIR}/includes/fmt/fmt/include/)
     target_compile_options(${target} PRIVATE -DFMT_HEADER_ONLY)

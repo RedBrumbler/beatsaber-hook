@@ -6,7 +6,7 @@
     "info": {
       "name": "beatsaber-hook",
       "id": "beatsaber-hook",
-      "version": "5.0.8",
+      "version": "6.0.0",
       "url": "https://github.com/QuestPackageManager/beatsaber-hook",
       "additionalData": {
         "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/libbeatsaber-hook.so",
@@ -33,7 +33,7 @@
       },
       {
         "id": "libil2cpp",
-        "versionRange": "^0.3.0",
+        "versionRange": "^0.4.0",
         "additionalData": {}
       },
       {
@@ -54,13 +54,13 @@
     {
       "dependency": {
         "id": "paper",
-        "versionRange": "=3.6.3",
+        "versionRange": "=3.6.4",
         "additionalData": {
-          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.6.3/libpaperlog.so",
-          "debugSoLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.6.3/debug_libpaperlog.so",
+          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.6.4/libpaperlog.so",
+          "debugSoLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.6.4/debug_libpaperlog.so",
           "overrideSoName": "libpaperlog.so",
-          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.6.3/paperlog.qmod",
-          "branchName": "version/v3_6_3",
+          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.6.4/paperlog.qmod",
+          "branchName": "version/v3_6_4",
           "compileOptions": {
             "systemIncludes": [
               "shared/utfcpp/source"
@@ -69,18 +69,23 @@
           "cmake": false
         }
       },
-      "version": "3.6.3"
+      "version": "3.6.4"
     },
     {
       "dependency": {
         "id": "libil2cpp",
-        "versionRange": "=0.3.2",
+        "versionRange": "=0.4.0",
         "additionalData": {
           "headersOnly": true,
-          "cmake": false
+          "compileOptions": {
+            "systemIncludes": [
+              "il2cpp/external/baselib/Include",
+              "il2cpp/external/baselib/Platforms/Android/Include"
+            ]
+          }
         }
       },
-      "version": "0.3.2"
+      "version": "0.4.0"
     },
     {
       "dependency": {
