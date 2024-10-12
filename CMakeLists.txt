@@ -21,6 +21,7 @@ add_link_options(-Wl,--exclude-libs,ALL)
 add_compile_options(-Wall -Wextra -Werror -Wno-unused-function)
 # clangd bug https://github.com/clangd/clangd/issues/1167
 add_compile_options(-Wno-pragma-pack)
+add_compile_options(-Wno-vla-cxx-extension)
 # compile definitions used
 add_compile_definitions(VERSION=\"${MOD_VERSION}\")
 add_compile_definitions(MOD_ID=\"${MOD_ID}\")
