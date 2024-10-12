@@ -20,6 +20,8 @@
 #include "logging.hpp"
 #include "utils.h"
 
+#include "il2cpp-object-internals.h"
+
 #if __has_include(<concepts>)
 #include <concepts>
 #ifndef BS_HOOK_NO_CONCEPTS
@@ -27,21 +29,6 @@
 #endif
 #endif
 
-// ALWAYS define this here. It will NOT be redefined in typedefs.h anymore.
-typedef struct Il2CppExceptionWrapper Il2CppExceptionWrapper;
-typedef struct Il2CppExceptionWrapper {
-#if RUNTIME_MONO
-    MonoException* ex;
-#ifdef __cplusplus
-    Il2CppExceptionWrapper(MonoException* ex) : ex(ex) {}
-#endif  //__cplusplus
-#else
-    Il2CppException* ex;
-#ifdef __cplusplus
-    Il2CppExceptionWrapper(Il2CppException* ex) : ex(ex) {}
-#endif  //__cplusplus
-#endif
-} Il2CppExceptionWrapper;
 
 namespace il2cpp_utils {
 

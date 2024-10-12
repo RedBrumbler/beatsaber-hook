@@ -10,7 +10,7 @@
 #include "utils-functions.h"
 #include "type-concepts.hpp"
 
-#include "manual-il2cpp-typedefs.h"
+#include "il2cpp-object-internals.h"
 
 struct UseBeforeInitError : il2cpp_utils::exceptions::StackTraceException {
     UseBeforeInitError(const char* v) : il2cpp_utils::exceptions::StackTraceException(v) {}

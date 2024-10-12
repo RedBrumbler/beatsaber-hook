@@ -1,6 +1,6 @@
 #pragma once
 
-#include "manual-il2cpp-typedefs.h"
+#include "il2cpp-object-internals.h"
 #include "typedefs-object.hpp"
 
 // System.MulticastDelegate

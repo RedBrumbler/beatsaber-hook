@@ -35,7 +35,7 @@ extern "C" {
 }  /* extern "C" */
 #endif /* __cplusplus */
 
-#include "manual-il2cpp-typedefs.h"
+#include "il2cpp-object-internals.h"
 
 #include "il2cpp-functions.hpp"
 #include "il2cpp-utils-methods.hpp"
@@ -56,6 +56,8 @@ struct StringWrapper;
 #include "typedefs-wrappers.hpp"
 
 #include <stdint.h>
+
+#undef il2cpp_array_addr_with_size
 
 namespace il2cpp_utils {
     namespace array_utils {
