@@ -8,6 +8,7 @@
 #include "size-concepts.hpp"
 
 namespace il2cpp_utils {
+namespace {
 #pragma region boxing
 template <typename T>
 Il2CppObject* Box(T);
@@ -55,4 +56,5 @@ T Unbox(Il2CppObject* t) {
     return reinterpret_cast<T>(t);
 }
 #pragma endregion  // unboxing
+}  // namespace anonymous
 }  // namespace il2cpp_utils
