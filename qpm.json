@@ -8,24 +8,36 @@
     "version": "6.0.0",
     "url": "https://github.com/QuestPackageManager/beatsaber-hook",
     "additionalData": {
-      "cmake": true,
       "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/libbeatsaber-hook.so",
       "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/debug_libbeatsaber-hook.so",
-      "branchName": "master"
+      "overrideSoName": "libbeatsaber-hook.so",
+      "branchName": "master",
+      "cmake": true
     }
   },
   "workspace": {
     "scripts": {
       "build": [
         "pwsh ./build.ps1"
+      ],
+      "qmod": [
+        "qpm qmod zip"
       ]
-    }
+    },
+    "qmodIncludeDirs": [
+      "./build",
+      "./extern/libs"
+    ],
+    "qmodIncludeFiles": [],
+    "qmodOutput": "beatsaber-hook"
   },
   "dependencies": [
     {
       "id": "scotland2",
       "versionRange": "^0.1.2",
-      "additionalData": {}
+      "additionalData": {
+        "includeQmod": false
+      }
     },
     {
       "id": "libil2cpp",
@@ -41,7 +53,7 @@
     },
     {
       "id": "paper",
-      "versionRange": "^3.3.1",
+      "versionRange": "^3.7.0",
       "additionalData": {}
     }
   ]

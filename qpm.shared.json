@@ -11,6 +11,7 @@
       "additionalData": {
         "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/libbeatsaber-hook.so",
         "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/debug_libbeatsaber-hook.so",
+        "overrideSoName": "libbeatsaber-hook.so",
         "branchName": "master",
         "cmake": true
       }
@@ -19,17 +20,25 @@
       "scripts": {
         "build": [
           "pwsh ./build.ps1"
+        ],
+        "qmod": [
+          "qpm qmod zip"
         ]
       },
-      "qmodIncludeDirs": [],
+      "qmodIncludeDirs": [
+        "./build",
+        "./extern/libs"
+      ],
       "qmodIncludeFiles": [],
-      "qmodOutput": null
+      "qmodOutput": "beatsaber-hook"
     },
     "dependencies": [
       {
         "id": "scotland2",
         "versionRange": "^0.1.2",
-        "additionalData": {}
+        "additionalData": {
+          "includeQmod": false
+        }
       },
       {
         "id": "libil2cpp",
@@ -45,7 +54,7 @@
       },
       {
         "id": "paper",
-        "versionRange": "^3.3.1",
+        "versionRange": "^3.7.0",
         "additionalData": {}
       }
     ]
@@ -54,13 +63,13 @@
     {
       "dependency": {
         "id": "paper",
-        "versionRange": "=3.6.4",
+        "versionRange": "=3.7.0",
         "additionalData": {
-          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.6.4/libpaperlog.so",
-          "debugSoLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.6.4/debug_libpaperlog.so",
+          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.7.0/libpaperlog.so",
+          "debugSoLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.7.0/debug_libpaperlog.so",
           "overrideSoName": "libpaperlog.so",
-          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.6.4/paperlog.qmod",
-          "branchName": "version/v3_6_4",
+          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.7.0/paperlog.qmod",
+          "branchName": "version/v3_7_0",
           "compileOptions": {
             "systemIncludes": [
               "shared/utfcpp/source"
@@ -69,7 +78,7 @@
           "cmake": false
         }
       },
-      "version": "3.6.4"
+      "version": "3.7.0"
     },
     {
       "dependency": {
@@ -103,10 +112,10 @@
     {
       "dependency": {
         "id": "fmt",
-        "versionRange": "=10.0.0",
+        "versionRange": "=11.0.2",
         "additionalData": {
           "headersOnly": true,
-          "branchName": "version/v10_0_0",
+          "branchName": "version/v11_0_2",
           "compileOptions": {
             "systemIncludes": [
               "fmt/include/"
@@ -117,7 +126,7 @@
           }
         }
       },
-      "version": "10.0.0"
+      "version": "11.0.2"
     },
     {
       "dependency": {
