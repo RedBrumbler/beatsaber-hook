@@ -4,6 +4,9 @@
 #include "../../shared/utils/hooking.hpp"
 #include "../../shared/utils/il2cpp-functions.hpp"
 #include "../../shared/utils/logging.hpp"
+
+
+
 #include "capstone/shared/capstone/capstone.h"
 
 #define API_INIT(rt, name, ...) rt(*il2cpp_functions::il2cpp_##name) __VA_ARGS__
@@ -326,6 +329,103 @@ const Il2CppDefaults* il2cpp_functions::defaults;
 bool il2cpp_functions::initialized;
 
 // copies of the highly-inlinable functions
+bool il2cpp_functions::Type_HasFullGenericSharedParametersOrReturn(const MethodInfo* methodDefinition, const Il2CppType** inflatedParameterTypes) {
+    // If a method has a variable sized return type, the FGS method will always
+    // expect the return value to be passed as a by ref parameter
+    if (il2cpp_functions::Type_HasVariableRuntimeSizeWhenFullyShared(methodDefinition->return_type)) return true;
+
+    for (int i = 0; i < methodDefinition->parameters_count; i++) {
+        // Value types are passed by ref, but reference types are passed normally, so if the inflated parameter is a
+        // reference type, we don't have a signature difference.
+        if (inflatedParameterTypes[i]->valuetype && il2cpp_functions::Type_HasVariableRuntimeSizeWhenFullyShared(methodDefinition->parameters[i])) return true;
+    }
+
+    return false;
+}
+
+bool il2cpp_functions::Type_HasVariableRuntimeSizeWhenFullyShared(const Il2CppType* type) {
+    // This needs to align with TypeRuntimeStoage::RuntimeFieldLayout
+
+    // Anything passed by ref is pointer sized
+    if (type->byref) return false;
+
+    // Any generic parameter that is not constrained to be a reference type would be fully shared
+    if (type->type == il2cpp_functions::Type_IsGenericParameter(type))
+        return il2cpp_functions::MetadataCache_IsReferenceTypeGenericParameter(type->data.genericParameterHandle) !=
+               il2cpp_functions::GenericParameterRestriction::GenericParameterRestrictionReferenceType;
+
+    // If we're not a generic instance then we'll be a concrete type
+    if (type->type != IL2CPP_TYPE_GENERICINST) return false;
+
+    // If a reference type or pointer then we aren't variable sized
+    if (!il2cpp_functions::class_from_il2cpp_type(type->data.generic_class->type)->byval_arg.valuetype) return false;
+
+    Il2CppClass* klass = il2cpp_functions::class_from_il2cpp_type(type);
+    Il2CppClass* typeDef = il2cpp_functions::class_from_il2cpp_type(klass->generic_class->type);
+    FieldInfo* field;
+    void* iter = NULL;
+    for (field = il2cpp_functions::class_get_fields(typeDef, &iter); field; field = il2cpp_functions::class_get_fields(typeDef, &iter)) {
+        if (field->type->attrs & FIELD_ATTRIBUTE_STATIC && il2cpp_functions::Type_HasVariableRuntimeSizeWhenFullyShared(field->type)) return true;
+    }
+
+    return false;
+}
+
+bool il2cpp_functions::Type_IsGenericParameter(const Il2CppType* type) {
+    return type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR;
+}
+
+il2cpp_functions::GenericParameterRestriction il2cpp_functions::MetadataCache_IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle genericParameterHandle) {
+    const Il2CppGenericParameter* genericParameter = reinterpret_cast<const Il2CppGenericParameter*>(genericParameterHandle);
+
+    uint16_t flags = genericParameter->flags;
+    if ((flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_REFERENCE_TYPE_CONSTRAINT) != 0) return il2cpp_functions::GenericParameterRestriction::GenericParameterRestrictionReferenceType;
+    if ((flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_NOT_NULLABLE_VALUE_TYPE_CONSTRAINT) != 0)
+        return il2cpp_functions::GenericParameterRestriction::GenericParameterRestrictionValueType;  // Must be a value type
+
+    uint32_t count = genericParameter->constraintsCount;
+    for (uint32_t constraintIndex = 0; constraintIndex < count; ++constraintIndex) {
+        const Il2CppType* constraint = il2cpp_functions::MetadataCache_GetGenericParameterConstraintFromIndex(genericParameterHandle, constraintIndex);
+        GenericParameterRestriction restriction = il2cpp_functions::MetadataCache_IsReferenceTypeGenericConstraint(constraint);
+        if (restriction != il2cpp_functions::GenericParameterRestriction::GenericParameterRestrictionNone) return restriction;
+    }
+
+    return il2cpp_functions::GenericParameterRestriction::GenericParameterRestrictionNone;
+}
+
+const Il2CppType* il2cpp_functions::MetadataCache_GetGenericParameterConstraintFromIndex(Il2CppMetadataGenericParameterHandle handle, GenericParameterConstraintIndex index) {
+    CheckS_GlobalMetadata();
+    const Il2CppGenericParameter* genericParameter = reinterpret_cast<const Il2CppGenericParameter*>(handle);
+
+    IL2CPP_ASSERT(index >= 0 && index < genericParameter->constraintsCount);
+
+    index = genericParameter->constraintsStart + index;
+
+    IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) <= s_GlobalMetadataHeader->genericParameterConstraintsSize / sizeof(TypeIndex));
+    const TypeIndex* constraintIndices = (const TypeIndex*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->genericParameterConstraintsOffset);
+
+    return il2cpp_functions::s_Il2CppMetadataRegistration->types[constraintIndices[index]];
+}
+
+il2cpp_functions::GenericParameterRestriction il2cpp_functions::MetadataCache_IsReferenceTypeGenericConstraint(const Il2CppType* constraint) {
+    // This must match GenericSharingAnalsyis.GetGenericParameterConstraintRestriction()
+
+    if (constraint->type == IL2CPP_TYPE_VAR || constraint->type == IL2CPP_TYPE_MVAR) return il2cpp_functions::GenericParameterRestriction::GenericParameterRestrictionNone;
+
+    if (il2cpp_functions::type_equals(constraint, &il2cpp_functions::defaults->enum_class->byval_arg))
+        // if (il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(constraint, &il2cpp_functions::defaults->enum_class->byval_arg))
+        return il2cpp_functions::GenericParameterRestriction::GenericParameterRestrictionValueType;
+
+    if (il2cpp_functions::type_equals(constraint, &il2cpp_functions::defaults->value_type_class->byval_arg))
+        // if (il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(constraint, &il2cpp_functions::defaults->value_type_class->byval_arg))
+        return il2cpp_functions::GenericParameterRestriction::GenericParameterRestrictionNone;  // Not a valid constraint, so consider it unconstrained
+    else if (il2cpp_functions::class_from_il2cpp_type(constraint)->flags & TYPE_ATTRIBUTE_INTERFACE)
+        return il2cpp_functions::GenericParameterRestriction::GenericParameterRestrictionNone;  // Interfaces constraints can be satisfied by reference or value types
+
+    // Any other type constraint e.g. T : SomeType, SomeType must be a reference type
+    return il2cpp_functions::GenericParameterRestriction::GenericParameterRestrictionReferenceType;
+}
+
 const Il2CppTypeDefinition* il2cpp_functions::MetadataCache_GetTypeDefinitionFromIndex(TypeDefinitionIndex index) {
     CheckS_GlobalMetadata();
     if (index == kTypeDefinitionIndexInvalid) return NULL;
@@ -457,8 +557,6 @@ void* __wrapper_gc_malloc_uncollectable(size_t sz, [[maybe_unused]] void* desc) 
 }
 
 bool il2cpp_functions::trace_GC_AllocFixed(const uint32_t* DomainGetCurrent) {
-
-
     // Domain::GetCurrent has a single bl to GarbageCollector::AllocateFixed
     // MetadataCache::InitializeGCSafe is 3rd bl after first b.ne, which is the 6th b(.lt, .ne), t(bz, nz), c(bz, nz)
     auto tmp = cs::findNthBl<1>(DomainGetCurrent);
@@ -489,7 +587,6 @@ bool il2cpp_functions::find_GC_AllocFixed(const uint32_t* DomainGetCurrent) {
 static std::optional<uint32_t*> loadFind(cs_insn* insn) {
     return (insn->id == ARM64_INS_LDR || insn->id == ARM64_INS_LDP) ? std::optional<uint32_t*>(reinterpret_cast<uint32_t*>(insn->address)) : std::nullopt;
 }
-
 
 #define API_SYM(name)                                                \
     *(void**)(&il2cpp_##name) = dlsym(imagehandle, "il2cpp_" #name); \
@@ -877,8 +974,10 @@ void il2cpp_functions::Init() {
         logger.debug("GlobalMetadata::GetTypeInfoFromHandle offset: {:X}", reinterpret_cast<uintptr_t>(il2cpp_GlobalMetadata_GetTypeInfoFromHandle) - getRealOffset(0));
         auto GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr = cs::findNthB<1, false, -1, 1024>(reinterpret_cast<uint32_t*>(il2cpp_GlobalMetadata_GetTypeInfoFromHandle));
         if (!GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr) SAFE_ABORT_MSG("Failed to find GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex!");
-        il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex = reinterpret_cast<decltype(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex)>(*GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr);
-        logger.debug("GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex found? offset: {:X}", reinterpret_cast<uintptr_t>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex) - getRealOffset(0));
+        il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex =
+            reinterpret_cast<decltype(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex)>(*GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex_addr);
+        logger.debug("GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex found? offset: {:X}",
+                     reinterpret_cast<uintptr_t>(il2cpp_GlobalMetadata_GetTypeInfoFromTypeDefinitionIndex) - getRealOffset(0));
     }
 
     {

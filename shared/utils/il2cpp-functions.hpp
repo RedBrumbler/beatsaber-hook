@@ -467,6 +467,19 @@ class il2cpp_functions {
     }
 
     // COPIES OF FREQUENTLY INLINED NON-API LIBIL2CPP FUNCTIONS:
+    enum struct GenericParameterRestriction {
+        GenericParameterRestrictionNone,
+        GenericParameterRestrictionValueType,
+        GenericParameterRestrictionReferenceType,
+    };
+
+    static bool Type_HasFullGenericSharedParametersOrReturn(const MethodInfo* methodDefinition, const Il2CppType** inflatedParameterTypes);
+    static bool Type_HasVariableRuntimeSizeWhenFullyShared(const Il2CppType* type);
+    static bool Type_IsGenericParameter(const Il2CppType* type);
+    static il2cpp_functions::GenericParameterRestriction MetadataCache_IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle genericParameter);
+    static const Il2CppType* MetadataCache_GetGenericParameterConstraintFromIndex(Il2CppMetadataGenericParameterHandle handle, GenericParameterConstraintIndex index);
+    static il2cpp_functions::GenericParameterRestriction MetadataCache_IsReferenceTypeGenericConstraint(const Il2CppType* constraint);
+
     static const char* MetadataCache_GetStringFromIndex(StringIndex index);
     static const Il2CppTypeDefinition* MetadataCache_GetTypeDefinitionFromIndex(TypeDefinitionIndex index);
     static TypeDefinitionIndex MetadataCache_GetExportedTypeFromIndex(TypeDefinitionIndex index);
