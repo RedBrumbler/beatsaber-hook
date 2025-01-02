@@ -36,7 +36,7 @@ function(setup_target target add_test)
 message(STATUS "Setting up target ${target}")
 
 string(LENGTH "${CMAKE_CURRENT_LIST_DIR}" FOLDER_LENGTH)
-add_compile_definitions("PAPER_ROOT_FOLDER_LENGTH=${FOLDER_LENGTH} + 1")
+add_compile_definitions("PAPER_ROOT_FOLDER_LENGTH=(${FOLDER_LENGTH} + 1)")
 
 add_library(
     ${target}
