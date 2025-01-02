@@ -54,8 +54,8 @@
         }
       },
       {
-        "id": "paper",
-        "versionRange": "^3.7.0",
+        "id": "paper2_scotland2",
+        "versionRange": "^4.1.5",
         "additionalData": {}
       }
     ]
@@ -63,14 +63,13 @@
   "restoredDependencies": [
     {
       "dependency": {
-        "id": "paper",
-        "versionRange": "=3.7.0",
+        "id": "paper2_scotland2",
+        "versionRange": "=4.1.5",
         "additionalData": {
-          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.7.0/libpaperlog.so",
-          "debugSoLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.7.0/debug_libpaperlog.so",
-          "overrideSoName": "libpaperlog.so",
-          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v3.7.0/paperlog.qmod",
-          "branchName": "version/v3_7_0",
+          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.1.5/libpaper2_scotland2.so",
+          "overrideSoName": "libpaper2_scotland2.so",
+          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.1.5/paper2_scotland2.qmod",
+          "branchName": "version/v4_1_5",
           "compileOptions": {
             "systemIncludes": [
               "shared/utfcpp/source"
@@ -79,7 +78,7 @@
           "cmake": false
         }
       },
-      "version": "3.7.0"
+      "version": "4.1.5"
     },
     {
       "dependency": {
@@ -100,15 +99,15 @@
     {
       "dependency": {
         "id": "scotland2",
-        "versionRange": "=0.1.4",
+        "versionRange": "=0.1.6",
         "additionalData": {
-          "soLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.4/libsl2.so",
-          "debugSoLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.4/debug_libsl2.so",
+          "soLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.6/libsl2.so",
+          "debugSoLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.6/debug_libsl2.so",
           "overrideSoName": "libsl2.so",
-          "branchName": "version/v0_1_4"
+          "branchName": "version/v0_1_6"
         }
       },
-      "version": "0.1.4"
+      "version": "0.1.6"
     },
     {
       "dependency": {

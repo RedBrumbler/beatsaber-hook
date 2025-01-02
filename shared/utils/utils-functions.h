@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <unwind.h>
 
+#include "paper2_scotland2/shared/backtrace.hpp"
+
 // logs the function, file and line, sleeps to allow logs to flush, then terminates program
 __attribute__((noreturn)) inline void safeAbort(const char* func, const char* file, int line, uint16_t frameCount = 512) {
     auto const& logger = il2cpp_utils::Logger;

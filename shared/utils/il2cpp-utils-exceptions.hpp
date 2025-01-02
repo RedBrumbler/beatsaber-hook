@@ -8,6 +8,8 @@
 #include <typeinfo>
 #include "utils-functions.h"
 
+#include "paper2_scotland2/shared/backtrace.hpp"
+
 struct Il2CppException;
 struct MethodInfo;
 struct Il2CppClass;
