@@ -46,8 +46,8 @@ public:
 
 /// @brief Macro to automatically register a hook installation function.
 /// @param name_ The name of the hook to be installed.
-#define _HOOK_AUTO_INSTALL(name_) \
-    __attribute((constructor)) void Auto_Hook_##name_##_Register() { \
+#define HOOK_AUTO_REGISTER(name_) \
+    __attribute((constructor)) void Hook_##name_##_Auto_Register() { \
         ::Hooking::AutoHooks::AddInstallFunc([]() { \
             static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID "_Install_" #name_); \
             INSTALL_HOOK(logger, name_); \
@@ -56,8 +56,8 @@ public:
 
 /// @brief Macro to automatically register a hook installation function for original hooks.
 /// @param name_ The name of the hook to be installed.
-#define _HOOK_AUTO_INSTALL_ORIG(name_) \
-    __attribute((constructor)) void Auto_Hook_##name_##_Register() { \
+#define HOOK_AUTO_REGISTER_ORIG(name_) \
+    __attribute((constructor)) void Hook_##name_##_Auto_Orig_Register() { \
         ::Hooking::AutoHooks::AddInstallFunc([]() { \
             static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID "_Install_" #name_); \
             INSTALL_HOOK_ORIG(logger, name_); \
@@ -745,6 +745,39 @@ void InstallHookDirect(L& logger, void* dst) {
 // This is only valid if the name is from a MAKE_HOOK macro that does not use a fixed offset.
 // This also ensures HookTracker validity after the hooking process.
 #define INSTALL_HOOK_ORIG(logger, name) ::Hooking::InstallOrigHook<Hook_##name>(logger);
+
+#define INSTALL_HOOK_ON_DLOPEN(name_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Install() { \
+        static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID "_Install_" #name_); \
+        INSTALL_HOOK(logger, name_); \
+    }
+
+#define INSTALL_HOOK_DIRECT_ON_DLOPEN(name_, addr_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Direct_Install() { \
+        static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID "_Install_" #name_); \
+        INSTALL_HOOK_DIRECT(logger, name_, addr_); \
+    }
+
+#define INSTALL_HOOK_ORIG_ON_DLOPEN(name_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Orig_Install() { \
+        static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID "_Install_" #name_); \
+        INSTALL_HOOK_ORIG(logger, name_); \
+    }
+
+#define INSTALL_HOOK_ON_DLOPEN_WITH_LOGGER(logger, name_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Install() { \
+        INSTALL_HOOK(logger, name_); \
+    }
+
+#define INSTALL_HOOK_DIRECT_ON_DLOPEN_WITH_LOGGER(logger, name_, addr_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Direct_Install() { \
+        INSTALL_HOOK_DIRECT(logger, name_, addr_); \
+    }
+
+#define INSTALL_HOOK_ORIG_ON_DLOPEN_WITH_LOGGER(logger, name_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Orig_Install() { \
+        INSTALL_HOOK_ORIG(logger, name_); \
+    }
 
 // TODO: Not yet implemented
 #define UNINSTALL_HOOK(logger, name) void
