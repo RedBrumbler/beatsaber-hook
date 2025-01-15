@@ -3,6 +3,8 @@ param (
     [Switch] $clean
 )
 
+& ./make-autohooks.ps1
+
 function Clean-Build-Folder {
     if (Test-Path -Path "build")
     {

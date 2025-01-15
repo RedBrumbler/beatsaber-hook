@@ -8,8 +8,65 @@
 #include "typedefs.h"
 #include "logging.hpp"
 #include "il2cpp-utils.hpp"
+#include "autohooks.hpp"
 
 namespace Hooking {
+
+/**
+ * @brief The AutoHooks class manages the registration and installation of hook functions.
+ *
+ * This class provides a mechanism to register hook installation functions that can be called later
+ * to install hooks. It maintains a list of installation functions and provides methods to add to
+ * this list and to call all registered functions.
+ */
+class AutoHooks {
+private:
+    inline static std::vector<void (*)()>& getInstallFuncs() {
+        static std::vector<void (*)()> installFuncs;
+        return installFuncs;
+    }
+
+public:
+    /// @brief Adds an installation function to the list of functions to be called during InstallHooks.
+    /// @param installFunc The function to be added.
+    inline static void AddInstallFunc(void (*installFunc)()) {
+        getInstallFuncs().push_back(installFunc);
+    }
+
+    /// @brief Calls all installation functions added via AddInstallFunc and then clears the list.
+    inline static void InstallHooks() {
+        for (auto& func : getInstallFuncs()) {
+            func();
+        }
+
+        // Why would we need to keep these around?
+        getInstallFuncs().clear();
+    }
+};
+
+/// @brief Macro to automatically register a hook installation function.
+/// @param name_ The name of the hook to be installed.
+#define _HOOK_AUTO_INSTALL(name_) \
+    __attribute((constructor)) void Auto_Hook_##name_##_Register() { \
+        ::Hooking::AutoHooks::AddInstallFunc([]() { \
+            static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID "_Install_" #name_); \
+            INSTALL_HOOK(logger, name_); \
+        }); \
+    }
+
+/// @brief Macro to automatically register a hook installation function for original hooks.
+/// @param name_ The name of the hook to be installed.
+#define _HOOK_AUTO_INSTALL_ORIG(name_) \
+    __attribute((constructor)) void Auto_Hook_##name_##_Register() { \
+        ::Hooking::AutoHooks::AddInstallFunc([]() { \
+            static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID "_Install_" #name_); \
+            INSTALL_HOOK_ORIG(logger, name_); \
+        }); \
+    }
+
+/// @brief Macro to install all registered automatic hooks.
+#define INSTALL_HOOKS() ::Hooking::AutoHooks::InstallHooks();
+
 // For use in MAKE_HOOK_AUTO bodies.
 // Currently unused.
 template<std::size_t N, typename... TArgs>
@@ -564,11 +621,6 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookWrapperCompose<::Hooking::HookCatchWrapper<&hook_##name_, decltype(&hook_##name_)>::wrapper>::wrapper; } \
 }; \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
-
-// TODO: IMPLEMENT AUTO HOOKS!
-#define MAKE_HOOK_AUTO(...) void
-
-#define MAKE_HOOK_INSTANCE_AUTO(...) void
 
 // Make a hook that writes the signature based off of the provided static method.
 // To access parameters, see the PARAM(i) macro.
