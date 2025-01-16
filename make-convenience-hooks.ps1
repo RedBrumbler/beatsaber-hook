@@ -34,7 +34,7 @@ function ReplaceMakeWithAuto {
 
     $outputArray = @()
     foreach ($item in $inputArray) {
-        $lines = ([regex]::Replace($item, "(?ms)^(\s*#define\s+MAKE_)(HOOK)([^(]+)?", "`$1`$2_$macroKeyword$modifier`$3")) -split "`n"
+        $lines = ([regex]::Replace($item, "(?ms)^(\s*#define\s+MAKE_)(HOOK)([^(]+)?", "`$1${macroKeyword}${modifier}_`$2`$3")) -split "`n"
         $lastLine = $lines[-1]
         $lines[-1] = "$macroPrefix$modifier$macroSuffix(name_); \"
         $lines += $lastLine
@@ -45,10 +45,10 @@ function ReplaceMakeWithAuto {
 }
 
 # Call the function and print the modified array
-$modifiedArray += ReplaceMakeWithAuto -inputArray $resultArray -macroPrefix "MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER" -macroKeyword "DEFERRED"
-$modifiedArray += ReplaceMakeWithAuto -inputArray $resultArray -modifier "_ORIG" -macroPrefix "MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER" -macroKeyword "DEFERRED"
-$modifiedArray += ReplaceMakeWithAuto -inputArray $resultArray -macroPrefix "INSTALL_HOOK" -macroSuffix "_ON_DLOPEN" -macroKeyword "DLOPEN"
-$modifiedArray += ReplaceMakeWithAuto -inputArray $resultArray -modifier "_ORIG" -macroPrefix "INSTALL_HOOK" -macroSuffix "_ON_DLOPEN" -macroKeyword "DLOPEN"
+$modifiedArray += ReplaceMakeWithAuto -inputArray $resultArray -macroPrefix "MAKE_DEFERRED" -macroSuffix "_HOOK_INSTALL_WITH_AUTOLOGGER" -macroKeyword "DEFERRED"
+$modifiedArray += ReplaceMakeWithAuto -inputArray $resultArray -modifier "_ORIG" -macroPrefix "MAKE_DEFERRED" -macroSuffix "_HOOK_INSTALL_WITH_AUTOLOGGER" -macroKeyword "DEFERRED"
+$modifiedArray += ReplaceMakeWithAuto -inputArray $resultArray -macroPrefix "INSTALL" -macroSuffix "_HOOK_ON_DLOPEN_WITH_AUTOLOGGER" -macroKeyword "DLOPEN"
+$modifiedArray += ReplaceMakeWithAuto -inputArray $resultArray -modifier "_ORIG" -macroPrefix "INSTALL" -macroSuffix "_HOOK_ON_DLOPEN_WITH_AUTOLOGGER" -macroKeyword "DLOPEN"
 
 # Write the output to the specified file
 $outputContent = "/// @file convenience-hooks.hpp`n" +

@@ -10,7 +10,7 @@
 #include "hooking.hpp"
 
 // Make an address-specified hook, that has a catch handler.
-#define MAKE_HOOK_DEFERRED(name_, addr_, retval, ...) \
+#define MAKE_DEFERRED_HOOK(name_, addr_, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     constexpr static void* addr() { return (void*) addr_; } \
@@ -24,7 +24,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make an address-specified hook.
-#define MAKE_HOOK_DEFERRED_NO_CATCH(name_, addr_, retval, ...) \
+#define MAKE_DEFERRED_HOOK_NO_CATCH(name_, addr_, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     constexpr static void* addr() { return (void*) addr_; } \
@@ -38,7 +38,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that resolves the 'infoGet' expression an installs the hook to that MethodInfo*, that has a catch handler.
-#define MAKE_HOOK_DEFERRED_FIND_VERBOSE(name_, infoGet, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_VERBOSE(name_, infoGet, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return infoGet; } \
@@ -52,7 +52,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that resolves the 'infoGet' expression an installs the hook to that MethodInfo*.
-#define MAKE_HOOK_DEFERRED_FIND_VERBOSE_NO_CATCH(name_, infoGet, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_VERBOSE_NO_CATCH(name_, infoGet, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return infoGet; } \
@@ -66,7 +66,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name, that has a catch handler
-#define MAKE_HOOK_DEFERRED_FIND(name_, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(klass, mName); } \
@@ -80,7 +80,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
-#define MAKE_HOOK_DEFERRED_FIND_NO_CATCH(name_, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_NO_CATCH(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(klass, mName); } \
@@ -94,7 +94,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name, that has a catch handler.
-#define MAKE_HOOK_DEFERRED_FIND_CLASS(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_CLASS(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(namespaze, klassName, mName); } \
@@ -108,7 +108,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
-#define MAKE_HOOK_DEFERRED_FIND_CLASS_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_CLASS_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(namespaze, klassName, mName); } \
@@ -124,7 +124,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_FIND_INSTANCE(name_, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_INSTANCE(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -139,7 +139,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
-#define MAKE_HOOK_DEFERRED_FIND_INSTANCE_NO_CATCH(name_, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_INSTANCE_NO_CATCH(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -155,7 +155,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_FIND_CLASS_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_CLASS_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -170,7 +170,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
-#define MAKE_HOOK_DEFERRED_FIND_CLASS_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_CLASS_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -186,7 +186,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT, SUBTRACTS ONE FOR INSTANCE METHODS!
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_FIND_CLASS_UNSAFE_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_CLASS_UNSAFE_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName, true); } \
@@ -201,7 +201,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT, SUBTRACTS ONE FOR INSTANCE METHODS!
-#define MAKE_HOOK_DEFERRED_FIND_CLASS_UNSAFE_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_CLASS_UNSAFE_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName, true); } \
@@ -217,7 +217,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT!
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_FIND_CLASS_UNSAFE_STATIC(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_CLASS_UNSAFE_STATIC(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName); } \
@@ -232,7 +232,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT!
-#define MAKE_HOOK_DEFERRED_FIND_CLASS_UNSAFE_STATIC_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_FIND_CLASS_UNSAFE_STATIC_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName); } \
@@ -247,7 +247,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that would be installed in a particular address, but ensures the signature matches the provided method pointer.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_CHECKED_ADDR(name_, mPtr, addr_, retval, ...) \
+#define MAKE_DEFERRED_HOOK_CHECKED_ADDR(name_, mPtr, addr_, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -262,7 +262,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that would be installed in a particular address, but ensures the signature matches the provided method pointer.
-#define MAKE_HOOK_DEFERRED_CHECKED_ADDR_NO_CATCH(name_, mPtr, addr_, retval, ...) \
+#define MAKE_DEFERRED_HOOK_CHECKED_ADDR_NO_CATCH(name_, mPtr, addr_, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -278,7 +278,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_CHECKED_FIND(name_, mPtr, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_CHECKED_FIND(name_, mPtr, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -293,7 +293,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
-#define MAKE_HOOK_DEFERRED_CHECKED_FIND_NO_CATCH(name_, mPtr, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_CHECKED_FIND_NO_CATCH(name_, mPtr, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -309,7 +309,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from namespace, name, and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_CHECKED_FIND_CLASS(name_, mPtr, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_CHECKED_FIND_CLASS(name_, mPtr, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -324,7 +324,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from namespace, name, and method name.
-#define MAKE_HOOK_DEFERRED_CHECKED_FIND_CLASS_NO_CATCH(name_, mPtr, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_CHECKED_FIND_CLASS_NO_CATCH(name_, mPtr, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -340,7 +340,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_CHECKED_INSTANCE_FIND(name_, mPtr, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_CHECKED_INSTANCE_FIND(name_, mPtr, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     using classType = ::Hooking::InternalClassGetter<decltype(mPtr)>::instanceType; \
@@ -357,7 +357,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
-#define MAKE_HOOK_DEFERRED_CHECKED_INSTANCE_FIND_NO_CATCH(name_, mPtr, mName, retval, ...) \
+#define MAKE_DEFERRED_HOOK_CHECKED_INSTANCE_FIND_NO_CATCH(name_, mPtr, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     using classType = ::Hooking::InternalClassGetter<decltype(mPtr)>::instanceType; \
@@ -376,7 +376,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 // Make a hook that uses the provided method pointer in a match an ensures the signature matches.
 // This should be your go-to hook macro when hooking anything that has a codegen equivalent.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_MATCH(name_, mPtr, retval, ...) \
+#define MAKE_DEFERRED_HOOK_MATCH(name_, mPtr, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(MATCH_HOOKABLE_ASSERT(mPtr)); \
@@ -393,7 +393,7 @@ retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that uses the provided method pointer in a match an ensures the signature matches.
 // This should be your go-to hook macro when hooking anything that has a codegen equivalent.
-#define MAKE_HOOK_DEFERRED_MATCH_NO_CATCH(name_, mPtr, retval, ...) \
+#define MAKE_DEFERRED_HOOK_MATCH_NO_CATCH(name_, mPtr, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(MATCH_HOOKABLE_ASSERT(mPtr)); \
@@ -409,7 +409,7 @@ MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make an address-specified hook, that has a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG(name_, addr_, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK(name_, addr_, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     constexpr static void* addr() { return (void*) addr_; } \
@@ -419,11 +419,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make an address-specified hook.
-#define MAKE_HOOK_DEFERRED_ORIG_NO_CATCH(name_, addr_, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_NO_CATCH(name_, addr_, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     constexpr static void* addr() { return (void*) addr_; } \
@@ -433,11 +433,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that resolves the 'infoGet' expression an installs the hook to that MethodInfo*, that has a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_VERBOSE(name_, infoGet, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_VERBOSE(name_, infoGet, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return infoGet; } \
@@ -447,11 +447,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that resolves the 'infoGet' expression an installs the hook to that MethodInfo*.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_VERBOSE_NO_CATCH(name_, infoGet, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_VERBOSE_NO_CATCH(name_, infoGet, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return infoGet; } \
@@ -461,11 +461,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name, that has a catch handler
-#define MAKE_HOOK_DEFERRED_ORIG_FIND(name_, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(klass, mName); } \
@@ -475,11 +475,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_NO_CATCH(name_, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_NO_CATCH(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(klass, mName); } \
@@ -489,11 +489,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name, that has a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_CLASS(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_CLASS(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(namespaze, klassName, mName); } \
@@ -503,11 +503,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_CLASS_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_CLASS_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(namespaze, klassName, mName); } \
@@ -517,13 +517,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_INSTANCE(name_, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_INSTANCE(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -533,12 +533,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_INSTANCE_NO_CATCH(name_, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_INSTANCE_NO_CATCH(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -548,13 +548,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_CLASS_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_CLASS_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -564,12 +564,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_CLASS_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_CLASS_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -579,13 +579,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT, SUBTRACTS ONE FOR INSTANCE METHODS!
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_CLASS_UNSAFE_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_CLASS_UNSAFE_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName, true); } \
@@ -595,12 +595,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT, SUBTRACTS ONE FOR INSTANCE METHODS!
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_CLASS_UNSAFE_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_CLASS_UNSAFE_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName, true); } \
@@ -610,13 +610,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT!
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_CLASS_UNSAFE_STATIC(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_CLASS_UNSAFE_STATIC(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName); } \
@@ -626,12 +626,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT!
-#define MAKE_HOOK_DEFERRED_ORIG_FIND_CLASS_UNSAFE_STATIC_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_FIND_CLASS_UNSAFE_STATIC_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName); } \
@@ -641,12 +641,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that would be installed in a particular address, but ensures the signature matches the provided method pointer.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_CHECKED_ADDR(name_, mPtr, addr_, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_CHECKED_ADDR(name_, mPtr, addr_, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -657,11 +657,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that would be installed in a particular address, but ensures the signature matches the provided method pointer.
-#define MAKE_HOOK_DEFERRED_ORIG_CHECKED_ADDR_NO_CATCH(name_, mPtr, addr_, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_CHECKED_ADDR_NO_CATCH(name_, mPtr, addr_, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -672,12 +672,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_CHECKED_FIND(name_, mPtr, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_CHECKED_FIND(name_, mPtr, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -688,11 +688,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
-#define MAKE_HOOK_DEFERRED_ORIG_CHECKED_FIND_NO_CATCH(name_, mPtr, klass, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_CHECKED_FIND_NO_CATCH(name_, mPtr, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -703,12 +703,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from namespace, name, and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_CHECKED_FIND_CLASS(name_, mPtr, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_CHECKED_FIND_CLASS(name_, mPtr, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -719,11 +719,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from namespace, name, and method name.
-#define MAKE_HOOK_DEFERRED_ORIG_CHECKED_FIND_CLASS_NO_CATCH(name_, mPtr, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_CHECKED_FIND_CLASS_NO_CATCH(name_, mPtr, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -734,12 +734,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_CHECKED_INSTANCE_FIND(name_, mPtr, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_CHECKED_INSTANCE_FIND(name_, mPtr, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     using classType = ::Hooking::InternalClassGetter<decltype(mPtr)>::instanceType; \
@@ -752,11 +752,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
-#define MAKE_HOOK_DEFERRED_ORIG_CHECKED_INSTANCE_FIND_NO_CATCH(name_, mPtr, mName, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_CHECKED_INSTANCE_FIND_NO_CATCH(name_, mPtr, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     using classType = ::Hooking::InternalClassGetter<decltype(mPtr)>::instanceType; \
@@ -769,13 +769,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that uses the provided method pointer in a match an ensures the signature matches.
 // This should be your go-to hook macro when hooking anything that has a codegen equivalent.
 // Also includes a catch handler.
-#define MAKE_HOOK_DEFERRED_ORIG_MATCH(name_, mPtr, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_MATCH(name_, mPtr, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(MATCH_HOOKABLE_ASSERT(mPtr)); \
@@ -787,12 +787,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that uses the provided method pointer in a match an ensures the signature matches.
 // This should be your go-to hook macro when hooking anything that has a codegen equivalent.
-#define MAKE_HOOK_DEFERRED_ORIG_MATCH_NO_CATCH(name_, mPtr, retval, ...) \
+#define MAKE_DEFERRED_ORIG_HOOK_MATCH_NO_CATCH(name_, mPtr, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(MATCH_HOOKABLE_ASSERT(mPtr)); \
@@ -804,11 +804,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER_ORIG(name_); \
+MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make an address-specified hook, that has a catch handler.
-#define MAKE_HOOK_DLOPEN(name_, addr_, retval, ...) \
+#define MAKE_DLOPEN_HOOK(name_, addr_, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     constexpr static void* addr() { return (void*) addr_; } \
@@ -818,11 +818,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make an address-specified hook.
-#define MAKE_HOOK_DLOPEN_NO_CATCH(name_, addr_, retval, ...) \
+#define MAKE_DLOPEN_HOOK_NO_CATCH(name_, addr_, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     constexpr static void* addr() { return (void*) addr_; } \
@@ -832,11 +832,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that resolves the 'infoGet' expression an installs the hook to that MethodInfo*, that has a catch handler.
-#define MAKE_HOOK_DLOPEN_FIND_VERBOSE(name_, infoGet, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_VERBOSE(name_, infoGet, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return infoGet; } \
@@ -846,11 +846,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that resolves the 'infoGet' expression an installs the hook to that MethodInfo*.
-#define MAKE_HOOK_DLOPEN_FIND_VERBOSE_NO_CATCH(name_, infoGet, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_VERBOSE_NO_CATCH(name_, infoGet, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return infoGet; } \
@@ -860,11 +860,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name, that has a catch handler
-#define MAKE_HOOK_DLOPEN_FIND(name_, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(klass, mName); } \
@@ -874,11 +874,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
-#define MAKE_HOOK_DLOPEN_FIND_NO_CATCH(name_, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_NO_CATCH(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(klass, mName); } \
@@ -888,11 +888,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name, that has a catch handler.
-#define MAKE_HOOK_DLOPEN_FIND_CLASS(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_CLASS(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(namespaze, klassName, mName); } \
@@ -902,11 +902,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
-#define MAKE_HOOK_DLOPEN_FIND_CLASS_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_CLASS_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(namespaze, klassName, mName); } \
@@ -916,13 +916,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_FIND_INSTANCE(name_, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_INSTANCE(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -932,12 +932,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
-#define MAKE_HOOK_DLOPEN_FIND_INSTANCE_NO_CATCH(name_, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_INSTANCE_NO_CATCH(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -947,13 +947,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_FIND_CLASS_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_CLASS_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -963,12 +963,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
-#define MAKE_HOOK_DLOPEN_FIND_CLASS_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_CLASS_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -978,13 +978,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT, SUBTRACTS ONE FOR INSTANCE METHODS!
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_FIND_CLASS_UNSAFE_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_CLASS_UNSAFE_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName, true); } \
@@ -994,12 +994,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT, SUBTRACTS ONE FOR INSTANCE METHODS!
-#define MAKE_HOOK_DLOPEN_FIND_CLASS_UNSAFE_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_CLASS_UNSAFE_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName, true); } \
@@ -1009,13 +1009,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT!
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_FIND_CLASS_UNSAFE_STATIC(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_CLASS_UNSAFE_STATIC(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName); } \
@@ -1025,12 +1025,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT!
-#define MAKE_HOOK_DLOPEN_FIND_CLASS_UNSAFE_STATIC_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_FIND_CLASS_UNSAFE_STATIC_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName); } \
@@ -1040,12 +1040,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that would be installed in a particular address, but ensures the signature matches the provided method pointer.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_CHECKED_ADDR(name_, mPtr, addr_, retval, ...) \
+#define MAKE_DLOPEN_HOOK_CHECKED_ADDR(name_, mPtr, addr_, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1056,11 +1056,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that would be installed in a particular address, but ensures the signature matches the provided method pointer.
-#define MAKE_HOOK_DLOPEN_CHECKED_ADDR_NO_CATCH(name_, mPtr, addr_, retval, ...) \
+#define MAKE_DLOPEN_HOOK_CHECKED_ADDR_NO_CATCH(name_, mPtr, addr_, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1071,12 +1071,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_CHECKED_FIND(name_, mPtr, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_CHECKED_FIND(name_, mPtr, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1087,11 +1087,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
-#define MAKE_HOOK_DLOPEN_CHECKED_FIND_NO_CATCH(name_, mPtr, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_CHECKED_FIND_NO_CATCH(name_, mPtr, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1102,12 +1102,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from namespace, name, and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_CHECKED_FIND_CLASS(name_, mPtr, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_CHECKED_FIND_CLASS(name_, mPtr, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1118,11 +1118,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from namespace, name, and method name.
-#define MAKE_HOOK_DLOPEN_CHECKED_FIND_CLASS_NO_CATCH(name_, mPtr, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_CHECKED_FIND_CLASS_NO_CATCH(name_, mPtr, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1133,12 +1133,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_CHECKED_INSTANCE_FIND(name_, mPtr, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_CHECKED_INSTANCE_FIND(name_, mPtr, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     using classType = ::Hooking::InternalClassGetter<decltype(mPtr)>::instanceType; \
@@ -1151,11 +1151,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
-#define MAKE_HOOK_DLOPEN_CHECKED_INSTANCE_FIND_NO_CATCH(name_, mPtr, mName, retval, ...) \
+#define MAKE_DLOPEN_HOOK_CHECKED_INSTANCE_FIND_NO_CATCH(name_, mPtr, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     using classType = ::Hooking::InternalClassGetter<decltype(mPtr)>::instanceType; \
@@ -1168,13 +1168,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that uses the provided method pointer in a match an ensures the signature matches.
 // This should be your go-to hook macro when hooking anything that has a codegen equivalent.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_MATCH(name_, mPtr, retval, ...) \
+#define MAKE_DLOPEN_HOOK_MATCH(name_, mPtr, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(MATCH_HOOKABLE_ASSERT(mPtr)); \
@@ -1186,12 +1186,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that uses the provided method pointer in a match an ensures the signature matches.
 // This should be your go-to hook macro when hooking anything that has a codegen equivalent.
-#define MAKE_HOOK_DLOPEN_MATCH_NO_CATCH(name_, mPtr, retval, ...) \
+#define MAKE_DLOPEN_HOOK_MATCH_NO_CATCH(name_, mPtr, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(MATCH_HOOKABLE_ASSERT(mPtr)); \
@@ -1203,11 +1203,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ON_DLOPEN(name_); \
+INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make an address-specified hook, that has a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG(name_, addr_, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK(name_, addr_, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     constexpr static void* addr() { return (void*) addr_; } \
@@ -1217,11 +1217,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make an address-specified hook.
-#define MAKE_HOOK_DLOPEN_ORIG_NO_CATCH(name_, addr_, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_NO_CATCH(name_, addr_, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     constexpr static void* addr() { return (void*) addr_; } \
@@ -1231,11 +1231,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that resolves the 'infoGet' expression an installs the hook to that MethodInfo*, that has a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_VERBOSE(name_, infoGet, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_VERBOSE(name_, infoGet, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return infoGet; } \
@@ -1245,11 +1245,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that resolves the 'infoGet' expression an installs the hook to that MethodInfo*.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_VERBOSE_NO_CATCH(name_, infoGet, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_VERBOSE_NO_CATCH(name_, infoGet, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return infoGet; } \
@@ -1259,11 +1259,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name, that has a catch handler
-#define MAKE_HOOK_DLOPEN_ORIG_FIND(name_, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(klass, mName); } \
@@ -1273,11 +1273,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_NO_CATCH(name_, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_NO_CATCH(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(klass, mName); } \
@@ -1287,11 +1287,11 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name, that has a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_CLASS(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_CLASS(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(namespaze, klassName, mName); } \
@@ -1301,11 +1301,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_CLASS_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_CLASS_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find(namespaze, klassName, mName); } \
@@ -1315,13 +1315,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_INSTANCE(name_, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_INSTANCE(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -1331,12 +1331,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided Il2CppClass* with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_INSTANCE_NO_CATCH(name_, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_INSTANCE_NO_CATCH(name_, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -1346,13 +1346,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_CLASS_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_CLASS_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -1362,12 +1362,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // Ignores matching the first parameter, assuming it is an instance method.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_CLASS_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_CLASS_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     constexpr static const char* name() { return #name_; } \
@@ -1377,13 +1377,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT, SUBTRACTS ONE FOR INSTANCE METHODS!
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_CLASS_UNSAFE_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_CLASS_UNSAFE_INSTANCE(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName, true); } \
@@ -1393,12 +1393,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT, SUBTRACTS ONE FOR INSTANCE METHODS!
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_CLASS_UNSAFE_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_CLASS_UNSAFE_INSTANCE_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName, true); } \
@@ -1408,13 +1408,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT!
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_CLASS_UNSAFE_STATIC(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_CLASS_UNSAFE_STATIC(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName); } \
@@ -1424,12 +1424,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that finds a method that matches the signature provided and exists on the provided namespace and type name, with the provided method name.
 // THIS FUNCTION IS THE UNSAFE VARIANT!
-#define MAKE_HOOK_DLOPEN_ORIG_FIND_CLASS_UNSAFE_STATIC_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_FIND_CLASS_UNSAFE_STATIC_NO_CATCH(name_, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     constexpr static const char* name() { return #name_; } \
     static const MethodInfo* getInfo() { return ::il2cpp_utils::MethodTypeCheck<funcType>::find_unsafe(namespaze, klassName, mName); } \
@@ -1439,12 +1439,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that would be installed in a particular address, but ensures the signature matches the provided method pointer.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_CHECKED_ADDR(name_, mPtr, addr_, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_CHECKED_ADDR(name_, mPtr, addr_, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1455,11 +1455,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that would be installed in a particular address, but ensures the signature matches the provided method pointer.
-#define MAKE_HOOK_DLOPEN_ORIG_CHECKED_ADDR_NO_CATCH(name_, mPtr, addr_, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_CHECKED_ADDR_NO_CATCH(name_, mPtr, addr_, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1470,12 +1470,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_CHECKED_FIND(name_, mPtr, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_CHECKED_FIND(name_, mPtr, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1486,11 +1486,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
-#define MAKE_HOOK_DLOPEN_ORIG_CHECKED_FIND_NO_CATCH(name_, mPtr, klass, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_CHECKED_FIND_NO_CATCH(name_, mPtr, klass, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1501,12 +1501,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from namespace, name, and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_CHECKED_FIND_CLASS(name_, mPtr, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_CHECKED_FIND_CLASS(name_, mPtr, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1517,11 +1517,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from namespace, name, and method name.
-#define MAKE_HOOK_DLOPEN_ORIG_CHECKED_FIND_CLASS_NO_CATCH(name_, mPtr, namespaze, klassName, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_CHECKED_FIND_CLASS_NO_CATCH(name_, mPtr, namespaze, klassName, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(std::is_same_v<funcType, ::Hooking::InternalMethodCheck<decltype(mPtr)>::funcType>, "Hook method signature does not match!"); \
@@ -1532,12 +1532,12 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_CHECKED_INSTANCE_FIND(name_, mPtr, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_CHECKED_INSTANCE_FIND(name_, mPtr, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     using classType = ::Hooking::InternalClassGetter<decltype(mPtr)>::instanceType; \
@@ -1550,11 +1550,11 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that ensures the signature matches the provided method pointer and finds a matching method from a class and method name.
-#define MAKE_HOOK_DLOPEN_ORIG_CHECKED_INSTANCE_FIND_NO_CATCH(name_, mPtr, mName, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_CHECKED_INSTANCE_FIND_NO_CATCH(name_, mPtr, mName, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     using classType = ::Hooking::InternalClassGetter<decltype(mPtr)>::instanceType; \
@@ -1567,13 +1567,13 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that uses the provided method pointer in a match an ensures the signature matches.
 // This should be your go-to hook macro when hooking anything that has a codegen equivalent.
 // Also includes a catch handler.
-#define MAKE_HOOK_DLOPEN_ORIG_MATCH(name_, mPtr, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_MATCH(name_, mPtr, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(MATCH_HOOKABLE_ASSERT(mPtr)); \
@@ -1585,12 +1585,12 @@ struct Hook_##name_ { \
     static funcType hook() { return &::Hooking::HookCatchWrapper<&hook_##name_, funcType>::wrapper; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
 // Make a hook that uses the provided method pointer in a match an ensures the signature matches.
 // This should be your go-to hook macro when hooking anything that has a codegen equivalent.
-#define MAKE_HOOK_DLOPEN_ORIG_MATCH_NO_CATCH(name_, mPtr, retval, ...) \
+#define MAKE_DLOPEN_ORIG_HOOK_MATCH_NO_CATCH(name_, mPtr, retval, ...) \
 struct Hook_##name_ { \
     using funcType = retval (*)(__VA_ARGS__); \
     static_assert(MATCH_HOOKABLE_ASSERT(mPtr)); \
@@ -1602,5 +1602,5 @@ struct Hook_##name_ { \
     static funcType hook() { return hook_##name_; } \
     static retval hook_##name_(__VA_ARGS__); \
 }; \
-INSTALL_HOOK_ORIG_ON_DLOPEN(name_); \
+INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_); \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
