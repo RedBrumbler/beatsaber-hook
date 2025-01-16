@@ -3,6 +3,8 @@ param (
     [Switch] $clean
 )
 
+& ./make-convenience-hooks.ps1
+
 function Clean-Build-Folder {
     if (Test-Path -Path "build")
     {

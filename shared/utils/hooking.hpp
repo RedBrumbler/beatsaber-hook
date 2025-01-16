@@ -8,8 +8,107 @@
 #include "typedefs.h"
 #include "logging.hpp"
 #include "il2cpp-utils.hpp"
+#include "convenience-hooks.hpp"
 
 namespace Hooking {
+
+/**
+ * @brief The DeferredHooks class manages the registration and installation of hook functions.
+ *
+ * This class provides a mechanism to register hook installation functions that can be called later
+ * to install hooks. It maintains a list of installation functions and provides methods to add to
+ * this list and to call all registered functions at a later time.
+ */
+class DeferredHooks {
+private:
+    inline static std::vector<void (*)()>& getInstallFuncs() {
+        static std::vector<void (*)()> installFuncs;
+        return installFuncs;
+    }
+
+public:
+    /// @brief Adds an installation function to the list of functions to be called during InstallHooks.
+    /// @param installFunc The function to be added.
+    inline static void AddInstallFunc(void (*installFunc)()) {
+        getInstallFuncs().push_back(installFunc);
+    }
+
+    /// @brief Calls all installation functions added via AddInstallFunc and then clears the list.
+    inline static void InstallHooks() {
+        for (auto& func : getInstallFuncs()) {
+            func();
+        }
+
+        // Why would we need to keep these around?
+        getInstallFuncs().clear();
+    }
+};
+
+/// @brief Macro to automatically register a deferred hook installation function.
+/// @param name_ The name of the hook to be installed.
+#define MAKE_DEFERRED_HOOK_INSTALL_WITH_AUTOLOGGER(name_) \
+    __attribute((constructor)) void Hook_##name_##_Auto_Register() { \
+        ::Hooking::DeferredHooks::AddInstallFunc([]() { \
+            static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID); \
+            INSTALL_HOOK(logger, name_); \
+        }); \
+    }
+
+/// @brief Macro to automatically register a deferred hook installation function for original hooks.
+/// @param name_ The name of the hook to be installed.
+#define MAKE_DEFERRED_ORIG_HOOK_INSTALL_WITH_AUTOLOGGER(name_) \
+    __attribute((constructor)) void Hook_##name_##_Auto_Orig_Register() { \
+        ::Hooking::DeferredHooks::AddInstallFunc([]() { \
+            static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID); \
+            INSTALL_HOOK_ORIG(logger, name_); \
+        }); \
+    }
+
+/// @brief Macro to automatically register a deferred direct hook installation function.
+/// @param name_ The name of the hook to be installed.
+/// @param addr_ The address that should be hooked.
+#define MAKE_DEFERRED_DIRECT_HOOK_INSTALL_WITH_AUTOLOGGER(name_, addr_) \
+    __attribute((constructor)) void Hook_##name_##_Auto_Register() { \
+        ::Hooking::DeferredHooks::AddInstallFunc([]() { \
+            static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID); \
+            INSTALL_HOOK_DIRECT(logger, name_, addr_); \
+        }); \
+    }
+
+/// @brief Macro to automatically register a deferred hook installation function with specified logger.
+/// @param logger_ The logger to be used during install.
+/// @param name_ The name of the hook to be installed.
+#define MAKE_DEFERRED_HOOK_INSTALL(logger_, name_) \
+    __attribute((constructor)) void Hook_##name_##_Auto_Register() { \
+        ::Hooking::DeferredHooks::AddInstallFunc([]() { \
+            INSTALL_HOOK(logger_, name_); \
+        }); \
+    }
+
+/// @brief Macro to automatically register a deferred hook installation function for original hooks with specified logger.
+/// @param logger_ The logger to be used during install.
+/// @param name_ The name of the hook to be installed.
+#define MAKE_DEFERRED_ORIG_HOOK_INSTALL(logger_, name_) \
+    __attribute((constructor)) void Hook_##name_##_Auto_Orig_Register() { \
+        ::Hooking::DeferredHooks::AddInstallFunc([]() { \
+            INSTALL_HOOK_ORIG(logger_, name_); \
+        }); \
+    }
+
+/// @brief Macro to automatically register a deferred direct hook installation function with specified logger.
+/// @param logger_ The logger to be used during install.
+/// @param name_ The name of the hook to be installed.
+/// @param addr_ The address that should be hooked.
+#define MAKE_DEFERRED_DIRECT_HOOK_INSTALL(logger_, name_, addr_) \
+    __attribute((constructor)) void Hook_##name_##_Auto_Register() { \
+        ::Hooking::DeferredHooks::AddInstallFunc([]() { \
+            INSTALL_HOOK_DIRECT(logger_, name_, addr_); \
+        }); \
+    }
+
+/// @brief Macro to install all registered automatic hooks.
+#define INSTALL_DEFERRED_HOOKS() ::Hooking::DeferredHooks::InstallHooks();
+
 // For use in MAKE_HOOK_AUTO bodies.
 // Currently unused.
 template<std::size_t N, typename... TArgs>
@@ -565,11 +664,6 @@ struct Hook_##name_ { \
 }; \
 retval Hook_##name_::hook_##name_(__VA_ARGS__)
 
-// TODO: IMPLEMENT AUTO HOOKS!
-#define MAKE_HOOK_AUTO(...) void
-
-#define MAKE_HOOK_INSTANCE_AUTO(...) void
-
 // Make a hook that writes the signature based off of the provided static method.
 // To access parameters, see the PARAM(i) macro.
 // #define MAKE_HOOK_STATIC_AUTO(name, ...) \
@@ -693,6 +787,39 @@ void InstallHookDirect(L& logger, void* dst) {
 // This is only valid if the name is from a MAKE_HOOK macro that does not use a fixed offset.
 // This also ensures HookTracker validity after the hooking process.
 #define INSTALL_HOOK_ORIG(logger, name) ::Hooking::InstallOrigHook<Hook_##name>(logger);
+
+#define INSTALL_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Install() { \
+        static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID); \
+        INSTALL_HOOK(logger, name_); \
+    }
+
+#define INSTALL_DIRECT_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_, addr_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Direct_Install() { \
+        static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID); \
+        INSTALL_HOOK_DIRECT(logger, name_, addr_); \
+    }
+
+#define INSTALL_ORIG_HOOK_ON_DLOPEN_WITH_AUTOLOGGER(name_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Orig_Install() { \
+        static constexpr auto logger = Paper::ConstLoggerContext(MOD_ID); \
+        INSTALL_HOOK_ORIG(logger, name_); \
+    }
+
+#define INSTALL_HOOK_ON_DLOPEN(logger, name_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Install() { \
+        INSTALL_HOOK(logger, name_); \
+    }
+
+#define INSTALL_DIRECT_HOOK_ON_DLOPEN(logger, name_, addr_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Direct_Install() { \
+        INSTALL_HOOK_DIRECT(logger, name_, addr_); \
+    }
+
+#define INSTALL_ORIG_HOOK_ON_DLOPEN(logger, name_) \
+    __attribute((constructor)) void Hook_##name_##_Dlopen_Orig_Install() { \
+        INSTALL_HOOK_ORIG(logger, name_); \
+    }
 
 // TODO: Not yet implemented
 #define UNINSTALL_HOOK(logger, name) void
